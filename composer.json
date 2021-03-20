@@ -1,0 +1,22 @@
+{
+    "name": "spod/module-sync",
+    "description": "SPOD Magento 2 Sync",
+    "type": "magento2-module",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Jan Brinkmann",
+            "email": "jan@jbcommerce.de"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Spod\\Sync\\": ""
+        }
+    }
+}
