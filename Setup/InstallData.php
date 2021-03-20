@@ -86,8 +86,8 @@ class InstallData implements InstallDataInterface
      */
     private function createSpodAttributes(): void
     {
-        $this->createNewAttribute('Appearance', 'spod_appearance');
-        $this->createNewAttribute('Size', 'spod_size');
+        $this->createConfigurableAttribute('Appearance', 'spod_appearance');
+        $this->createConfigurableAttribute('Size', 'spod_size');
     }
 
     /**
@@ -95,7 +95,7 @@ class InstallData implements InstallDataInterface
      *
      * @param $eavSetup
      */
-    private function createNewAttribute($label, $code): void
+    private function createConfigurableAttribute($label, $code): void
     {
         $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);
 
