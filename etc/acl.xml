@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::dashboard">
+                    <resource id="Spod_Sync::general" title="Spod Sync" sortOrder="100">
+                        <resource id="Spod_Sync::dashboard" title="Spod Sync" />
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

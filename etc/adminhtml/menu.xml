@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Spod_Sync::dashboard" title="SPOD" translate="title" module="Spod_Sync" sortOrder="20" dependsOnModule="Spod_Sync" action="spodsync/index/index" resource="Spod_Sync::dashboard" parent="Magento_Catalog::inventory"/>
+    </menu>
+</config>
