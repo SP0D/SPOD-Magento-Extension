@@ -8,20 +8,27 @@ use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Catalog\Model\ProductRepository;
+use Magento\ConfigurableProduct\Helper\Product\Options\Factory;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+
+use Magento\Framework\Exception\NoSuchEntityException;
+
 use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Helper\OptionHelper;
 
 class ProductGenerator
 {
     /** @var AttributeHelper */
-    private $attributeSetHelper;
+    private $attributeHelper;
 
     /** @var ImageHandler  */
     private $imageHandler;
 
     /** @var OptionHelper */
     private $optionHelper;
+
+    /** @var Factory */
+    private $optionsFactory;
 
     /** @var ProductFactory */
     private $productFactory;
@@ -31,93 +38,107 @@ class ProductGenerator
 
     public function __construct(
         AttributeHelper $attributeSetHelper,
+        Factory $factory,
         ImageHandler $imageHandler,
         OptionHelper $optionHelper,
         ProductFactory $productFactory,
         ProductRepository $productRepository
     ) {
-        $this->attributeSetHelper = $attributeSetHelper;
+        $this->attributeHelper = $attributeSetHelper;
+        $this->optionsFactory = $factory;
         $this->imageHandler = $imageHandler;
         $this->optionHelper = $optionHelper;
         $this->productFactory = $productFactory;
         $this->productRepository = $productRepository;
     }
 
+    /**
+     * Create all fetched products, one product incl.
+     * it's variants at a time.
+     *
+     * @param $apiData
+     */
     public function createAllProducts($apiData)
     {
     }
 
-    public function createProduct($apiData)
-    {
-        $variants = $this->createVariants($apiData);
-        $this->createConfigurableProduct($apiData, $variants);
-    }
-
     /**
+     * Create one product incl. it's variants
+     *
      * @param $apiData
-     * @param array $variantIds
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      * @throws \Magento\Framework\Exception\InputException
      * @throws \Magento\Framework\Exception\StateException
      */
-    private function createConfigurableProduct($apiData, array $variants): void
+    public function createProduct($apiData)
     {
         $configurableProduct = $this->prepareConfigurableProduct($apiData);
+        $this->productRepository->save($configurableProduct);
+
+        $variants = $this->createVariants($apiData);
+
+        $configurableProduct = $this->productRepository->get($configurableProduct->getSku());
         $configurableProduct = $this->assignVariants($configurableProduct, $variants);
+        $configurableProduct = $this->setStockInfo($configurableProduct);
+
         $this->productRepository->save($configurableProduct);
     }
 
+    /**
+     * @param $apiData
+     * @return \Magento\Catalog\Api\Data\ProductInterface|Product|null
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     private function prepareConfigurableProduct($apiData)
     {
-        $sku = sprintf('SPOD-%s', $apiData->id);
+        $sku = sprintf('sp%s', $apiData->id);
         $product = $this->getOrCreateSimple($sku);
         $product->setName($apiData->title);
+        $product->setTypeId(Configurable::TYPE_CODE);
         $product->setDescription($apiData->description);
         $product->setVisibility(ProductVisibility::VISIBILITY_BOTH);
-        $product->setTypeId(Configurable::TYPE_CODE);
 
-        $attrSetId = $this->attributeSetHelper->getAttrSetId('SPOD');
+        $attrSetId = $this->attributeHelper->getAttrSetId('SPOD');
         $product->setAttributeSetId($attrSetId);
-        $product->setCanSaveConfigurableAttributes(true);
-        $this->setStockInfo($product);
 
         return $product;
     }
 
+    /**
+     * @param Product $confProduct
+     * @param array $variants
+     * @return Product
+     */
     private function assignVariants(Product $confProduct, array $variants)
     {
-        $appearanceAttr = $this->attributeSetHelper->getAttributeByCode('spod_appearance');
-        $sizeAttr = $this->attributeSetHelper->getAttributeByCode('spod_size');
+        $appearanceAttr = $this->attributeHelper->getAttributeByCode('spod_appearance');
+        $sizeAttr = $this->attributeHelper->getAttributeByCode('spod_size');
 
+        // prepare conf. attributes
         $confProduct->getTypeInstance()->setUsedProductAttributeIds([$appearanceAttr->getId(), $sizeAttr->getId()], $confProduct);
         $configurableAttributesData = $confProduct->getTypeInstance()->getConfigurableAttributesAsArray($confProduct);
-
-        $confProduct->setCanSaveConfigurableAttributes(true);
         $confProduct->setConfigurableAttributesData($configurableAttributesData);
 
-        $configurableProductsData = [];
+        // assign values
+        $configurableAttributesData[$sizeAttr->getId()]['values'] = $this->attributeHelper->getPreparedOptionValues($sizeAttr);
+        $configurableAttributesData[$appearanceAttr->getId()]['values'] = $this->attributeHelper->getPreparedOptionValues($appearanceAttr);
+        $confProduct->setAssociatedProductIds($this->getAssociatedProductIds($variants));
+        $confProduct->setCanSaveConfigurableAttributes(true);
 
-        foreach ($variants as $variant) {
-            $configurableProductsData[$variant->getId()] = [
-                0 => [
-                    'label' => $variant->getSpodSize(),
-                    'attribute_id' => $sizeAttr->getId(),
-                    'value_index' => $this->optionHelper->getDropdownOptionValueForLabel('spod_size', $variant->getSpodSize()),
-                ],
-                1 => [
-                    'label' => $variant->getSpodAppearance(),
-                    'attribute_id' => $appearanceAttr->getId(),
-                    'value_index' => $this->optionHelper->getDropdownOptionValueForLabel('spod_appearance', $variant->getSpodAppearance()),
-                ],
-            ];
-        }
-
-        $confProduct->setConfigurableProductsData($configurableProductsData);
-        $confProduct->setAssociatedProductIds(array_keys($configurableProductsData));
+        // set extension attributes
+        $configurableOptions = $this->optionsFactory->create($configurableAttributesData);
+        $extensionConfigurableAttributes = $confProduct->getExtensionAttributes();
+        $extensionConfigurableAttributes->setConfigurableProductOptions($configurableOptions);
+        $extensionConfigurableAttributes->setConfigurableProductLinks($this->getAssociatedProductIds($variants));
+        $confProduct->setExtensionAttributes($extensionConfigurableAttributes);
 
         return $confProduct;
     }
 
+    /**
+     * @param $apiData
+     * @return array
+     */
     private function createVariants($apiData)
     {
         $this->createOptionValues($apiData);
@@ -131,6 +152,9 @@ class ProductGenerator
         return $variants;
     }
 
+    /**
+     * @param $apiData
+     */
     private function createOptionValues($apiData)
     {
         $sizeValues = [];
@@ -163,7 +187,7 @@ class ProductGenerator
         try {
             $product = $this->productRepository->get($sku);
             return $product;
-        } catch (\Exception $e) {
+        } catch (NoSuchEntityException $e) {
             // product not found
             return $this->createNewProduct($sku);
         }
@@ -189,7 +213,7 @@ class ProductGenerator
         $product->setTypeId(ProductType::TYPE_SIMPLE);
         $product->setPrice($variantInfo->d2cPrice);
         $product->setTaxClassId(0);
-        $product->setAttributeSetId($this->attributeSetHelper->getAttrSetId('SPOD'));
+        $product->setAttributeSetId($this->attributeHelper->getAttrSetId('SPOD'));
     }
 
     /**
@@ -213,7 +237,7 @@ class ProductGenerator
      * @param Product $product
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function setStockInfo(Product $product): void
+    private function setStockInfo(Product $product): Product
     {
         $stockData = [
             'use_config_manage_stock' => 0,
@@ -222,5 +246,25 @@ class ProductGenerator
         ];
 
         $product->setStockData($stockData);
+
+        return $product;
+    }
+
+    /**
+     * @param array $variants
+     * @return array
+     */
+    private function getAssociatedProductIds(array $variants): array
+    {
+        $associatedProductIds = [];
+
+        foreach ($variants as $variant) {
+            $fullVariant = $this->productRepository->get($variant->getSku());
+            if (!in_array($fullVariant->getId(), $associatedProductIds)) {
+                $associatedProductIds[] = $fullVariant->getId();
+            }
+        }
+
+        return $associatedProductIds;
     }
 }
