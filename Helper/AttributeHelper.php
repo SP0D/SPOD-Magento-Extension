@@ -123,6 +123,45 @@ class AttributeHelper extends AbstractHelper
     }
 
     /**
+     * Add a specific eav attribute
+     *
+     * @param $eavSetup
+     */
+    public function createTextAttribute($label, $code): void
+    {
+        if (!$this->getSetup()) {
+            throw new \Exception("Setup was not set");
+        }
+
+        $options = [
+            'attribute_set_id' => 'SPOD',
+            'group' => 'SPOD',
+            'type' => 'varchar',
+            'label' => $label,
+            'visible' => true,
+            'required' => false,
+            'user_defined' => true,
+            'searchable' => false,
+            'filterable' => false,
+            'comparable' => false,
+            'visible_on_front' => false,
+            'visible_in_advanced_search' => false,
+            'is_html_allowed_on_front' => false,
+            'used_for_promo_rules' => false,
+            'frontend_class' => '',
+            'global' => ScopedAttributeInterface::SCOPE_STORE,
+            'unique' => false
+        ];
+
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);
+        $eavSetup->addAttribute(
+            Product::ENTITY,
+            $code,
+            $options
+        );
+    }
+
+    /**
      * @return ModuleDataSetupInterface
      */
     public function getSetup()

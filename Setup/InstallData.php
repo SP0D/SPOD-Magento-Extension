@@ -32,6 +32,10 @@ class InstallData implements InstallDataInterface
         $this->attributeHelper->createSpodAttributeSet();
         $this->attributeHelper->createConfigurableAttribute('Appearance', 'spod_appearance');
         $this->attributeHelper->createConfigurableAttribute('Size', 'spod_size');
+        $this->attributeHelper->createTextAttribute('Product ID', 'spod_product_id');
+        $this->attributeHelper->createTextAttribute('ProductType ID', 'spod_product_type_id');
+        $this->attributeHelper->createTextAttribute('Appearance ID', 'spod_appearance_id');
+        $this->attributeHelper->createTextAttribute ('Size ID', 'spod_size_id');
 
         $setup->endSetup();
     }
