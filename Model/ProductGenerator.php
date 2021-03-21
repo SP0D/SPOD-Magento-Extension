@@ -177,16 +177,5 @@ class ProductGenerator
 
         $product->setStockData($stockData);
         $this->productRepository->save($product);
-
-        /*
-         * TODO:
-        $sourceItem = $this->sourceItemFactory->create();
-        $sourceItem->setSku($product->getSku());
-        $sourceItem->setSourceCode('default');
-        $sourceItem->setStatus(1);
-        $sourceItem->setManageStock(0);
-        $sourceItem->setQuantity(1);
-        $this->sourceItemsSave->execute([$sourceItem]);
-        */
     }
 }
