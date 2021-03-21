@@ -74,7 +74,7 @@ class ProductGenerator
         $this->createOptionValues($apiData);
 
         foreach ($apiData->variants as $variantInfo) {
-            $this->createVariantProduct($variantInfo);
+            $this->createVariantProduct($variantInfo, $apiData->images);
         }
     }
 
@@ -92,22 +92,13 @@ class ProductGenerator
         $this->optionHelper->addOptionToAttribute('spod_appearance', $appearanceValues);
     }
 
-    private function createVariantProduct($variantInfo)
+    private function createVariantProduct($variantInfo, $images)
     {
         $product = $this->getOrCreateSimple($variantInfo->sku);
         $this->assignBaseValues($product, $variantInfo);
         $this->assignSpodValues($product, $variantInfo);
         $this->setStockInfo($product);
-        // TODO: - stock
-        /*        $product->setStockData(
-            [
-                'use_config_manage_stock' => 0,
-                'manage_stock' => 1,
-                'is_in_stock' => 1,
-                'qty' => 999999999
-            ]
-        );
-        */
+
 
         $this->productRepository->save($product);
     }
