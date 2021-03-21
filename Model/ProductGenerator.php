@@ -267,4 +267,5 @@ class ProductGenerator
 
         return $associatedProductIds;
     }
+
 }

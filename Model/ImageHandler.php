@@ -28,6 +28,24 @@ class ImageHandler
     }
 
     /**
+     * @param $configurableProduct
+     * @param $images
+     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\StateException
+     */
+    public function assignConfigurableImages($configurableProduct, $images)
+    {
+        $imagePaths = [];
+        foreach ($images as $image) {
+            $imageUrl = $image->imageUrl;
+            $imagePaths[] = $this->downloadImage($configurableProduct->getId(), $imageUrl);
+        }
+
+        $this->assignImages($configurableProduct, $imagePaths);
+    }
+
+    /**
      * @param $variantInfo
      * @param $images
      */
