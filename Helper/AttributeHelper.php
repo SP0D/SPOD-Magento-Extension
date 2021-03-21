@@ -4,8 +4,8 @@ namespace Spod\Sync\Helper;
 
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Setup\CategorySetupFactory;
-use Magento\Eav\Model\AttributeRepository;
 use Magento\Eav\Model\AttributeSetRepository;
+use Magento\Eav\Model\Config;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\Set\CollectionFactory;
@@ -20,6 +20,7 @@ class AttributeHelper extends AbstractHelper
     private $attributeSetFactory;
     private $attributeSetRepository;
     private $categorySetupFactory;
+    private $eavConfig;
     private $eavSetupFactory;
     private $setup;
 
@@ -28,17 +29,23 @@ class AttributeHelper extends AbstractHelper
         AttributeSetRepository $attributeSetRepository,
         CategorySetupFactory $categorySetupFactory,
         CollectionFactory $attributeSetCollection,
+        Config $eavConfig,
         EavSetupFactory $eavSetupFactory,
         Context $context
-    )
-    {
+    ) {
         $this->attributeSetCollection = $attributeSetCollection;
         $this->attributeSetFactory = $attributeSetFactory;
         $this->attributeSetRepository = $attributeSetRepository;
         $this->categorySetupFactory = $categorySetupFactory;
+        $this->eavConfig = $eavConfig;
         $this->eavSetupFactory = $eavSetupFactory;
 
         return parent::__construct($context);
+    }
+
+    public function getAttributeByCode($attrCode)
+    {
+        return $this->eavConfig->getAttribute('catalog_product', $attrCode);
     }
 
     public function getAttrSetId($attrSetName): int
@@ -100,13 +107,14 @@ class AttributeHelper extends AbstractHelper
             'type' => 'int',
             'label' => $label,
             'visible' => true,
-            'required' => true,
+            'required' => false,
             'user_defined' => true,
             'searchable' => true,
             'filterable' => true,
             'comparable' => false,
             'visible_on_front' => true,
             'visible_in_advanced_search' => true,
+            'is_used_in_grid' => true,
             'is_html_allowed_on_front' => false,
             'used_for_promo_rules' => true,
             'frontend_class' => '',
@@ -146,6 +154,7 @@ class AttributeHelper extends AbstractHelper
             'comparable' => false,
             'visible_on_front' => false,
             'visible_in_advanced_search' => false,
+            'is_used_in_grid' => true,
             'is_html_allowed_on_front' => false,
             'used_for_promo_rules' => false,
             'frontend_class' => '',
