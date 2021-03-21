@@ -8,8 +8,6 @@ use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Catalog\Model\ProductRepository;
-use Magento\InventoryApi\Api\Data\SourceItemInterfaceFactory;
-use Magento\InventoryApi\Api\SourceItemsSaveInterface;
 use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Helper\OptionHelper;
 
@@ -18,35 +16,31 @@ class ProductGenerator
     /** @var AttributeHelper */
     private $attributeSetHelper;
 
+    /** @var ImageHandler  */
+    private $imageHandler;
+
     /** @var OptionHelper */
     private $optionHelper;
 
     /** @var ProductFactory */
     private $productFactory;
 
-    /** @var ProductRepository  */
+    /** @var ProductRepository */
     private $productRepository;
-
-    /** @var SourceItemInterfaceFactory  */
-    private $sourceItemFactory;
-
-    /** @var SourceItemsSaveInterface  */
-    private $sourceItemsSave;
 
     public function __construct(
         AttributeHelper $attributeSetHelper,
+        ImageHandler $imageHandler,
         OptionHelper $optionHelper,
         ProductFactory $productFactory,
-        ProductRepository $productRepository,
-        SourceItemInterfaceFactory $sourceItemFactory,
-        SourceItemsSaveInterface $sourceItemsSave
-    ) {
+        ProductRepository $productRepository
+    )
+    {
         $this->attributeSetHelper = $attributeSetHelper;
+        $this->imageHandler = $imageHandler;
         $this->optionHelper = $optionHelper;
         $this->productFactory = $productFactory;
         $this->productRepository = $productRepository;
-        $this->sourceItemFactory = $sourceItemFactory;
-        $this->sourceItemsSave = $sourceItemsSave;
     }
 
     public function createAllProducts($apiData)
@@ -98,9 +92,9 @@ class ProductGenerator
         $this->assignBaseValues($product, $variantInfo);
         $this->assignSpodValues($product, $variantInfo);
         $this->setStockInfo($product);
-
-
         $this->productRepository->save($product);
+
+        $this->imageHandler->downloadAndAssignImages($variantInfo, $images);
     }
 
     protected function getOrCreateSimple($sku)
