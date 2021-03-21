@@ -185,4 +185,27 @@ class AttributeHelper extends AbstractHelper
     {
         $this->setup = $setup;
     }
+
+    /**
+     * @param \Magento\Eav\Model\Entity\Attribute\AbstractAttribute|null $sizeAttr
+     * @return array
+     */
+    public function getPreparedOptionValues(?\Magento\Eav\Model\Entity\Attribute\AbstractAttribute $attr): array
+    {
+        $attrValues = [];
+        $options = $attr->getOptions();
+        foreach ($options as $option) {
+            if ($option->getLabel() == '' || $option->getValue() == '') {
+                continue;
+            }
+
+            $attrValues[] = [
+                'label' => $option->getLabel(),
+                'attribute_id' => $attr->getId(),
+                'value_index' => $option->getValue(),
+            ];
+        }
+
+        return $attrValues;
+    }
 }
