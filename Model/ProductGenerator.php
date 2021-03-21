@@ -81,6 +81,7 @@ class ProductGenerator
         $configurableProduct = $this->assignVariants($configurableProduct, $variants);
         $configurableProduct = $this->setStockInfo($configurableProduct);
 
+        $this->imageHandler->assignConfigurableImages($configurableProduct, $apiData->images);
         $this->productRepository->save($configurableProduct);
     }
 
