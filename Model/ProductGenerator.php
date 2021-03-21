@@ -8,6 +8,8 @@ use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
 
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Catalog\Model\ProductRepository;
+use Magento\InventoryApi\Api\Data\SourceItemInterfaceFactory;
+use Magento\InventoryApi\Api\SourceItemsSaveInterface;
 use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Helper\OptionHelper;
 
@@ -25,16 +27,26 @@ class ProductGenerator
     /** @var ProductRepository  */
     private $productRepository;
 
+    /** @var SourceItemInterfaceFactory  */
+    private $sourceItemFactory;
+
+    /** @var SourceItemsSaveInterface  */
+    private $sourceItemsSave;
+
     public function __construct(
         AttributeHelper $attributeSetHelper,
         OptionHelper $optionHelper,
         ProductFactory $productFactory,
-        ProductRepository $productRepository
+        ProductRepository $productRepository,
+        SourceItemInterfaceFactory $sourceItemFactory,
+        SourceItemsSaveInterface $sourceItemsSave
     ) {
         $this->attributeSetHelper = $attributeSetHelper;
         $this->optionHelper = $optionHelper;
         $this->productFactory = $productFactory;
         $this->productRepository = $productRepository;
+        $this->sourceItemFactory = $sourceItemFactory;
+        $this->sourceItemsSave = $sourceItemsSave;
     }
 
     public function createAllProducts($apiData)
@@ -85,7 +97,7 @@ class ProductGenerator
         $product = $this->getOrCreateSimple($variantInfo->sku);
         $this->assignBaseValues($product, $variantInfo);
         $this->assignSpodValues($product, $variantInfo);
-
+        $this->setStockInfo($product);
         // TODO: - stock
         /*        $product->setStockData(
             [
@@ -102,10 +114,11 @@ class ProductGenerator
 
     protected function getOrCreateSimple($sku)
     {
-        $product = $this->productRepository->get($sku);
-        if ($product->getId()) {
+        try {
+            $product = $this->productRepository->get($sku);
             return $product;
-        } else {
+        } catch (\Exception $e) {
+            // product not found
             return $this->createNewProduct($sku);
         }
     }
@@ -131,9 +144,6 @@ class ProductGenerator
         $product->setPrice($variantInfo->d2cPrice);
         $product->setTaxClassId(0);
         $product->setAttributeSetId($this->attributeSetHelper->getAttrSetId('SPOD'));
-
-        // TODO:
-        // - steuerklasse kontrollieren
     }
 
     /**
@@ -142,7 +152,41 @@ class ProductGenerator
      */
     private function assignSpodValues(Product $product, $variantInfo): void
     {
+        // configurable
         $product->setSpodSize($this->optionHelper->getDropdownOptionValueForLabel('spod_size', $variantInfo->sizeName));
         $product->setSpodAppearance($this->optionHelper->getDropdownOptionValueForLabel('spod_appearance', $variantInfo->appearanceName));
+
+        // text values
+        $product->setData('spod_product_id', sprintf("%s", $variantInfo->productId));
+        $product->setData('spod_product_type_id', sprintf("%s", $variantInfo->productTypeId));
+        $product->setData('spod_appearance_id', sprintf("%s", $variantInfo->appearanceId));
+        $product->setData('spod_size_id', sprintf("%s", $variantInfo->sizeId));
+    }
+
+    /**
+     * @param Product $product
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function setStockInfo(Product $product): void
+    {
+        $stockData = [
+            'use_config_manage_stock' => 0,
+            'manage_stock' => 0,
+            'is_in_stock' => 1,
+        ];
+
+        $product->setStockData($stockData);
+        $this->productRepository->save($product);
+
+        /*
+         * TODO:
+        $sourceItem = $this->sourceItemFactory->create();
+        $sourceItem->setSku($product->getSku());
+        $sourceItem->setSourceCode('default');
+        $sourceItem->setStatus(1);
+        $sourceItem->setManageStock(0);
+        $sourceItem->setQuantity(1);
+        $this->sourceItemsSave->execute([$sourceItem]);
+        */
     }
 }
