@@ -1,6 +1,8 @@
 <?php
 namespace Spod\Sync\Console;
 
+use Magento\Framework\App\Area;
+use Magento\Framework\App\State;
 use Spod\Sync\Model\ApiReader\ArticleHandler;
 use Spod\Sync\Model\ProductGenerator;
 use Symfony\Component\Console\Command\Command;
@@ -14,14 +16,19 @@ class Productsync extends Command
     private $productGenerator;
     /** @var ArticleHandler */
     private $articleHandler;
+    /** @var State  */
+    private $state;
 
     public function __construct(
         ArticleHandler $articleHandler,
         ProductGenerator $productGenerator,
+        State $state,
         string $name = null
     ) {
         $this->articleHandler = $articleHandler;
         $this->productGenerator = $productGenerator;
+        $this->state = $state;
+
         parent::__construct($name);
     }
 
@@ -42,6 +49,8 @@ class Productsync extends Command
     }
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->state->setAreaCode(Area::AREA_ADMINHTML);
+
         if ($id = $input->getOption('article-id')) {
             $product = $this->articleHandler->getArticleById($id);
             $this->productGenerator->createProduct($product);
