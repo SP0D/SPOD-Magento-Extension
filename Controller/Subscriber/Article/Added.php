@@ -1,10 +1,12 @@
 <?php
 namespace Spod\Sync\Controller\Subscriber\Article;
 
+use Magento\Framework\App\Action\Context;
+
 class Added extends \Magento\Framework\App\Action\Action
 {
     public function __construct(
-        \Magento\Framework\App\Action\Context $context)
+        Context $context)
     {
         return parent::__construct($context);
     }
