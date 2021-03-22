@@ -56,22 +56,25 @@ class ProductGenerator
      * Create all fetched products, one product incl.
      * it's variants at a time.
      *
-     * @param $apiData
+     * @param ApiResult $apiResult
      */
-    public function createAllProducts($apiData)
+    public function createAllProducts(ApiResult $apiResult)
     {
     }
 
     /**
      * Create one product incl. it's variants
      *
-     * @param $apiData
+     * @param ApiResult $apiResult
+     * @throws NoSuchEntityException
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      * @throws \Magento\Framework\Exception\InputException
      * @throws \Magento\Framework\Exception\StateException
      */
-    public function createProduct($apiData)
+    public function createProduct(ApiResult $apiResult)
     {
+        $apiData = $apiResult->getPayload();
+
         $configurableProduct = $this->prepareConfigurableProduct($apiData);
         $this->productRepository->save($configurableProduct);
 
