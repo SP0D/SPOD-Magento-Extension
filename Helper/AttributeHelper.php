@@ -8,6 +8,7 @@ use Magento\Eav\Model\AttributeSetRepository;
 use Magento\Eav\Model\Config;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
+use Magento\Eav\Model\Entity\Attribute\Source\Boolean;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\Set\CollectionFactory;
 use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\App\Helper\AbstractHelper;
@@ -160,6 +161,49 @@ class AttributeHelper extends AbstractHelper
             'frontend_class' => '',
             'global' => ScopedAttributeInterface::SCOPE_STORE,
             'unique' => false
+        ];
+
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);
+        $eavSetup->addAttribute(
+            Product::ENTITY,
+            $code,
+            $options
+        );
+    }
+
+    /**
+     * @param $label
+     * @param $code
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Zend_Validate_Exception
+     */
+    public function createYesNoAttribute($label, $code): void
+    {
+        if (!$this->getSetup()) {
+            throw new \Exception("Setup was not set");
+        }
+
+        $options = [
+            'group' => 'SPOD',
+            'type' => 'int',
+            'backend' => '',
+            'frontend' => '',
+            'label' => $label,
+            'input' => 'boolean',
+            'class' => '',
+            'source' => Boolean::class,
+            'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
+            'visible' => true,
+            'required' => false,
+            'user_defined' => false,
+            'default' => '1',
+            'searchable' => false,
+            'filterable' => false,
+            'comparable' => false,
+            'visible_on_front' => false,
+            'used_in_product_listing' => false,
+            'unique' => false,
+            'apply_to' => 'simple,configurable,virtual,bundle,downloadable'
         ];
 
         $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);

@@ -98,6 +98,7 @@ class ProductGenerator
         $product->setTypeId(Configurable::TYPE_CODE);
         $product->setDescription($apiData->description);
         $product->setVisibility(ProductVisibility::VISIBILITY_BOTH);
+        $product->setSpodProduct(true);
 
         $attrSetId = $this->attributeHelper->getAttrSetId('SPOD');
         $product->setAttributeSetId($attrSetId);
@@ -232,6 +233,7 @@ class ProductGenerator
         $product->setData('spod_product_type_id', sprintf("%s", $variantInfo->productTypeId));
         $product->setData('spod_appearance_id', sprintf("%s", $variantInfo->appearanceId));
         $product->setData('spod_size_id', sprintf("%s", $variantInfo->sizeId));
+        $product->setData('spod_product', true);
     }
 
     /**
