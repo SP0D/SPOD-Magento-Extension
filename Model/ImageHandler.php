@@ -92,7 +92,7 @@ class ImageHandler
 
         foreach ($imageUrls as $imageId => $imagePath) {
             try {
-                $product->addImageToMediaGallery($imagePath, ['image', 'small_image', 'thumbnail'], false, false);
+                $product->addImageToMediaGallery($imagePath, ['image', 'small_image', 'thumbnail'], true, false);
             } catch (\Exception $e) {
                 // TODO: log
             }
