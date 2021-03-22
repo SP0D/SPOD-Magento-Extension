@@ -4,9 +4,11 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="spod:sync" xsi:type="object">Spod\Sync\Console\Productsync</item>
+                <item name="spod:webhook" xsi:type="object">Spod\Sync\Console\Webhooks</item>
             </argument>
         </arguments>
     </type>
 
     <preference for="Spod\Sync\Api\ResultDecoder" type="Spod\Sync\Model\Decoder\JsonDecoder" />
+    <preference for="Spod\Sync\Api\PayloadEncoder" type="Spod\Sync\Model\Encoder\JsonEncoder" />
 </config>
