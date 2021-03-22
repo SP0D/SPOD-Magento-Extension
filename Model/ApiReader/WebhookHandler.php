@@ -54,7 +54,7 @@ class WebhookHandler extends AbstractHandler
 
         $result = $this->postRequest(self::ACTION_BASE_URL, $params);
         if ($result->getHttpCode() !== 201) {
-            throw new \Exception("failed to register subscriber: %s / %s", $eventType, $params['url']);
+            throw new \Exception(sprintf("failed to register subscriber: %s / %s", $eventType, $params['url']));
         }
     }
 
@@ -79,7 +79,7 @@ class WebhookHandler extends AbstractHandler
         $result = $this->sendDeleteRequest($action);
 
         if ($result->getHttpCode() !== 200) {
-            throw new \Exception("Failed to delete webhook subscriber #%s", $hook->id);
+            throw new \Exception(sprintf("Failed to delete webhook subscriber #%s", $hook->id));
         }
     }
 

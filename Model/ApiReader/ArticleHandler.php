@@ -21,7 +21,7 @@ class ArticleHandler extends AbstractHandler
         $result = $this->getParsedApiResult($url);
 
         if ($result->getHttpCode() !== 200) {
-            throw new \Exception("articleId not found: %s", $articleId);
+            throw new \Exception(sprintf("articleId not found: %s", $articleId));
         }
 
         return $result;
