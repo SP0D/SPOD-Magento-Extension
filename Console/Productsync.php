@@ -52,11 +52,11 @@ class Productsync extends Command
         $this->state->setAreaCode(Area::AREA_ADMINHTML);
 
         if ($id = $input->getOption('article-id')) {
-            $product = $this->articleHandler->getArticleById($id);
-            $this->productGenerator->createProduct($product);
+            $apiResult = $this->articleHandler->getArticleById($id);
+            $this->productGenerator->createProduct($apiResult);
         } else {
-            $products = $this->articleHandler->getAllArticles();
-            $this->productGenerator->createAllProducts($products);
+            $apiResult = $this->articleHandler->getAllArticles();
+            $this->productGenerator->createAllProducts($apiResult);
         }
     }
 }
