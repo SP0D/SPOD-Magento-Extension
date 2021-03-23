@@ -15,6 +15,7 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\NoSuchEntityException;
 
+use Magento\Store\Api\StoreManagementInterface;
 use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Helper\OptionHelper;
@@ -99,6 +100,28 @@ class ProductManager
 
         $this->imageHandler->assignConfigurableImages($configurableProduct, $apiData->images);
         $this->productRepository->save($configurableProduct);
+    }
+
+    public function updateProduct(ApiResult $apiResult)
+    {
+        $apiData = $this->decoder->parsePayload($apiResult->getPayload());
+
+        $configurable = $this->getProductBySpodId($apiData->id);
+        $configurable->setName($apiData->title);
+        $this->productRepository->save($configurable);
+
+        // unassign and remove current variants
+        $variantProducts = $this->getVariantProducts($configurable);
+        $configurable->setAssociatedProductIds([]);
+        $this->deleteVariantsOfConfigurable($variantProducts);
+
+        // recreate variants
+        $variants = $this->createVariants($apiData);
+        $this->assignVariants($configurable, $variants);
+        $this->imageHandler->assignConfigurableImages($configurable, $apiData->images);
+
+        // remember, remember
+        $this->productRepository->save($configurable);
     }
 
     /**
