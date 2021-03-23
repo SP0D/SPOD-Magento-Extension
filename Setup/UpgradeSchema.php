@@ -14,7 +14,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         if (version_compare($context->getVersion(), '1.0.2') < 0) {
             $this->createWebhookQueue($setup);
-            //$this->createOrderQueue($setup);
+        }
+        if (version_compare($context->getVersion(), '1.0.3') < 0) {
+            $this->createOrderQueue($setup);
         }
 
         $setup->endSetup();
@@ -47,7 +49,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                     255,
                     ['nullable => false'],
-                    'Post URL Key'
+                    'which event occured'
                 )
                 ->addColumn(
                     'status',
@@ -78,7 +80,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )
                 ->setComment('webhook queue');
             $setup->getConnection()->createTable($table);
-
         }
     }
 
@@ -88,9 +89,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
      */
     private function createOrderQueue(SchemaSetupInterface $setup): void
     {
-        if (!$setup->tableExists('spodsync_queue_order')) {
+        if (!$setup->tableExists('spodsync_queue_orders')) {
             $table = $setup->getConnection()->newTable(
-                $setup->getTable('spodsync_queue_order')
+                $setup->getTable('spodsync_queue_orders')
             )
                 ->addColumn(
                     'id',
@@ -105,46 +106,18 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'Queue ID'
                 )
                 ->addColumn(
-                    'name',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    255,
+                    'order_id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    11,
                     ['nullable => false'],
-                    'Post Name'
-                )
-                ->addColumn(
-                    'url_key',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    255,
-                    [],
-                    'Post URL Key'
-                )
-                ->addColumn(
-                    'post_content',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    '64k',
-                    [],
-                    'Post Post Content'
-                )
-                ->addColumn(
-                    'tags',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    255,
-                    [],
-                    'Post Tags'
+                    'order id'
                 )
                 ->addColumn(
                     'status',
                     \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                     1,
-                    [],
-                    'Post Status'
-                )
-                ->addColumn(
-                    'featured_image',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                    255,
-                    [],
-                    'Post Featured Image'
+                    ['nullable => false'],
+                    'Status'
                 )
                 ->addColumn(
                     'created_at',
@@ -153,15 +126,14 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
                     'Created At'
                 )->addColumn(
-                    'updated_at',
+                    'processed_at',
                     \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
                     null,
-                    ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT_UPDATE],
-                    'Updated At'
+                    ['nullable' => true],
+                    'Processed At'
                 )
-                ->setComment('Post Table');
+                ->setComment('webhook queue');
             $setup->getConnection()->createTable($table);
-
         }
     }
 }
