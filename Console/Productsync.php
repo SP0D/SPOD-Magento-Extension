@@ -4,7 +4,7 @@ namespace Spod\Sync\Console;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Spod\Sync\Model\ApiReader\ArticleHandler;
-use Spod\Sync\Model\ProductGenerator;
+use Spod\Sync\Model\ProductManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Productsync extends Command
 {
-    /** @var ProductGenerator */
+    /** @var ProductManager */
     private $productGenerator;
     /** @var ArticleHandler */
     private $articleHandler;
@@ -21,7 +21,7 @@ class Productsync extends Command
 
     public function __construct(
         ArticleHandler $articleHandler,
-        ProductGenerator $productGenerator,
+        ProductManager $productGenerator,
         State $state,
         string $name = null
     ) {
