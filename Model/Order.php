@@ -3,7 +3,7 @@ namespace Spod\Sync\Model;
 
 use Spod\Sync\Api\ResultDecoder;
 
-class Webhook extends \Magento\Framework\Model\AbstractModel implements \Magento\Framework\DataObject\IdentityInterface
+class Order extends \Magento\Framework\Model\AbstractModel implements \Magento\Framework\DataObject\IdentityInterface
 {
     const CACHE_TAG = 'spod_sync_order';
 
