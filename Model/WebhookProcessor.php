@@ -47,7 +47,7 @@ class WebhookProcessor
     protected function getPendingEventCollection(): ResourceModel\Webhook\Collection
     {
         $collection = $this->collectionFactory->create();
-        $collection->addFieldToFilter('status', ['eq' => WebhookStatus::WEBHOOK_STATUS_PENDING]);
+        $collection->addFieldToFilter('status', ['eq' => QueueStatus::STATUS_PENDING]);
 
         return $collection;
     }

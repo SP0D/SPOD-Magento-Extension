@@ -9,7 +9,7 @@ use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Model\WebhookFactory;
-use Spod\Sync\Model\WebhookStatus;
+use Spod\Sync\Model\QueueStatus;
 
 class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActionInterface
 {
@@ -35,7 +35,7 @@ class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActio
 
         $webhook = $this->webhookFactory->create();
         $webhook->setEventType($responseObject->eventType);
-        $webhook->setStatus(WebhookStatus::WEBHOOK_STATUS_PENDING);
+        $webhook->setStatus(QueueStatus::STATUS_PENDING);
         $webhook->setPayload($rawJson);
         $webhook->save($webhook);
 
