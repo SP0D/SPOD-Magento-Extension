@@ -3,6 +3,7 @@ namespace Spod\Sync\Subscriber\Article;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Registry;
+use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ProductManager;
 use Spod\Sync\Model\Webhook;
 use Spod\Sync\Model\WebhookEvent;
@@ -15,15 +16,20 @@ class Removed extends BaseSubscriber
     /** @var ProductManager  */
     private $productManager;
 
+    /** @var SpodLoggerInterface  */
+    private $logger;
+
     /** @var Registry  */
     private $registry;
 
     public function __construct(
         ProductManager $productManager,
-        Registry $registry
+        Registry $registry,
+        SpodLoggerInterface $logger
     ) {
         $this->productManager = $productManager;
         $this->registry = $registry;
+        $this->logger = $logger;
     }
 
     public function execute(Observer $observer)
@@ -35,8 +41,8 @@ class Removed extends BaseSubscriber
                 $this->removeProduct($webhookEvent);
                 $this->setEventProcessed($webhookEvent);
             } catch (\Exception $e) {
-                // TODO: log
                 $this->setEventFailed($webhookEvent);
+                $this->logger->logError($e->getMessage());
             }
         }
 

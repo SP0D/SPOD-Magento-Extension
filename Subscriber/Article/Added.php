@@ -4,6 +4,7 @@ namespace Spod\Sync\Subscriber\Article;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Event\Observer;
 use Spod\Sync\Api\PayloadEncoder;
+use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\ProductManager;
 use Spod\Sync\Model\WebhookEvent;
@@ -13,18 +14,25 @@ class Added extends BaseSubscriber
 {
     protected $event = WebhookEvent::EVENT_ARTICLE_ADDED;
 
+    /** @var ApiResultFactory  */
     private $apiResultFactory;
+    /** @var PayloadEncoder  */
     private $encoder;
+    /** @var ProductManager  */
     private $productManager;
+    /** @var SpodLoggerInterface  */
+    private $logger;
 
     public function __construct(
         ApiResultFactory $apiResultFactory,
         PayloadEncoder $encoder,
-        ProductManager $productManager)
+        ProductManager $productManager,
+        SpodLoggerInterface $logger)
     {
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
         $this->productManager = $productManager;
+        $this->logger = $logger;
     }
 
     public function execute(Observer $observer)
@@ -42,8 +50,8 @@ class Added extends BaseSubscriber
                 $this->productManager->createProduct($apiResult);
                 $this->setEventProcessed($webhookEvent);
             } catch (\Exception $e) {
-                // TODO: log
                 $this->setEventFailed($webhookEvent);
+                $this->logger->logError($e->getMessage());
             }
         }
 

@@ -5,6 +5,7 @@ namespace Spod\Sync\Model;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
+use Spod\Sync\Api\SpodLoggerInterface;
 
 class ImageHandler
 {
@@ -17,14 +18,19 @@ class ImageHandler
     /** @var ProductRepository */
     private $productRepository;
 
+    /** @var SpodLoggerInterface  */
+    private $logger;
+
     public function __construct(
         DirectoryList $directoryList,
         Filesystem $filesystem,
-        ProductRepository $productRepository
+        ProductRepository $productRepository,
+        SpodLoggerInterface $logger
     ) {
         $this->directoryList = $directoryList;
         $this->filesystem = $filesystem;
         $this->productRepository = $productRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -56,7 +62,7 @@ class ImageHandler
             $imagePaths = $this->getImagesForVariant($variantInfo, $images);
             $this->assignImages($product, $imagePaths);
         } catch (\Exception $e) {
-            // TODO: log
+            $this->logger->logError($e->getMessage());
         }
     }
 
@@ -94,7 +100,7 @@ class ImageHandler
             try {
                 $product->addImageToMediaGallery($imagePath, ['image', 'small_image', 'thumbnail'], true, false);
             } catch (\Exception $e) {
-                // TODO: log
+                $this->logger->logError($e->getMessage());
             }
 
             $this->productRepository->save($product);
