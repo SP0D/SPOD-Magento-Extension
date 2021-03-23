@@ -88,7 +88,7 @@ class WebhookHandler extends AbstractHandler
      */
     public function getWebhooks(): ApiResult
     {
-        $result = $this->getParsedApiResult(self::ACTION_BASE_URL);
+        $result = $this->fetchResult(self::ACTION_BASE_URL);
         if ($result->getHttpCode() !== 200) {
             throw new \Exception("failed to get subscribers");
         }

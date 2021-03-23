@@ -127,19 +127,4 @@ abstract class AbstractHandler
 
         return $result;
     }
-
-    /**
-     * Convenience method called to GET
-     * a response from a certain resource.
-     *
-     * @param $apiAction
-     * @return mixed
-     */
-    protected function getParsedApiResult($apiAction): ApiResult
-    {
-        $result = $this->fetchResult($apiAction);
-        $result->setPayload($this->decoder->parsePayload($result->getPayload()));
-
-        return $result;
-    }
 }

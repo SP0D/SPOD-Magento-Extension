@@ -3,4 +3,7 @@
     <event name="spodsync_webhook_event_article_removed">
         <observer name="observer_spodsync_webhook_article_removed" instance="Spod\Sync\Subscriber\Article\Removed" />
     </event>
+    <event name="spodsync_webhook_event_article_added">
+        <observer name="observer_spodsync_webhook_article_added" instance="Spod\Sync\Subscriber\Article\Added" />
+    </event>
 </config>

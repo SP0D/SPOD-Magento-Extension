@@ -10,7 +10,7 @@ class ArticleHandler extends AbstractHandler
 
     public function getAllArticles(): ApiResult
     {
-        $result = $this->getParsedApiResult(self::ACTION_BASE_URL);
+        $result = $this->fetchResult(self::ACTION_BASE_URL);
 
         return $result;
     }
@@ -18,7 +18,7 @@ class ArticleHandler extends AbstractHandler
     public function getArticleById(int $articleId): ApiResult
     {
         $url = sprintf('%s/%d', self::ACTION_BASE_URL, $articleId);
-        $result = $this->getParsedApiResult($url);
+        $result = $this->fetchResult($url);
 
         if ($result->getHttpCode() !== 200) {
             throw new \Exception(sprintf("articleId not found: %s", $articleId));

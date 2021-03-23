@@ -2,6 +2,8 @@
 
 namespace Spod\Sync\Model;
 
+use Spod\Sync\Api\ResultDecoder;
+
 class ApiResult
 {
     private $httpCode;
@@ -39,5 +41,8 @@ class ApiResult
         $this->payload = $payload;
     }
 
-
+    public function getDecodedPayload()
+    {
+        return $this->decoder->parsePayload($this->getPayload());
+    }
 }

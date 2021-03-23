@@ -10,6 +10,8 @@ use Spod\Sync\Subscriber\BaseSubscriber;
 
 class Removed extends BaseSubscriber
 {
+    protected $event = WebhookEvent::EVENT_ARTICLE_REMOVED;
+
     /** @var ProductManager  */
     private $productManager;
 
@@ -55,12 +57,5 @@ class Removed extends BaseSubscriber
         $this->productManager->deleteProductAndVariants($spodArticleId);
     }
 
-    private function isObserverResponsible($webhookEvent)
-    {
-        if ($webhookEvent->getEventType() == WebhookEvent::EVENT_ARTICLE_REMOVED) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+
 }

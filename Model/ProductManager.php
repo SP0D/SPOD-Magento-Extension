@@ -15,6 +15,7 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\NoSuchEntityException;
 
+use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Helper\OptionHelper;
 
@@ -22,6 +23,9 @@ class ProductManager
 {
     /** @var AttributeHelper */
     private $attributeHelper;
+
+    /** @var ResultDecoder  */
+    private $decoder;
 
     /** @var ImageHandler  */
     private $imageHandler;
@@ -48,9 +52,11 @@ class ProductManager
         OptionHelper $optionHelper,
         ProductFactory $productFactory,
         ProductRepository $productRepository,
+        ResultDecoder $decoder,
         SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
         $this->attributeHelper = $attributeSetHelper;
+        $this->decoder = $decoder;
         $this->optionsFactory = $factory;
         $this->imageHandler = $imageHandler;
         $this->optionHelper = $optionHelper;
@@ -80,7 +86,7 @@ class ProductManager
      */
     public function createProduct(ApiResult $apiResult)
     {
-        $apiData = $apiResult->getPayload();
+        $apiData = $this->decoder->parsePayload($apiResult->getPayload());
 
         $configurableProduct = $this->prepareConfigurableProduct($apiData);
         $this->productRepository->save($configurableProduct);
