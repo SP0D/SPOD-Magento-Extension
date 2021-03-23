@@ -7,7 +7,7 @@ use Magento\Sales\Model\Order;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\Order as QueueEntry;
 use Spod\Sync\Model\OrderFactory;
-use Spod\Sync\Model\QueueStatus;
+use Spod\Sync\Model\Mapping\QueueStatus;
 
 class OrderPlugin
 {

@@ -7,7 +7,7 @@ use Magento\Framework\Registry;
 use Spod\Sync\Api\PayloadEncoder;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\ProductManager;
-use Spod\Sync\Model\WebhookEvent;
+use Spod\Sync\Model\Mapping\WebhookEvent;
 use Spod\Sync\Subscriber\BaseSubscriber;
 
 class Updated extends BaseSubscriber

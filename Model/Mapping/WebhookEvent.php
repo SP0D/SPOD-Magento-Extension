@@ -1,6 +1,6 @@
 <?php
 
-namespace Spod\Sync\Model;
+namespace Spod\Sync\Model\Mapping;
 
 class WebhookEvent
 {

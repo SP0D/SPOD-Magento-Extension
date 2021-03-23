@@ -6,7 +6,7 @@ use Magento\Framework\Registry;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ProductManager;
 use Spod\Sync\Model\Webhook;
-use Spod\Sync\Model\WebhookEvent;
+use Spod\Sync\Model\Mapping\WebhookEvent;
 use Spod\Sync\Subscriber\BaseSubscriber;
 
 class Removed extends BaseSubscriber

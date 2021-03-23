@@ -4,8 +4,7 @@ namespace Spod\Sync\Subscriber;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Spod\Sync\Model\Webhook;
-use Spod\Sync\Model\WebhookEvent;
-use Spod\Sync\Model\QueueStatus;
+use Spod\Sync\Model\Mapping\QueueStatus;
 
 abstract class BaseSubscriber implements ObserverInterface
 {
