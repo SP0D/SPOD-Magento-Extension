@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!-- webhooks -->
     <event name="spodsync_webhook_event_article_removed">
         <observer name="observer_spodsync_webhook_article_removed" instance="Spod\Sync\Subscriber\Article\Removed" />
     </event>
