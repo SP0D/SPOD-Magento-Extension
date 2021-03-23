@@ -1,6 +1,6 @@
 <?php
 
-namespace Spod\Sync\Model\Processor;
+namespace Spod\Sync\Model\QueueProcessor;
 
 use Spod\Sync\Model\ResourceModel\Webhook\CollectionFactory;
 

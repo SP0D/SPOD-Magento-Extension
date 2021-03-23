@@ -3,7 +3,7 @@ namespace Spod\Sync\Console;
 
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
-use Spod\Sync\Model\Processor\WebhookProcessor;
+use Spod\Sync\Model\QueueProcessor\WebhookProcessor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
