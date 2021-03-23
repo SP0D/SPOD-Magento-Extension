@@ -18,6 +18,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Api\StoreManagementInterface;
 use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Helper\AttributeHelper;
+use Spod\Sync\Helper\ImageHelper;
 use Spod\Sync\Helper\OptionHelper;
 
 class ProductManager
@@ -28,8 +29,8 @@ class ProductManager
     /** @var ResultDecoder  */
     private $decoder;
 
-    /** @var ImageHandler  */
-    private $imageHandler;
+    /** @var ImageHelper  */
+    private $imageHelper;
 
     /** @var OptionHelper */
     private $optionHelper;
@@ -49,7 +50,7 @@ class ProductManager
     public function __construct(
         AttributeHelper $attributeSetHelper,
         Factory $factory,
-        ImageHandler $imageHandler,
+        ImageHelper $imageHelper,
         OptionHelper $optionHelper,
         ProductFactory $productFactory,
         ProductRepository $productRepository,
@@ -59,7 +60,7 @@ class ProductManager
         $this->attributeHelper = $attributeSetHelper;
         $this->decoder = $decoder;
         $this->optionsFactory = $factory;
-        $this->imageHandler = $imageHandler;
+        $this->imageHelper = $imageHelper;
         $this->optionHelper = $optionHelper;
         $this->productFactory = $productFactory;
         $this->productRepository = $productRepository;
@@ -98,7 +99,7 @@ class ProductManager
         $configurableProduct = $this->assignVariants($configurableProduct, $variants);
         $configurableProduct = $this->setStockInfo($configurableProduct);
 
-        $this->imageHandler->assignConfigurableImages($configurableProduct, $apiData->images);
+        $this->imageHelper->assignConfigurableImages($configurableProduct, $apiData->images);
         $this->productRepository->save($configurableProduct);
     }
 
@@ -118,7 +119,7 @@ class ProductManager
         // recreate variants
         $variants = $this->createVariants($apiData);
         $this->assignVariants($configurable, $variants);
-        $this->imageHandler->assignConfigurableImages($configurable, $apiData->images);
+        $this->imageHelper->assignConfigurableImages($configurable, $apiData->images);
 
         // remember, remember
         $this->productRepository->save($configurable);
@@ -219,7 +220,7 @@ class ProductManager
         $this->setStockInfo($product);
         $this->productRepository->save($product);
 
-        $this->imageHandler->downloadAndAssignImages($variantInfo, $images);
+        $this->imageHelper->downloadAndAssignImages($variantInfo, $images);
 
         return $product;
     }

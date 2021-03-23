@@ -1,13 +1,13 @@
 <?php
 
-namespace Spod\Sync\Model;
+namespace Spod\Sync\Helper;
 
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
 use Spod\Sync\Api\SpodLoggerInterface;
 
-class ImageHandler
+class ImageHelper
 {
     /** @var DirectoryList */
     private $directoryList;
