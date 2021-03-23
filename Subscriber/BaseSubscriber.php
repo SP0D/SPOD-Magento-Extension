@@ -22,6 +22,11 @@ class BaseSubscriber implements ObserverInterface
         $webhookEvent->save();
     }
 
+    public function getWebhookEventFromObserver(Observer $observer)
+    {
+        return $observer->getData('webhook_event');
+    }
+
     public function execute(Observer $observer)
     {
     }

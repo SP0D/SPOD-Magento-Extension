@@ -26,7 +26,7 @@ class Removed extends BaseSubscriber
 
     public function execute(Observer $observer)
     {
-        $webhookEvent = $observer->getData('webhook_event');
+        $webhookEvent = $this->getWebhookEventFromObserver($observer);
         if ($this->isObserverResponsible($webhookEvent)) {
             try {
                 $this->setAreaSecure();
