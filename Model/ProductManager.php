@@ -11,12 +11,14 @@ use Magento\Catalog\Model\ProductRepository;
 use Magento\ConfigurableProduct\Helper\Product\Options\Factory;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\App\State;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Helper\OptionHelper;
 
-class ProductGenerator
+class ProductManager
 {
     /** @var AttributeHelper */
     private $attributeHelper;
@@ -36,13 +38,17 @@ class ProductGenerator
     /** @var ProductRepository */
     private $productRepository;
 
+    /** @var SearchCriteriaBuilder  */
+    private $searchCriteriaBuilder;
+
     public function __construct(
         AttributeHelper $attributeSetHelper,
         Factory $factory,
         ImageHandler $imageHandler,
         OptionHelper $optionHelper,
         ProductFactory $productFactory,
-        ProductRepository $productRepository
+        ProductRepository $productRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
         $this->attributeHelper = $attributeSetHelper;
         $this->optionsFactory = $factory;
@@ -50,6 +56,7 @@ class ProductGenerator
         $this->optionHelper = $optionHelper;
         $this->productFactory = $productFactory;
         $this->productRepository = $productRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**
@@ -102,6 +109,7 @@ class ProductGenerator
         $product->setDescription($apiData->description);
         $product->setVisibility(ProductVisibility::VISIBILITY_BOTH);
         $product->setSpodProduct(true);
+        $product->setSpodProductId($apiData->id);
 
         $attrSetId = $this->attributeHelper->getAttrSetId('SPOD');
         $product->setAttributeSetId($attrSetId);
@@ -274,4 +282,57 @@ class ProductGenerator
         return $associatedProductIds;
     }
 
+    /**
+     * @param $spodProductId
+     * @throws \Magento\Framework\Exception\StateException
+     */
+    public function deleteProductAndVariants($spodProductId)
+    {
+        $configurable = $this->getProductBySpodId($spodProductId);
+        if ($configurable) {
+            $variantProducts = $this->getVariantProducts($configurable);
+            $this->productRepository->delete($configurable);
+            $this->deleteVariantsOfConfigurable($variantProducts);
+        }
+    }
+
+    /**
+     * @param $spodProductId
+     * @throws \Magento\Framework\Exception\StateException
+     */
+    protected function getProductBySpodId($spodProductId)
+    {
+        $searchCriteria = $this->searchCriteriaBuilder->addFilter('spod_product_id', $spodProductId, 'eq')->create();
+        $searchResults = $this->productRepository->getList($searchCriteria);
+        $products = $searchResults->getItems();
+
+        foreach ($products as $product) {
+            return $product;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $variantProducts
+     * @throws \Magento\Framework\Exception\StateException
+     */
+    protected function deleteVariantsOfConfigurable($variantProducts): void
+    {
+        foreach ($variantProducts as $variant) {
+            $this->productRepository->delete($variant);
+        }
+    }
+
+    /**
+     * @param Product $configurable
+     * @return mixed
+     */
+    protected function getVariantProducts(Product $configurable)
+    {
+        $variantProducts = $configurable
+            ->getTypeInstance()
+            ->getUsedProducts($configurable);
+        return $variantProducts;
+    }
 }
