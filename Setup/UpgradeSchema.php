@@ -18,6 +18,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '1.0.3') < 0) {
             $this->createOrderQueue($setup);
         }
+        if (version_compare($context->getVersion(), '1.0.4') < 0) {
+            $this->addSpodOrderIdToOrder($setup);
+        }
 
         $setup->endSetup();
     }
@@ -135,5 +138,23 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 ->setComment('webhook queue');
             $setup->getConnection()->createTable($table);
         }
+    }
+
+    private function addSpodOrderIdToOrder(SchemaSetupInterface $setup): void
+    {
+        $setup->startSetup();
+
+        $setup->getConnection()->addColumn(
+            $setup->getTable('sales_order'),
+            'spod_order_id',
+            [
+                'type' => 'varchar',
+                'nullable' => true,
+                'length' => 255,
+                'comment' => 'SPOD Order Id',
+            ]
+        );
+
+        $setup->endSetup();
     }
 }
