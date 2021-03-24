@@ -12,7 +12,7 @@ class ConfigHelper extends AbstractHelper
     const XML_PATH_LIVEURL = 'spodsync/general/liveurl';
     const XML_PATH_STAGEURL = 'spodsync/general/stagingurl';
 
-    private function getConfigValue($path, $storeId = null)
+    public function getConfigValue($path, $storeId = null)
     {
         return $this->scopeConfig->getValue(
             $path, ScopeInterface::SCOPE_STORE, $storeId
