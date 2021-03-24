@@ -1,7 +1,7 @@
 <?php
 namespace Spod\Sync\Model\ResourceModel;
 
-class Order extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
+class OrderRecord extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
 
     public function __construct(

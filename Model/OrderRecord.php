@@ -3,7 +3,7 @@ namespace Spod\Sync\Model;
 
 use Spod\Sync\Api\ResultDecoder;
 
-class Order extends \Magento\Framework\Model\AbstractModel implements \Magento\Framework\DataObject\IdentityInterface
+class OrderRecord extends \Magento\Framework\Model\AbstractModel implements \Magento\Framework\DataObject\IdentityInterface
 {
     const CACHE_TAG = 'spod_sync_order';
 
@@ -28,7 +28,7 @@ class Order extends \Magento\Framework\Model\AbstractModel implements \Magento\F
 
     protected function _construct()
     {
-        $this->_init('Spod\Sync\Model\ResourceModel\Order');
+        $this->_init('Spod\Sync\Model\ResourceModel\OrderRecord');
     }
 
     public function getIdentities()

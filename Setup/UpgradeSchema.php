@@ -148,7 +148,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getTable('sales_order'),
             'spod_order_id',
             [
-                'type' => 'varchar',
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'size' => 255,
                 'nullable' => true,
                 'comment' => 'SPOD Order Id',
             ]

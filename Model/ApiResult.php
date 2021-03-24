@@ -40,9 +40,4 @@ class ApiResult
     {
         $this->payload = $payload;
     }
-
-    public function getDecodedPayload()
-    {
-        return $this->decoder->parsePayload($this->getPayload());
-    }
 }

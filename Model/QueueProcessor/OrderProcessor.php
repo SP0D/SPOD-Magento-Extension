@@ -2,8 +2,6 @@
 
 namespace Spod\Sync\Model\QueueProcessor;
 
-use Magento\Catalog\Model\Product;
-use Magento\Catalog\Model\ProductType;
 use Magento\Customer\Model\Address;
 use Magento\Customer\Model\ResourceModel\CustomerRepository;
 use Magento\Directory\Model\RegionFactory;
@@ -14,13 +12,15 @@ use Magento\Sales\Model\ResourceModel\Order\Tax\Item;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\ApiReader\OrderHandler;
+use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\Mapping\QueueStatus;
-use Spod\Sync\Model\Order;
-use Spod\Sync\Model\ResourceModel\Order\Collection;
-use Spod\Sync\Model\ResourceModel\Order\CollectionFactory;
+use Spod\Sync\Model\OrderRecord;
+use Spod\Sync\Model\ResourceModel\OrderRecord\Collection;
+use Spod\Sync\Model\ResourceModel\OrderRecord\CollectionFactory;
 
 class OrderProcessor
 {
+    const HTTPSTATUS_ORDER_CREATED = 201;
     /** @var CollectionFactory */
     private $collectionFactory;
     /** @var ConfigHelper */
@@ -62,7 +62,14 @@ class OrderProcessor
     {
         $collection = $this->getPendingOrderCollection();
         foreach ($collection as $order) {
-            $this->submitOrder($order);
+            try {
+                $this->submitOrder($order);
+                $this->setOrderRecordProcessed($order);
+
+            } catch (\Exception $e) {
+                $this->logger->logError($e->getMessage());
+                $this->setOrderRecordFailed($order);
+            }
         }
     }
 
@@ -77,13 +84,16 @@ class OrderProcessor
         return $collection;
     }
 
-    private function submitOrder(Order $order)
+    private function submitOrder(OrderRecord $order)
     {
         $preparedOrder = $this->prepareOrder($order);
-        $this->orderHandler->submitPreparedOrder($preparedOrder);
+        $apiResult = $this->orderHandler->submitPreparedOrder($preparedOrder);
+        if ($apiResult->getHttpCode() == self::HTTPSTATUS_ORDER_CREATED) {
+            $this->saveSpodOrderId($apiResult, $order);
+        }
     }
 
-    private function prepareOrder(Order $order)
+    private function prepareOrder(OrderRecord $order)
     {
         $magentoOrder = $this->getMagentoOrderById($order);
         $preparedOrder = [];
@@ -116,7 +126,7 @@ class OrderProcessor
             $items[] = [
                 'sku' => $orderedItem->getProduct()->getSku(),
                 'quantity' => intval($orderedItem->getQtyOrdered()),
-                'externalOrderItemReference' => $orderedItem-> getId(),
+                'externalOrderItemReference' => $orderedItem->getId(),
                 'customerPrice' => [
                     'amount' => floatval($orderedItem->getParentItem()->getRowTotal()),
                     'taxRate' => floatval($orderedItem->getParentItem()->getTaxPercent()),
@@ -204,7 +214,7 @@ class OrderProcessor
         return "NOT_TAXABLE";
     }
 
-    private function getMagentoOrderById(Order $spodOrder): OrderInterface
+    private function getMagentoOrderById(OrderRecord $spodOrder): OrderInterface
     {
         return $this->orderRepository->get($spodOrder->getOrderId());
     }
@@ -251,6 +261,11 @@ class OrderProcessor
         return $address;
     }
 
+    /**
+     * @param OrderInterface $order
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     private function prepareShippingPrice(OrderInterface $order): array
     {
         $shippingPrice = [];
@@ -263,6 +278,10 @@ class OrderProcessor
         return $shippingPrice;
     }
 
+    /**
+     * @param OrderInterface $order
+     * @return int|mixed
+     */
     private function getShippingTaxRate(OrderInterface $order)
     {
         $tax_items = $this->taxItem->getTaxItemsByOrderId($order->getId());
@@ -279,6 +298,10 @@ class OrderProcessor
         return 0;
     }
 
+    /**
+     * @param OrderInterface $order
+     * @return array
+     */
     private function prepareFromAddress(OrderInterface $order)
     {
         $fromAddress = [];
@@ -295,10 +318,50 @@ class OrderProcessor
         return $fromAddress;
     }
 
+    /**
+     * @param $regionId
+     * @return string
+     */
     private function getOrderRegionData($regionId)
     {
         $region = $this->regionFactory->create()->load($regionId);
-
         return $region->getCode();
+    }
+
+    /**
+     * @param ApiResult $apiResult
+     * @param OrderRecord $order
+     * @throws \Magento\Framework\Exception\AlreadyExistsException
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function saveSpodOrderId(ApiResult $apiResult, OrderRecord $order): void
+    {
+        $apiResponse = $apiResult->getPayload();
+        $magentoOrder = $this->orderRepository->get($order->getOrderId());
+        $magentoOrder->setSpodOrderId($apiResponse->orderReference);
+        $this->orderRepository->save($magentoOrder);
+    }
+
+    /**
+     * @param OrderRecord $orderRecord
+     * @throws \Exception
+     */
+    public function setOrderRecordProcessed(OrderRecord $orderRecord)
+    {
+        $orderRecord->setStatus(QueueStatus::STATUS_PROCESSED);
+        $orderRecord->setProcessedAt(new \DateTime());
+        $orderRecord->save();
+    }
+
+    /**
+     * @param OrderRecord $orderRecord
+     * @throws \Exception
+     */
+    public function setOrderRecordFailed(OrderRecord $orderRecord)
+    {
+        $orderRecord->setStatus(QueueStatus::STATUS_ERROR);
+        $orderRecord->setProcessedAt(new \DateTime());
+        $orderRecord->save();
     }
 }

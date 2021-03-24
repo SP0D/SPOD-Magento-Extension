@@ -2,7 +2,11 @@
 
 namespace Spod\Sync\Model\QueueProcessor;
 
+use Magento\Framework\Event\Manager;
+use Spod\Sync\Model\Mapping\QueueStatus;
+use Spod\Sync\Model\ResourceModel\Webhook\Collection;
 use Spod\Sync\Model\ResourceModel\Webhook\CollectionFactory;
+use Spod\Sync\Model\Webhook;
 
 class WebhookProcessor
 {
@@ -11,7 +15,7 @@ class WebhookProcessor
 
     public function __construct(
         CollectionFactory $collectionFactory,
-        \Magento\Framework\Event\Manager $eventManager,
+        Manager $eventManager,
         string $name = null
     ) {
         $this->collectionFactory = $collectionFactory;
@@ -42,9 +46,9 @@ class WebhookProcessor
     }
 
     /**
-     * @return ResourceModel\Webhook\Collection
+     * @return Collection
      */
-    protected function getPendingEventCollection(): ResourceModel\Webhook\Collection
+    protected function getPendingEventCollection(): Collection
     {
         $collection = $this->collectionFactory->create();
         $collection->addFieldToFilter('status', ['eq' => QueueStatus::STATUS_PENDING]);

@@ -1,5 +1,5 @@
 <?php
-namespace Spod\Sync\Model\ResourceModel\Order;
+namespace Spod\Sync\Model\ResourceModel\OrderRecord;
 
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
@@ -14,7 +14,7 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
      */
     protected function _construct()
     {
-        $this->_init('Spod\Sync\Model\Order', 'Spod\Sync\Model\ResourceModel\Order');
+        $this->_init('Spod\Sync\Model\OrderRecord', 'Spod\Sync\Model\ResourceModel\OrderRecord');
     }
 
 }

@@ -5,8 +5,8 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Model\Order;
 use Spod\Sync\Api\SpodLoggerInterface;
-use Spod\Sync\Model\Order as QueueEntry;
-use Spod\Sync\Model\OrderFactory;
+use Spod\Sync\Model\OrderRecord as QueueEntry;
+use Spod\Sync\Model\OrderRecordFactory;
 use Spod\Sync\Model\Mapping\QueueStatus;
 
 class OrderPlugin
@@ -15,7 +15,7 @@ class OrderPlugin
     private $orderFactory;
 
     public function __construct(
-        OrderFactory $orderFactory,
+        OrderRecordFactory $orderFactory,
         SpodLoggerInterface $logger
     ) {
         $this->logger = $logger;
