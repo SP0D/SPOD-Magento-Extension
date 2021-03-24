@@ -80,7 +80,6 @@ class OrderProcessor
     private function submitOrder(Order $order)
     {
         $preparedOrder = $this->prepareOrder($order);
-        echo "foo";
         $this->orderHandler->submitPreparedOrder($preparedOrder);
     }
 
