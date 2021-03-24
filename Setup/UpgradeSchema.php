@@ -150,7 +150,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
             [
                 'type' => 'varchar',
                 'nullable' => true,
-                'length' => 255,
                 'comment' => 'SPOD Order Id',
             ]
         );
