@@ -6,6 +6,7 @@
                 <item name="spod:sync" xsi:type="object">Spod\Sync\Console\Productsync</item>
                 <item name="spod:webhook" xsi:type="object">Spod\Sync\Console\Webhooks</item>
                 <item name="spod:webhook:queue" xsi:type="object">Spod\Sync\Console\WebhookQueue</item>
+                <item name="spod:order:queue" xsi:type="object">Spod\Sync\Console\OrderQueue</item>
             </argument>
         </arguments>
     </type>

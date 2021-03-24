@@ -1,5 +1,5 @@
 <?php
-namespace Spod\Sync\Model\ResourceModel\Webhook;
+namespace Spod\Sync\Model\ResourceModel\Order;
 
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
