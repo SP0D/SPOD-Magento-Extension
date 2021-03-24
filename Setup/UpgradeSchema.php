@@ -21,6 +21,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '1.0.4') < 0) {
             $this->addSpodOrderIdToOrder($setup);
         }
+        if (version_compare($context->getVersion(), '1.0.5') < 0) {
+            $this->addSpodOrderReferenceToOrder($setup);
+        }
 
         $setup->endSetup();
     }
@@ -152,6 +155,24 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 'size' => 255,
                 'nullable' => true,
                 'comment' => 'SPOD Order Id',
+            ]
+        );
+
+        $setup->endSetup();
+    }
+
+    private function addSpodOrderReferenceToOrder(SchemaSetupInterface $setup): void
+    {
+        $setup->startSetup();
+
+        $setup->getConnection()->addColumn(
+            $setup->getTable('sales_order'),
+            'spod_order_reference',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'size' => 255,
+                'nullable' => true,
+                'comment' => 'SPOD Order Reference',
             ]
         );
 

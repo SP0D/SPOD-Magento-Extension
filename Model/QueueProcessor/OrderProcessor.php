@@ -339,7 +339,8 @@ class OrderProcessor
     {
         $apiResponse = $apiResult->getPayload();
         $magentoOrder = $this->orderRepository->get($order->getOrderId());
-        $magentoOrder->setSpodOrderId($apiResponse->orderReference);
+        $magentoOrder->setSpodOrderId($apiResponse->id);
+        $magentoOrder->setSpodOrderReference($apiResponse->orderReference);
         $this->orderRepository->save($magentoOrder);
     }
 
