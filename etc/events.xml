@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <!-- webhooks -->
+    <!-- webhooks: product -->
     <event name="spodsync_webhook_event_article_removed">
         <observer name="observer_spodsync_webhook_article_removed" instance="Spod\Sync\Subscriber\Webhook\Article\Removed" />
     </event>
@@ -9,6 +9,10 @@
     </event>
     <event name="spodsync_webhook_event_article_updated">
         <observer name="observer_spodsync_webhook_event_article_updated" instance="Spod\Sync\Subscriber\Webhook\Article\Updated" />
+    </event>
+    <!-- webhooks: order -->
+    <event name="spodsync_webhook_event_order_processed">
+        <observer name="observer_spodsync_webhook_event_order_processed" instance="Spod\Sync\Subscriber\Webhook\Order\Processed" />
     </event>
 
     <!-- cancel order -->
