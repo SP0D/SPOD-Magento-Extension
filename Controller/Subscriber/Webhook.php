@@ -15,7 +15,6 @@ class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActio
 {
     private $decoder;
     private $webhookFactory;
-    private $webhookRepository;
 
     public function __construct(
         Context $context,
