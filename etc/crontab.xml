@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job instance="Spod\Sync\Cron\Order" method="execute" name="spod_sync_ordercron">
+            <schedule>*/15 * * * *</schedule>
+        </job>
+    </group>
+</config>

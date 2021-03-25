@@ -4,6 +4,7 @@ namespace Spod\Sync\Model\ApiReader;
 
 use Spod\Sync\Api\PayloadEncoder;
 use Spod\Sync\Api\ResultDecoder;
+use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\ApiResultFactory;
@@ -120,7 +121,7 @@ abstract class AbstractHandler
      * @param array $params
      * @return mixed
      */
-    protected function postRequest(string $apiAction, array $params): ApiResult
+    protected function postRequest(string $apiAction, array $params = []): ApiResult
     {
         $result = $this->sendPostRequest($apiAction, $params);
         $result->setPayload($this->decoder->parsePayload($result->getPayload()));

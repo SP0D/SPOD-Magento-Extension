@@ -1,5 +1,5 @@
 <?php
-namespace Spod\Sync\Subscriber;
+namespace Spod\Sync\Subscriber\Webhook;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;

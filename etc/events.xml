@@ -2,12 +2,17 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <!-- webhooks -->
     <event name="spodsync_webhook_event_article_removed">
-        <observer name="observer_spodsync_webhook_article_removed" instance="Spod\Sync\Subscriber\Article\Removed" />
+        <observer name="observer_spodsync_webhook_article_removed" instance="Spod\Sync\Subscriber\Webhook\Article\Removed" />
     </event>
     <event name="spodsync_webhook_event_article_added">
-        <observer name="observer_spodsync_webhook_article_added" instance="Spod\Sync\Subscriber\Article\Added" />
+        <observer name="observer_spodsync_webhook_article_added" instance="Spod\Sync\Subscriber\Webhook\Article\Added" />
     </event>
     <event name="spodsync_webhook_event_article_updated">
-        <observer name="observer_spodsync_webhook_event_article_updated" instance="Spod\Sync\Subscriber\Article\Updated" />
+        <observer name="observer_spodsync_webhook_event_article_updated" instance="Spod\Sync\Subscriber\Webhook\Article\Updated" />
+    </event>
+
+    <!-- cancel order -->
+    <event name="order_cancel_after">
+        <observer name="spodsync_order_cancel_after" instance="Spod\Sync\Subscriber\CancelOrder" />
     </event>
 </config>

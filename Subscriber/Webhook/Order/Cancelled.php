@@ -1,9 +1,9 @@
 <?php
-namespace Spod\Sync\Controller\Subscriber\Shipment;
+namespace Spod\Sync\Controller\Subscriber\Webhook\Order;
 
 use Magento\Framework\App\Action\Context;
 
-class Sent extends \Magento\Framework\App\Action\Action
+class Cancelled extends \Magento\Framework\App\Action\Action
 {
     public function __construct(
         Context $context)

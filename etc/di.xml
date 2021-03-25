@@ -20,7 +20,7 @@
 
     <!-- capture orders -->
     <type name="Magento\Sales\Api\OrderManagementInterface">
-        <plugin name="after_place_order_operation"
+        <plugin name="spodsync_after_place_order_operation"
                 type="Spod\Sync\Plugin\OrderPlugin"/>
     </type>
 </config>

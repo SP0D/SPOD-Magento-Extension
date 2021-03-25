@@ -1,48 +1,54 @@
 <?php
-namespace Spod\Sync\Subscriber\Article;
+namespace Spod\Sync\Subscriber\Webhook\Article;
 
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Registry;
-use Spod\Sync\Api\SpodLoggerInterface;
+use Spod\Sync\Api\PayloadEncoder;
+use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\ProductManager;
-use Spod\Sync\Model\Webhook;
 use Spod\Sync\Model\Mapping\WebhookEvent;
-use Spod\Sync\Subscriber\BaseSubscriber;
+use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
 
-class Removed extends BaseSubscriber
+class Updated extends BaseSubscriber
 {
-    protected $event = WebhookEvent::EVENT_ARTICLE_REMOVED;
+    protected $event = WebhookEvent::EVENT_ARTICLE_UPDATED;
 
-    /** @var ProductManager  */
+    private $apiResultFactory;
+    private $encoder;
     private $productManager;
-
-    /** @var SpodLoggerInterface  */
-    private $logger;
-
-    /** @var Registry  */
     private $registry;
 
     public function __construct(
+        ApiResultFactory $apiResultFactory,
+        PayloadEncoder $encoder,
         ProductManager $productManager,
-        Registry $registry,
-        SpodLoggerInterface $logger
+        Registry $registry
     ) {
+        $this->apiResultFactory = $apiResultFactory;
+        $this->encoder = $encoder;
         $this->productManager = $productManager;
         $this->registry = $registry;
-        $this->logger = $logger;
     }
 
     public function execute(Observer $observer)
     {
         $webhookEvent = $this->getWebhookEventFromObserver($observer);
+
         if ($this->isObserverResponsible($webhookEvent)) {
+            $payload = $webhookEvent->getDecodedPayload();
+            $articleData = $payload->data->article;
+
             try {
+                $apiResult = $this->apiResultFactory->create();
+                $apiResult->setPayload($this->encoder->encodePayload($articleData));
+
                 $this->setAreaSecure();
-                $this->removeProduct($webhookEvent);
+                $this->productManager->updateProduct($apiResult);
                 $this->setEventProcessed($webhookEvent);
             } catch (\Exception $e) {
+                // TODO: log
                 $this->setEventFailed($webhookEvent);
-                $this->logger->logError($e->getMessage());
             }
         }
 
@@ -55,13 +61,4 @@ class Removed extends BaseSubscriber
             $this->registry->register('isSecureArea', true);
         }
     }
-
-    private function removeProduct(Webhook $webhookEvent)
-    {
-        $payloadObject = $webhookEvent->getDecodedPayload();
-        $spodArticleId = $payloadObject->data->article->id;
-        $this->productManager->deleteProductAndVariants($spodArticleId);
-    }
-
-
 }
