@@ -1,6 +1,6 @@
 <?php
 
-namespace Spod\Sync\Model;
+namespace Spod\Sync\Model\CrudManager;
 
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Type as ProductType;

@@ -4,7 +4,7 @@ namespace Spod\Sync\Subscriber\Webhook\Article;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Registry;
 use Spod\Sync\Api\SpodLoggerInterface;
-use Spod\Sync\Model\ProductManager;
+use Spod\Sync\Model\CrudManager\ProductManager;
 use Spod\Sync\Model\Webhook;
 use Spod\Sync\Model\Mapping\WebhookEvent;
 use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
