@@ -27,7 +27,7 @@ class CancelOrder implements ObserverInterface
     {
         $order = $observer->getOrder();
 
-        if (!$order->getSpodOrderId()) {
+        if (!$order->getSpodOrderId() || $order->getSpodCancelled()) {
             return;
         }
 

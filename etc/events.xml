@@ -14,6 +14,9 @@
     <event name="spodsync_webhook_event_order_processed">
         <observer name="observer_spodsync_webhook_event_order_processed" instance="Spod\Sync\Subscriber\Webhook\Order\Processed" />
     </event>
+    <event name="spodsync_webhook_event_order_cancelled">
+        <observer name="observer_spodsync_webhook_event_order_cancelled" instance="Spod\Sync\Subscriber\Webhook\Order\Cancelled" />
+    </event>
 
     <!-- cancel order -->
     <event name="order_cancel_after">
