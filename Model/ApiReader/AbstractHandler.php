@@ -4,7 +4,6 @@ namespace Spod\Sync\Model\ApiReader;
 
 use Spod\Sync\Api\PayloadEncoder;
 use Spod\Sync\Api\ResultDecoder;
-use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\ApiResultFactory;
