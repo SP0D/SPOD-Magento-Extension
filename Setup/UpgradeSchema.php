@@ -24,7 +24,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '1.0.5') < 0) {
             $this->addSpodOrderReferenceToOrder($setup);
         }
-
+        if (version_compare($context->getVersion(), '1.0.6') < 0) {
+            $this->addSpodCancelledToOrder($setup);
+        }
         $setup->endSetup();
     }
 
@@ -178,4 +180,23 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         $setup->endSetup();
     }
+
+    private function addSpodCancelledToOrder(SchemaSetupInterface $setup): void
+    {
+        $setup->startSetup();
+
+        $setup->getConnection()->addColumn(
+            $setup->getTable('sales_order'),
+            'spod_cancelled',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                'size' => 1,
+                'nullable' => true,
+                'comment' => 'Order cancelled by SPOD, no API call required',
+            ]
+        );
+
+        $setup->endSetup();
+    }
+
 }
