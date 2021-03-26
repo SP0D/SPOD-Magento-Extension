@@ -2,6 +2,8 @@
 
 namespace Spod\Sync\Model\QueueProcessor;
 
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order\ItemRepository;
 use Magento\Sales\Model\OrderRepository;
 
 use Spod\Sync\Api\SpodLoggerInterface;
@@ -27,12 +29,15 @@ class OrderProcessor
     private $orderRepository;
     /** @var SpodLoggerInterface  */
     private $logger;
+    /** @var ItemRepository */
+    private $orderItemRepository;
 
     public function __construct(
         CollectionFactory $collectionFactory,
         ConfigHelper $configHelper,
         OrderExporter $orderExporter,
         OrderHandler $orderHandler,
+        ItemRepository $orderItemRepository,
         OrderRepository $orderRepository,
         SpodLoggerInterface $logger
     ) {
@@ -42,6 +47,7 @@ class OrderProcessor
         $this->orderExporter = $orderExporter;
         $this->orderHandler = $orderHandler;
         $this->orderRepository = $orderRepository;
+        $this->orderItemRepository = $orderItemRepository;
     }
 
     public function processPendingOrders()
@@ -51,7 +57,6 @@ class OrderProcessor
             try {
                 $this->submitOrder($order);
                 $this->setOrderRecordProcessed($order);
-
             } catch (\Exception $e) {
                 $this->logger->logError($e->getMessage());
                 $this->setOrderRecordFailed($order);
@@ -74,12 +79,15 @@ class OrderProcessor
      * @param OrderRecord $order
      * @throws \Exception
      */
-    private function submitOrder(OrderRecord $order)
+    private function submitOrder(OrderRecord $orderEvent)
     {
-        $preparedOrder = $this->orderExporter->prepareOrder($order);
+        $preparedOrder = $this->orderExporter->prepareOrder($orderEvent);
         $apiResult = $this->orderHandler->submitPreparedOrder($preparedOrder);
+        $magentoOrder = $this->orderRepository->get($orderEvent->getOrderId());
+
         if ($apiResult->getHttpCode() == self::HTTPSTATUS_ORDER_CREATED) {
-            $this->saveSpodOrderId($apiResult, $order);
+            $this->saveSpodOrderId($apiResult, $magentoOrder);
+            $this->saveOrderItemIds($apiResult, $magentoOrder);
         }
     }
 
@@ -112,12 +120,39 @@ class OrderProcessor
      * @throws \Magento\Framework\Exception\InputException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function saveSpodOrderId(ApiResult $apiResult, OrderRecord $order): void
+    private function saveSpodOrderId(ApiResult $apiResult, OrderInterface $order): void
     {
         $apiResponse = $apiResult->getPayload();
-        $magentoOrder = $this->orderRepository->get($order->getOrderId());
-        $magentoOrder->setSpodOrderId($apiResponse->id);
-        $magentoOrder->setSpodOrderReference($apiResponse->orderReference);
-        $this->orderRepository->save($magentoOrder);
+        $order->setSpodOrderId($apiResponse->id);
+        $order->setSpodOrderReference($apiResponse->orderReference);
+        $this->orderRepository->save($order);
+    }
+
+    /**
+     * @param ApiResult $apiResult
+     * @param OrderInterface $order
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function saveOrderItemIds(ApiResult $apiResult, OrderInterface $order): void
+    {
+        $apiResponse = $apiResult->getPayload();
+        foreach ($apiResponse->orderItems as $apiResponseItem) {
+            $salesOrderItem = $this->getItemFromOrderBySku($order, $apiResponseItem->sku);
+            $salesOrderItem->setData('spod_order_item_id', $apiResponseItem->orderItemReference);
+            $this->orderItemRepository->save($salesOrderItem);
+        }
+    }
+
+    private function getItemFromOrderBySku(OrderInterface $order, $sku)
+    {
+        $items = $order->getItems();
+        foreach ($items as $item) {
+            if ($item->getProduct()->getSku() == $sku) {
+                return $item;
+            }
+        }
+
+        throw new \Exception(sprintf("Item with sku %s not found in order", $sku));
     }
 }
