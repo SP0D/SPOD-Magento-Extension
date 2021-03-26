@@ -2,12 +2,7 @@
 
 namespace Spod\Sync\Model\QueueProcessor;
 
-use Magento\Customer\Model\Address;
-use Magento\Customer\Model\ResourceModel\CustomerRepository;
-use Magento\Directory\Model\RegionFactory;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\OrderRepository;
-use Magento\Sales\Model\ResourceModel\Order\Tax\Item;
 
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\ConfigHelper;
