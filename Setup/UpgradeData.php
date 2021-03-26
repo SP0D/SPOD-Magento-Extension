@@ -9,6 +9,7 @@ use Spod\Sync\Helper\AttributeHelper;
 
 class UpgradeData implements UpgradeDataInterface
 {
+    /** @var AttributeHelper  */
     private $attributeHelper;
 
     public function __construct(
