@@ -20,6 +20,7 @@ use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Helper\ImageHelper;
 use Spod\Sync\Helper\OptionHelper;
+use Spod\Sync\Model\ApiResult;
 
 class ProductManager
 {
