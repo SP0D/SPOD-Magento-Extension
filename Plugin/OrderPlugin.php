@@ -5,7 +5,6 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiReader\OrderHandler;
-use Spod\Sync\Model\OrderRecord as QueueEntry;
 use Spod\Sync\Model\OrderRecordFactory;
 use Spod\Sync\Model\Mapping\QueueStatus;
 use Spod\Sync\Model\Repository\OrderRecordRepository;
@@ -19,7 +18,7 @@ class OrderPlugin
     /** @var OrderRecordRepository  */
     private $orderRecordRepository;
     /** @var OrderHandler */
-    private OrderHandler $orderHandler;
+    private $orderHandler;
 
     public function __construct(
         OrderHandler $orderHandler,
@@ -57,7 +56,6 @@ class OrderPlugin
     {
         $this->logger->logDebug(sprintf("placing order #%s in queue", $magentoOrder->getId()));
 
-        /** @var QueueEntry $queueEntry */
         $orderRecord = $this->orderRecordFactory->create();
         $orderRecord->setOrderId($magentoOrder->getId());
         $orderRecord->setStatus(QueueStatus::STATUS_PENDING);
