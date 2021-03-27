@@ -1,13 +1,13 @@
 <?php
 namespace Spod\Sync\Subscriber\Webhook\Article;
 
-use Magento\Framework\App\Action\Context;
 use Magento\Framework\Event\Observer;
 use Spod\Sync\Api\PayloadEncoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\CrudManager\ProductManager;
 use Spod\Sync\Model\Mapping\WebhookEvent;
+use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
 
 class Added extends BaseSubscriber
@@ -27,12 +27,15 @@ class Added extends BaseSubscriber
         ApiResultFactory $apiResultFactory,
         PayloadEncoder $encoder,
         ProductManager $productManager,
-        SpodLoggerInterface $logger)
-    {
+        SpodLoggerInterface $logger,
+        WebhookEventRepository $webhookEventRepository
+    ) {
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
         $this->productManager = $productManager;
         $this->logger = $logger;
+
+        parent::__construct($webhookEventRepository);
     }
 
     public function execute(Observer $observer)

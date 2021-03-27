@@ -13,6 +13,7 @@ use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\Mapping\QueueStatus;
 use Spod\Sync\Model\OrderExporter;
 use Spod\Sync\Model\OrderRecord;
+use Spod\Sync\Model\Repository\OrderRecordRepository;
 use Spod\Sync\Model\ResourceModel\OrderRecord\Collection;
 use Spod\Sync\Model\ResourceModel\OrderRecord\CollectionFactory;
 
@@ -31,6 +32,8 @@ class OrderProcessor
     private $logger;
     /** @var ItemRepository */
     private $orderItemRepository;
+    /** @var OrderRecordRepository  */
+    private $orderRecordRepository;
 
     public function __construct(
         CollectionFactory $collectionFactory,
@@ -39,6 +42,7 @@ class OrderProcessor
         OrderHandler $orderHandler,
         ItemRepository $orderItemRepository,
         OrderRepository $orderRepository,
+        OrderRecordRepository $orderRecordRepository,
         SpodLoggerInterface $logger
     ) {
         $this->collectionFactory = $collectionFactory;
@@ -48,6 +52,7 @@ class OrderProcessor
         $this->orderHandler = $orderHandler;
         $this->orderRepository = $orderRepository;
         $this->orderItemRepository = $orderItemRepository;
+        $this->orderRecordRepository = $orderRecordRepository;
     }
 
     public function processPendingOrders()
@@ -99,7 +104,7 @@ class OrderProcessor
     {
         $orderRecord->setStatus(QueueStatus::STATUS_PROCESSED);
         $orderRecord->setProcessedAt(new \DateTime());
-        $orderRecord->save();
+        $this->orderRecordRepository->save($orderRecord);
     }
 
     /**
@@ -110,7 +115,7 @@ class OrderProcessor
     {
         $orderRecord->setStatus(QueueStatus::STATUS_ERROR);
         $orderRecord->setProcessedAt(new \DateTime());
-        $orderRecord->save();
+        $this->orderRecordRepository->save($orderRecord);
     }
 
     /**

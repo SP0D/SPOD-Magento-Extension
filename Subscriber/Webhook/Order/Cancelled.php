@@ -7,6 +7,7 @@ use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\CrudManager\OrderManager;
 use Spod\Sync\Model\Mapping\WebhookEvent;
+use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
 
 class Cancelled extends BaseSubscriber
@@ -26,12 +27,15 @@ class Cancelled extends BaseSubscriber
         ApiResultFactory $apiResultFactory,
         PayloadEncoder $encoder,
         SpodLoggerInterface $logger,
-        OrderManager $orderManager
+        OrderManager $orderManager,
+        WebhookEventRepository $webhookEventRepository
     ) {
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
         $this->logger = $logger;
         $this->orderManager = $orderManager;
+
+        parent::__construct($webhookEventRepository);
     }
 
     public function execute(Observer $observer)

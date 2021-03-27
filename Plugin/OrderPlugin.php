@@ -3,26 +3,34 @@ namespace Spod\Sync\Plugin;
 
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderManagementInterface;
-use Magento\Sales\Model\Order;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiReader\OrderHandler;
 use Spod\Sync\Model\OrderRecord as QueueEntry;
 use Spod\Sync\Model\OrderRecordFactory;
 use Spod\Sync\Model\Mapping\QueueStatus;
+use Spod\Sync\Model\Repository\OrderRecordRepository;
 
 class OrderPlugin
 {
+    /** @var SpodLoggerInterface  */
     private $logger;
-    private $orderFactory;
+    /** @var OrderRecordFactory  */
+    private $orderRecordFactory;
+    /** @var OrderRecordRepository  */
+    private $orderRecordRepository;
+    /** @var OrderHandler */
+    private OrderHandler $orderHandler;
 
     public function __construct(
         OrderHandler $orderHandler,
-        OrderRecordFactory $orderFactory,
+        OrderRecordFactory $orderRecordFactory,
+        OrderRecordRepository $orderRecordRepository,
         SpodLoggerInterface $logger
     ) {
         $this->logger = $logger;
-        $this->orderFactory = $orderFactory;
+        $this->orderRecordFactory = $orderRecordFactory;
         $this->orderHandler = $orderHandler;
+        $this->orderRecordRepository = $orderRecordRepository;
     }
 
     public function afterPlace(
@@ -50,10 +58,10 @@ class OrderPlugin
         $this->logger->logDebug(sprintf("placing order #%s in queue", $magentoOrder->getId()));
 
         /** @var QueueEntry $queueEntry */
-        $queueEntry = $this->orderFactory->create();
-        $queueEntry->setOrderId($magentoOrder->getId());
-        $queueEntry->setStatus(QueueStatus::STATUS_PENDING);
-        $queueEntry->setCreatedAt(new \DateTime());
-        $queueEntry->save();
+        $orderRecord = $this->orderRecordFactory->create();
+        $orderRecord->setOrderId($magentoOrder->getId());
+        $orderRecord->setStatus(QueueStatus::STATUS_PENDING);
+        $orderRecord->setCreatedAt(new \DateTime());
+        $this->orderRecordRepository->save($orderRecord);
     }
 }

@@ -8,6 +8,7 @@ use Spod\Sync\Api\PayloadEncoder;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\CrudManager\ProductManager;
 use Spod\Sync\Model\Mapping\WebhookEvent;
+use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
 
 class Updated extends BaseSubscriber
@@ -23,12 +24,15 @@ class Updated extends BaseSubscriber
         ApiResultFactory $apiResultFactory,
         PayloadEncoder $encoder,
         ProductManager $productManager,
-        Registry $registry
+        Registry $registry,
+        WebhookEventRepository $webhookEventRepository
     ) {
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
         $this->productManager = $productManager;
         $this->registry = $registry;
+
+        parent::__construct($webhookEventRepository);
     }
 
     public function execute(Observer $observer)

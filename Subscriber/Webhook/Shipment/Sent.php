@@ -7,6 +7,7 @@ use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\CrudManager\ShipmentManager;
 use Spod\Sync\Model\Mapping\WebhookEvent;
+use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
 
 class Sent extends BaseSubscriber
@@ -26,12 +27,15 @@ class Sent extends BaseSubscriber
         ApiResultFactory $apiResultFactory,
         PayloadEncoder $encoder,
         SpodLoggerInterface $logger,
-        ShipmentManager $shipmentManager
+        ShipmentManager $shipmentManager,
+        WebhookEventRepository $webhookEventRepository
     ) {
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
         $this->logger = $logger;
         $this->shipmentManager = $shipmentManager;
+
+        parent::__construct($webhookEventRepository);
     }
 
     public function execute(Observer $observer)
