@@ -10,12 +10,18 @@
     <event name="spodsync_webhook_event_article_updated">
         <observer name="observer_spodsync_webhook_event_article_updated" instance="Spod\Sync\Subscriber\Webhook\Article\Updated" />
     </event>
+
     <!-- webhooks: order -->
     <event name="spodsync_webhook_event_order_processed">
         <observer name="observer_spodsync_webhook_event_order_processed" instance="Spod\Sync\Subscriber\Webhook\Order\Processed" />
     </event>
     <event name="spodsync_webhook_event_order_cancelled">
         <observer name="observer_spodsync_webhook_event_order_cancelled" instance="Spod\Sync\Subscriber\Webhook\Order\Cancelled" />
+    </event>
+
+    <!-- webhooks: shipment -->
+    <event name="spodsync_webhook_event_shipment_sent">
+        <observer name="observer_spodsync_webhook_event_shipment_sent" instance="Spod\Sync\Subscriber\Webhook\Shipment\Sent" />
     </event>
 
     <!-- cancel order -->

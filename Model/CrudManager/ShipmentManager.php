@@ -5,15 +5,18 @@ namespace Spod\Sync\Model\CrudManager;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\NoSuchEntityException;
 
+use Magento\Quote\Model\Cart\ShippingMethod;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Api\Data\ShipmentTrackInterfaceFactory;
 use Magento\Sales\Api\ShipmentRepositoryInterface;
 use Magento\Sales\Api\ShipmentItemRepositoryInterface;
 use Magento\Sales\Model\Convert\Order as ConvertOrder;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\ItemRepository;
 use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\OrderRepository;
+use Magento\Shipping\Model\ShipmentNotifier;
 use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiResult;
@@ -36,6 +39,8 @@ class ShipmentManager
     private $shipmentRepository;
     /** @var ShipmentItemRepositoryInterface */
     private $shipmentItemRepository;
+    /** @var ShipmentNotifier */
+    private $shipmentNotifier;
     /** @var ShipmentTrackInterfaceFactory */
     private $trackFactory;
 
@@ -48,7 +53,8 @@ class ShipmentManager
         SpodLoggerInterface $logger,
         ShipmentRepositoryInterface $shipmentRepository,
         ShipmentItemRepositoryInterface $shipmentItemRepository,
-        ShipmentTrackInterfaceFactory $trackFactory
+        ShipmentTrackInterfaceFactory $trackFactory,
+        ShipmentNotifier $shipmentNotifier
     ) {
         $this->convertOrder = $convertOrder;
         $this->decoder = $decoder;
@@ -58,6 +64,7 @@ class ShipmentManager
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->shipmentRepository = $shipmentRepository;
         $this->shipmentItemRepository = $shipmentItemRepository;
+        $this->shipmentNotifier = $shipmentNotifier;
         $this->trackFactory = $trackFactory;
     }
 
@@ -78,13 +85,9 @@ class ShipmentManager
             );
         }
 
-        // create shipment
         $magentoShipment = $this->createShipment($order, $apiShipment);
-
-        // create tracking
-        $this->createTracking($order, $magentoShipment);
-
-        // shipment notifier / email
+        $this->saveTracking($apiShipment, $magentoShipment);
+        $this->shipmentNotifier->notify($magentoShipment);
     }
 
     /**
@@ -103,31 +106,6 @@ class ShipmentManager
         }
 
         throw new \Exception('SPOD Order Id not found');
-    }
-
-    /**
-     * @param int $shipmentId
-     */
-    public function addCustomTrack($shipmentId)
-    {
-        $number = 12345;
-        $carrier = 'custom';
-        $title = 'Custom Title';
-
-        try {
-            $shipment = $this->shipmentRepository->get($shipmentId);
-            $track = $this->trackFactory->create()->setNumber(
-                $number
-            )->setCarrierCode(
-                $carrier
-            )->setTitle(
-                $title
-            );
-            $shipment->addTrack($track);
-            $this->shipmentRepository->save($shipment);
-        } catch (NoSuchEntityException $e) {
-            //Shipment does not exist
-        }
     }
 
     /**
@@ -163,20 +141,23 @@ class ShipmentManager
         $order->setIsInProcess(true);
 
         try {
-            //$this->shipmentItemRepository->save($shipmentItem);
             $this->shipmentRepository->save($shipment);
             $this->orderRepository->save($order);
-
             return $shipment;
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
     }
 
-
-    private function createTracking(OrderInterface $order, Shipment $magentoShipment)
+    /**
+     * @param \stdClass $shippingData
+     * @param Shipment $magentoShipment
+     */
+    private function saveTracking(\stdClass $shippingData, Shipment $magentoShipment)
     {
-        $method = $order->getShippingMethod();
+        foreach ($shippingData->tracking as $tracking) {
+            $this->addTrackingToShipment($tracking, $magentoShipment);
+        }
     }
 
     /**
@@ -224,6 +205,31 @@ class ShipmentManager
             return $this->orderItemRepository->get($parentId);
         } else {
             return $orderItem;
+        }
+    }
+
+    /**
+     * @param mixed $tracking
+     * @param Order $order
+     * @param Shipment $magentoShipment
+     */
+    private function addTrackingToShipment(\stdClass $tracking, Shipment $magentoShipment): void
+    {
+        $order = $magentoShipment->getOrder();
+
+        try {
+            $track = $this->trackFactory->create()->setNumber(
+                $tracking->code
+            )->setCarrierCode(
+                $order->getShippingMethod()
+            )->setTitle(
+                $order->getShippingDescription()
+            );
+            $magentoShipment->addTrack($track);
+            $this->shipmentRepository->save($magentoShipment);
+
+        } catch (NoSuchEntityException $e) {
+            $this->logger->logError("could not save tracking");
         }
     }
 }

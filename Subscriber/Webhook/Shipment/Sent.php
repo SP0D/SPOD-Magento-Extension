@@ -1,18 +1,62 @@
 <?php
-namespace Spod\Sync\Controller\Subscriber\Webhook\Shipment;
+namespace Spod\Sync\Subscriber\Webhook\Shipment;
 
-use Magento\Framework\App\Action\Context;
+use Magento\Framework\Event\Observer;
+use Spod\Sync\Api\PayloadEncoder;
+use Spod\Sync\Api\SpodLoggerInterface;
+use Spod\Sync\Model\ApiResultFactory;
+use Spod\Sync\Model\CrudManager\ShipmentManager;
+use Spod\Sync\Model\Mapping\WebhookEvent;
+use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
 
-class Sent extends \Magento\Framework\App\Action\Action
+class Sent extends BaseSubscriber
 {
+    protected $event = WebhookEvent::EVENT_SHIPMENT_SENT;
+
+    /** @var ApiResultFactory  */
+    private $apiResultFactory;
+    /** @var PayloadEncoder  */
+    private $encoder;
+    /** @var SpodLoggerInterface  */
+    private $logger;
+    /** @var ShipmentManager */
+    private $shipmentManager;
+
     public function __construct(
-        Context $context)
-    {
-        return parent::__construct($context);
+        ApiResultFactory $apiResultFactory,
+        PayloadEncoder $encoder,
+        SpodLoggerInterface $logger,
+        ShipmentManager $shipmentManager
+    ) {
+        $this->apiResultFactory = $apiResultFactory;
+        $this->encoder = $encoder;
+        $this->logger = $logger;
+        $this->shipmentManager = $shipmentManager;
     }
 
-    public function execute()
+    public function execute(Observer $observer)
     {
-        echo "ff";
+        $webhookEvent = $this->getWebhookEventFromObserver($observer);
+
+        if ($this->isObserverResponsible($webhookEvent)) {
+            $payload = $webhookEvent->getDecodedPayload();
+            $shipmentData = $payload->data->shipment;
+
+            try {
+                $apiResult = $this->apiResultFactory->create();
+                $apiResult->setPayload($this->encoder->encodePayload($shipmentData));
+
+                $this->shipmentManager->addShipment($apiResult);
+                $this->setEventProcessed($webhookEvent);
+
+            } catch (\Exception $e) {
+                $this->logger->logError($e->getMessage());
+                $this->setEventFailed($webhookEvent);
+            }
+        }
+
+        return $this;
     }
+
+
 }
