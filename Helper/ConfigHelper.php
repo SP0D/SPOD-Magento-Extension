@@ -9,6 +9,7 @@ class ConfigHelper extends AbstractHelper
 {
     const XML_PATH_APITOKEN = 'spodsync/general/apiToken';
     const XML_PATH_IS_STAGING = 'spodsync/general/is_staging';
+    const XML_PATH_DEBUG_LOGGING = 'spodsync/general/debug_logging';
     const XML_PATH_LIVEURL = 'spodsync/general/liveurl';
     const XML_PATH_STAGEURL = 'spodsync/general/stagingurl';
 
@@ -17,6 +18,11 @@ class ConfigHelper extends AbstractHelper
         return $this->scopeConfig->getValue(
             $path, ScopeInterface::SCOPE_STORE, $storeId
         );
+    }
+
+    public function debugLogging(): bool
+    {
+        return $this->getConfigValue(self::XML_PATH_DEBUG_LOGGING);
     }
 
     public function isStaging(): bool
