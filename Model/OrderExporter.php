@@ -51,7 +51,7 @@ class OrderExporter
         $preparedOrder['phone'] = $this->preparePhone($magentoOrder);
         $preparedOrder['email'] = $this->prepareEmail($magentoOrder);
         $preparedOrder['externalOrderReference'] = $this->prepareOrderReference($magentoOrder);
-        $preparedOrder['state'] = 'NEW'; // TODO?
+        $preparedOrder['state'] = 'NEW';
         $preparedOrder['customerTaxType'] = $this->prepareCustomerTaxType($magentoOrder);
 
         return $preparedOrder;
