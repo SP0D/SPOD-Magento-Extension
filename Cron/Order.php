@@ -2,7 +2,6 @@
 
 namespace Spod\Sync\Cron;
 
-use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\QueueProcessor\OrderProcessor;
@@ -31,6 +30,6 @@ class Order
     public function execute()
     {
         $this->logger->logDebug('Executing Order Cronjob');
-        $this->orderProcessor->processPendingOrders();
+        $this->orderProcessor->processPendingNewOrders();
     }
 }

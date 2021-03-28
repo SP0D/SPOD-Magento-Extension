@@ -5,6 +5,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiReader\OrderHandler;
+use Spod\Sync\Model\OrderRecord;
 use Spod\Sync\Model\OrderRecordFactory;
 use Spod\Sync\Model\Mapping\QueueStatus;
 use Spod\Sync\Model\Repository\OrderRecordRepository;
@@ -60,6 +61,7 @@ class OrderPlugin
         $orderRecord->setOrderId($magentoOrder->getId());
         $orderRecord->setStatus(QueueStatus::STATUS_PENDING);
         $orderRecord->setCreatedAt(new \DateTime());
+        $orderRecord->setEventType(OrderRecord::RECORD_EVENT_TYPE_CREATE);
         $this->orderRecordRepository->save($orderRecord);
     }
 }

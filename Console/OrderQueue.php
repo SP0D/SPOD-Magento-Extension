@@ -37,7 +37,7 @@ class OrderQueue extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->state->setAreaCode(Area::AREA_ADMINHTML);
-        $this->orderProcessor->processPendingOrders();
+        $this->orderProcessor->processPendingNewOrders();
     }
 
 

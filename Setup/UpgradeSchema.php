@@ -30,6 +30,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '1.0.8') < 0) {
             $this->addSpodOrderItemIdToSalesOrderItem($setup);
         }
+        if (version_compare($context->getVersion(), '1.0.9') < 0) {
+            $this->addEventTypeToOrderQueue($setup);
+        }
 
         $setup->endSetup();
     }
@@ -221,4 +224,21 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $setup->endSetup();
     }
 
+    private function addEventTypeToOrderQueue(SchemaSetupInterface $setup): void
+    {
+        $setup->startSetup();
+
+        $setup->getConnection()->addColumn(
+            $setup->getTable('spodsync_queue_orders'),
+            'event_type',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'size' => 255,
+                'nullable' => false,
+                'comment' => 'Create new or update existing order',
+            ]
+        );
+
+        $setup->endSetup();
+    }
 }

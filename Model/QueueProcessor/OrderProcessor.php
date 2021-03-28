@@ -55,9 +55,9 @@ class OrderProcessor
         $this->orderRecordRepository = $orderRecordRepository;
     }
 
-    public function processPendingOrders()
+    public function processPendingNewOrders()
     {
-        $collection = $this->getPendingOrderCollection();
+        $collection = $this->getPendingCreateOrderCollection();
         foreach ($collection as $order) {
             try {
                 $this->submitOrder($order);
@@ -72,10 +72,11 @@ class OrderProcessor
     /**
      * @return Collection
      */
-    protected function getPendingOrderCollection(): Collection
+    protected function getPendingCreateOrderCollection(): Collection
     {
         $collection = $this->collectionFactory->create();
         $collection->addFieldToFilter('status', ['eq' => QueueStatus::STATUS_PENDING]);
+        $collection->addFieldToFilter('event_type', ['eq' => OrderRecord::RECORD_EVENT_TYPE_CREATE]);
 
         return $collection;
     }

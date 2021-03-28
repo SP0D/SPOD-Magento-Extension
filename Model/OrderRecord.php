@@ -5,6 +5,9 @@ use Spod\Sync\Api\ResultDecoder;
 
 class OrderRecord extends \Magento\Framework\Model\AbstractModel implements \Magento\Framework\DataObject\IdentityInterface
 {
+    const RECORD_EVENT_TYPE_CREATE = 'create';
+    const RECORD_EVENT_TYPE_UPDATE = 'update';
+
     const CACHE_TAG = 'spod_sync_order';
 
     protected $_cacheTag = 'spod_sync_order';
