@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!-- update order -->
+    <event name="sales_order_address_save_after">
+        <observer name="spodsync_sales_order_address_save_after" instance="Spod\Sync\Subscriber\UpdateOrderAddress"/>
+    </event>
+</config>

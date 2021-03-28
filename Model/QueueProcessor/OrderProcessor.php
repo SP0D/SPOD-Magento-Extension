@@ -87,7 +87,7 @@ class OrderProcessor
      */
     private function submitOrder(OrderRecord $orderEvent)
     {
-        $preparedOrder = $this->orderExporter->prepareOrder($orderEvent);
+        $preparedOrder = $this->orderExporter->prepareOrder($orderEvent->getOrderId());
         $apiResult = $this->orderHandler->submitPreparedOrder($preparedOrder);
         $magentoOrder = $this->orderRepository->get($orderEvent->getOrderId());
 
@@ -160,5 +160,21 @@ class OrderProcessor
         }
 
         throw new \Exception(sprintf("Item with sku %s not found in order", $sku));
+    }
+
+    public function updateOrder($orderId)
+    {
+        $this->logger->logDebug(sprintf('trying to update order #%s', $orderId));
+        $preparedOrder = $this->orderExporter->prepareOrder($orderId);
+        $magentoOrder = $this->orderRepository->get($orderId);
+        $this->logger->logDebug(sprintf('prepared order for update'));
+
+        if ($this->orderHandler->updateOrder($magentoOrder->getSpodOrderId(), $preparedOrder)) {
+            $this->logger->logDebug('order was updated');
+
+        } else {
+            $this->logger->logError('order could not be updated');
+            throw new \Exception(__("Order could not be updated"));
+        }
     }
 }

@@ -58,6 +58,32 @@ abstract class AbstractHandler
     }
 
     /**
+     * PUT request to API
+     *
+     * @param string $apiAction
+     * @param array $params
+     * @return bool|string
+     */
+    protected function sendPutRequest(string $apiAction, array $params): ApiResult
+    {
+        $baseUrl = $this->configHelper->getApiUrl();
+        $url = sprintf("%s%s", $baseUrl, $apiAction);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getHeader());
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->encoder->encodePayload($params));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $result = $this->apiResultFactory->create();
+        $result->setPayload(curl_exec($ch));
+        $result->setHttpCode(curl_getinfo($ch, CURLINFO_HTTP_CODE));
+
+        return $result;
+    }
+
+    /**
      * DELETE API resource
      *
      * @param string $apiAction
@@ -104,6 +130,9 @@ abstract class AbstractHandler
         return $result;
     }
 
+    /**
+     * @return array
+     */
     protected function getHeader(): array
     {
         return [
@@ -123,6 +152,22 @@ abstract class AbstractHandler
     protected function postRequest(string $apiAction, array $params = []): ApiResult
     {
         $result = $this->sendPostRequest($apiAction, $params);
+        $result->setPayload($this->decoder->parsePayload($result->getPayload()));
+
+        return $result;
+    }
+
+    /**
+     * Convenience method called to PUT
+     * a request and get parsed result back.
+     *
+     * @param string $apiAction
+     * @param array $params
+     * @return mixed
+     */
+    protected function putRequest(string $apiAction, array $params = []): ApiResult
+    {
+        $result = $this->sendPutRequest($apiAction, $params);
         $result->setPayload($this->decoder->parsePayload($result->getPayload()));
 
         return $result;

@@ -32,7 +32,7 @@ class OrderHandler extends AbstractHandler
      * @return ApiResult
      * @throws \Exception
      */
-    public function submitPreparedOrder($order): ApiResult
+    public function submitPreparedOrder(array $order): ApiResult
     {
         $result = $this->postRequest(self::ACTION_BASE_URL, $order);
         if ($result->getHttpCode() !== 201) {
@@ -62,5 +62,25 @@ class OrderHandler extends AbstractHandler
         } else {
             return false;
         }
+    }
+
+    /**
+     * @param $spodOrderId
+     * @param array $order
+     * @return ApiResult
+     * @throws \Exception
+     */
+    public function updateOrder($spodOrderId, array $order): ApiResult
+    {
+        $action = sprintf("%s/%d", self::ACTION_BASE_URL, $spodOrderId);
+        $this->logger->logDebug('sending PUT request');
+        $result = $this->putRequest($action, $order);
+
+        if ($result->getHttpCode() !== 201) {
+            $this->logger->logError(sprintf("updating order failed, httpStatus %s", $result->getHttpCode()));
+            throw new \Exception(sprintf("failed to update order"));
+        }
+
+        return $result;
     }
 }

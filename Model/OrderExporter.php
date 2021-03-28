@@ -46,15 +46,15 @@ class OrderExporter
      * Public method called from outside that returns the
      * prepared order as array structure.
      *
-     * @param OrderRecord $order
+     * @param $orderId
      * @return array
      * @throws \Magento\Framework\Exception\InputException
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function prepareOrder(OrderRecord $order)
+    public function prepareOrder($orderId)
     {
-        $magentoOrder = $this->getMagentoOrderById($order);
+        $magentoOrder = $this->getMagentoOrderById($orderId);
         $preparedOrder = [];
 
         //
@@ -204,14 +204,14 @@ class OrderExporter
     }
 
     /**
-     * @param OrderRecord $spodOrder
+     * @param $orderId
      * @return OrderInterface
      * @throws \Magento\Framework\Exception\InputException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function getMagentoOrderById(OrderRecord $spodOrder): OrderInterface
+    private function getMagentoOrderById($orderId): OrderInterface
     {
-        return $this->orderRepository->get($spodOrder->getOrderId());
+        return $this->orderRepository->get($orderId);
     }
 
     /**
