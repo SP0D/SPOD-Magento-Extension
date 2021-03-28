@@ -17,7 +17,6 @@ class CancelOrder implements ObserverInterface
     public function __construct(
         OrderHandler $orderHandler,
         SpodLoggerInterface $logger
-
     ) {
         $this->orderHandler = $orderHandler;
         $this->logger = $logger;
