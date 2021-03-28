@@ -3,6 +3,7 @@ namespace Spod\Sync\Console;
 
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
+use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Model\ApiReader\WebhookHandler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,18 +12,22 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Webhooks extends Command
 {
+    /** @var ResultDecoder  */
+    private $decoder;
     /** @var WebhookHandler */
     private $webhookHandler;
     /** @var State  */
     private $state;
 
     public function __construct(
+        ResultDecoder $decoder,
         WebhookHandler $webhookHandler,
         State $state,
         string $name = null
     ) {
-        $this->webhookHandler = $webhookHandler;
+        $this->decoder = $decoder;
         $this->state = $state;
+        $this->webhookHandler = $webhookHandler;
 
         parent::__construct($name);
     }
@@ -74,7 +79,9 @@ class Webhooks extends Command
     protected function listWebhooks(): void
     {
         $hooksResult = $this->webhookHandler->getWebhooks();
-        foreach ($hooksResult->getPayload() as $hook) {
+        $hooks = $this->decoder->parsePayload($hooksResult->getPayload());
+
+        foreach ($hooks as $hook) {
             echo sprintf("- %s: %s\n", $hook->eventType, $hook->url);
         }
     }
