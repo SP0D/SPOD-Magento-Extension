@@ -12,6 +12,8 @@ class ConfigHelper extends AbstractHelper
     const XML_PATH_DEBUG_LOGGING = 'spodsync/general/debug_logging';
     const XML_PATH_LIVEURL = 'spodsync/general/liveurl';
     const XML_PATH_STAGEURL = 'spodsync/general/stagingurl';
+    const XML_PATH_SHIPPING_PREMIUM = 'spodsync/general/premium_shipping';
+    const XML_PATH_SHIPPING_EXPRESS = 'spodsync/general/express_shipping';
 
     public function getConfigValue($path, $storeId = null)
     {
@@ -37,6 +39,18 @@ class ConfigHelper extends AbstractHelper
         } else {
             return $this->getConfigValue(self::XML_PATH_LIVEURL);
         }
+    }
+
+    public function getPremiumShippingMapping()
+    {
+        $mapping = $this->getConfigValue(self::XML_PATH_SHIPPING_PREMIUM);
+        return explode(',', $mapping);
+    }
+
+    public function getExpressShippingMapping()
+    {
+        $mapping = $this->getConfigValue(self::XML_PATH_SHIPPING_EXPRESS);
+        return explode(',', $mapping);
     }
 
     public function getToken(): string

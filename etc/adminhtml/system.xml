@@ -36,6 +36,24 @@
                     <comment>Log operations to var/log/debug.log</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+
+                <field id="premium_shipping" translate="label" type="multiselect" sortOrder="1" showInDefault="1" showInWebsite="0"
+                       showInStore="0">
+                    <label>Premium Shipping</label>
+                    <tooltip>Methods selected here are getting transmitted to SPOD as Premium Shipping, unless they're also selected as Express.</tooltip>
+                    <comment>Selecting a method as Premium overwrites the default Standard shipping.</comment>
+                    <source_model>Magento\Shipping\Model\Config\Source\Allmethods</source_model>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+
+                <field id="express_shipping" translate="label" type="multiselect" sortOrder="1" showInDefault="1" showInWebsite="0"
+                       showInStore="0">
+                    <label>Express Shipping</label>
+                    <tooltip>Methods selected here are getting transmitted to SPOD as Express Shipping.</tooltip>
+                    <comment>Selecting a method as Express takes precedence over the selection for Premium shipping.</comment>
+                    <source_model>Magento\Shipping\Model\Config\Source\Allmethods</source_model>
+                    <can_be_empty>1</can_be_empty>
+                </field>
             </group>
         </section>
     </system>

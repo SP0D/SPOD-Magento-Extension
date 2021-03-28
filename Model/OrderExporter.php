@@ -9,6 +9,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\OrderRepository;
 use Magento\Sales\Model\ResourceModel\Order\Tax\Item;
 use Spod\Sync\Helper\ConfigHelper;
+use Spod\Sync\Model\Mapping\ShippingType;
 
 class OrderExporter
 {
@@ -20,6 +21,8 @@ class OrderExporter
     private $orderRepository;
     /** @var RegionFactory */
     private $regionFactory;
+    /** @var ShippingType */
+    private $shippingTypeMapper;
     /** @var Item  */
     private $taxItem;
 
@@ -28,12 +31,14 @@ class OrderExporter
         CustomerRepository $customerRepository,
         Item $taxItem,
         OrderRepository $orderRepository,
-        RegionFactory $regionFactory
+        RegionFactory $regionFactory,
+        ShippingType $shippingTypeMapper
     ) {
         $this->configHelper = $configHelper;
         $this->customerRepository = $customerRepository;
         $this->orderRepository = $orderRepository;
         $this->regionFactory = $regionFactory;
+        $this->shippingTypeMapper = $shippingTypeMapper;
         $this->taxItem = $taxItem;
     }
 
@@ -88,7 +93,7 @@ class OrderExporter
         $shipping = [];
 
         $shipping['address'] = $this->prepareShippingAddress($order);
-        $shipping['preferredType'] = 'STANDARD'; // TODO
+        $shipping['preferredType'] = $this->shippingTypeMapper->getShippingTypeForOrder($order);
         $shipping['customerPrice'] = $this->prepareShippingPrice($order);
         $shipping['fromAddress'] = $this->prepareFromAddress($order);
 
