@@ -26,10 +26,11 @@ class CancelOrder implements ObserverInterface
     public function execute(Observer $observer)
     {
         $order = $observer->getOrder();
-
         if (!$order->getSpodOrderId() || $order->getSpodCancelled()) {
             return;
         }
+
+        $this->logger->logDebug(sprintf('trying to cancel order #%s', $order->getId()));
 
         if ($this->orderHandler->cancelOrder($order->getSpodOrderId())) {
             $this->logger->logDebug('order was cancelled');
