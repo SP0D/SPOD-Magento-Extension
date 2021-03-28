@@ -14,6 +14,12 @@ class UpdateOrderAddress implements ObserverInterface
     /** @var OrderProcessor */
     private $orderProcessor;
 
+    /**
+     * UpdateOrderAddress constructor.
+     *
+     * @param OrderProcessor $orderProcessor
+     * @param SpodLoggerInterface $logger
+     */
     public function __construct(
         OrderProcessor $orderProcessor,
         SpodLoggerInterface $logger
@@ -22,9 +28,15 @@ class UpdateOrderAddress implements ObserverInterface
         $this->orderProcessor = $orderProcessor;
     }
 
+    /**
+     *
+     * @param Observer $observer
+     * @throws \Exception
+     */
     public function execute(Observer $observer)
     {
         $address = $observer->getAddress();
+        // new objects are not getting updated
         if ($address->isObjectNew() || !$address->getOrigData('entity_id')) {
             return;
         }
