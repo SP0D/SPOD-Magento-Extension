@@ -8,7 +8,8 @@ use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Helper\UrlGenerator;
 use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\ApiResultFactory;
-use Spod\Sync\Model\WebhookEvent;
+use Spod\Sync\Model\Mapping\WebhookEvent as WebhookEventMapping;
+use Spod\Sync\Model\Webhook as WebhookEvent;
 
 class WebhookHandler extends AbstractHandler
 {
@@ -33,7 +34,7 @@ class WebhookHandler extends AbstractHandler
      */
     public function registerWebhooks()
     {
-        $events = WebhookEvent::getAllEvents();
+        $events = WebhookEventMapping::getAllEvents();
 
         foreach ($events as $eventType) {
             $this->addSubscription($eventType);
@@ -64,8 +65,9 @@ class WebhookHandler extends AbstractHandler
     public function unregisterWebhooks()
     {
         $hooksResult = $this->getWebhooks();
+        $hooks = $this->decoder->parsePayload($hooksResult->getPayload());
 
-        foreach ($hooksResult->getPayload() as $hook) {
+        foreach ($hooks as $hook) {
             $this->deleteSubscription($hook);
         }
     }
