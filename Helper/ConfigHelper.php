@@ -15,6 +15,14 @@ class ConfigHelper extends AbstractHelper
     const XML_PATH_SHIPPING_PREMIUM = 'spodsync/general/premium_shipping';
     const XML_PATH_SHIPPING_EXPRESS = 'spodsync/general/express_shipping';
 
+    /**
+     * Method for reading Magento system.xml config values
+     * for a specific config path.
+     *
+     * @param $path
+     * @param null $storeId
+     * @return mixed
+     */
     public function getConfigValue($path, $storeId = null)
     {
         return $this->scopeConfig->getValue(
@@ -22,16 +30,32 @@ class ConfigHelper extends AbstractHelper
         );
     }
 
+    /**
+     * Return wether to activate debug logging or not.
+
+     *
+     * @return bool
+     */
     public function debugLogging(): bool
     {
         return $this->getConfigValue(self::XML_PATH_DEBUG_LOGGING);
     }
 
+    /**
+     * Return wether to use the staging environment or not.
+     *
+     * @return bool
+     */
     public function isStaging(): bool
     {
         return $this->getConfigValue(self::XML_PATH_IS_STAGING);
     }
 
+    /**
+     * The API URL.
+     *
+     * @return string
+     */
     public function getApiUrl(): string
     {
         if ($this->isStaging()) {
@@ -41,18 +65,33 @@ class ConfigHelper extends AbstractHelper
         }
     }
 
+    /**
+     * Get method codes for premium shipping methods.
+     *
+     * @return false|string[]
+     */
     public function getPremiumShippingMapping()
     {
         $mapping = $this->getConfigValue(self::XML_PATH_SHIPPING_PREMIUM);
         return explode(',', $mapping);
     }
 
+    /**
+     * Get method codes for express shipping methods.
+     *
+     * @return false|string[]
+     */
     public function getExpressShippingMapping()
     {
         $mapping = $this->getConfigValue(self::XML_PATH_SHIPPING_EXPRESS);
         return explode(',', $mapping);
     }
 
+    /**
+     * Get API Token.
+     *
+     * @return string
+     */
     public function getToken(): string
     {
         return $this->getConfigValue(self::XML_PATH_APITOKEN);

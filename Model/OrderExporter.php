@@ -42,6 +42,16 @@ class OrderExporter
         $this->taxItem = $taxItem;
     }
 
+    /**
+     * Public method called from outside that returns the
+     * prepared order as array structure.
+     *
+     * @param OrderRecord $order
+     * @return array
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function prepareOrder(OrderRecord $order)
     {
         $magentoOrder = $this->getMagentoOrderById($order);
@@ -62,6 +72,11 @@ class OrderExporter
         return $preparedOrder;
     }
 
+    /**
+     * @param OrderInterface $order
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     private function prepareOrderItems(OrderInterface $order)
     {
         $orderedItems = $order->getAllItems();
@@ -88,6 +103,11 @@ class OrderExporter
         return $items;
     }
 
+    /**
+     * @param OrderInterface $order
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     private function prepareShipping(OrderInterface $order)
     {
         $shipping = [];
@@ -100,6 +120,10 @@ class OrderExporter
         return $shipping;
     }
 
+    /**
+     * @param OrderInterface $order
+     * @return array
+     */
     private function prepareBillingAddress(OrderInterface $order)
     {
         /** @var Address $billingAddress */
@@ -137,6 +161,10 @@ class OrderExporter
         return $billing;
     }
 
+    /**
+     * @param OrderInterface $order
+     * @return string
+     */
     private function preparePhone(OrderInterface $order)
     {
         /** @var Address $billing */
@@ -148,21 +176,39 @@ class OrderExporter
         return '';
     }
 
+    /**
+     * @param OrderInterface $order
+     * @return string
+     */
     private function prepareEmail(OrderInterface $order)
     {
         return $order->getCustomerEmail();
     }
 
+    /**
+     * @param OrderInterface $order
+     * @return string|null
+     */
     private function prepareOrderReference(OrderInterface $order)
     {
         return $order->getIncrementId();
     }
 
+    /**
+     * @param OrderInterface $order
+     * @return string
+     */
     private function prepareCustomerTaxType(OrderInterface $order)
     {
         return "NOT_TAXABLE";
     }
 
+    /**
+     * @param OrderRecord $spodOrder
+     * @return OrderInterface
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     private function getMagentoOrderById(OrderRecord $spodOrder): OrderInterface
     {
         return $this->orderRepository->get($spodOrder->getOrderId());
