@@ -135,7 +135,7 @@ class ProductManager
     {
         $sku = sprintf('sp%s', $apiData->id);
         $product = $this->getOrCreateSimple($sku);
-        $product->setName($apiData->title);
+        $product->setName(sprintf("%s - %d", $apiData->title, $apiData->id));
         $product->setTypeId(Configurable::TYPE_CODE);
         $product->setDescription($apiData->description);
         $product->setVisibility(ProductVisibility::VISIBILITY_BOTH);
