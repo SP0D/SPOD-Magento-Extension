@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Webhooks extends Command
+class WebhookRegistration extends Command
 {
     /** @var ResultDecoder  */
     private $decoder;
@@ -34,7 +34,7 @@ class Webhooks extends Command
 
     protected function configure()
     {
-        $this->setName('spod:webhook');
+        $this->setName('spod:webhook:registration');
         $this->setDescription('Register/unregister webhooks');
         $this->setDefinition([
             new InputOption(
