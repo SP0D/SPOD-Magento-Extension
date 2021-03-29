@@ -17,6 +17,11 @@ class UrlGenerator
 
     public function generateUrl($urlPath): string
     {
-        return sprintf('%s/%s', $this->storeManager->getStore()->getBaseUrl(), $urlPath);
+        $baseUrl = $this->storeManager->getStore()->getBaseUrl();
+        if (!preg_match('/.*\//', $baseUrl)) {
+            $baseUrl .= '/';
+        }
+
+        return sprintf('%s%s', $baseUrl, $urlPath);
     }
 }
