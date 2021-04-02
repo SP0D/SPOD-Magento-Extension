@@ -4,6 +4,7 @@ namespace Spod\Sync\Helper;
 
 use \Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Tests\NamingConvention\true\string;
 
 class ConfigHelper extends AbstractHelper
 {
@@ -12,8 +13,10 @@ class ConfigHelper extends AbstractHelper
     const XML_PATH_DEBUG_LOGGING = 'spodsync/general/debug_logging';
     const XML_PATH_LIVEURL = 'spodsync/general/liveurl';
     const XML_PATH_STAGEURL = 'spodsync/general/stagingurl';
-    const XML_PATH_SHIPPING_PREMIUM = 'spodsync/general/premium_shipping';
-    const XML_PATH_SHIPPING_EXPRESS = 'spodsync/general/express_shipping';
+    const XML_PATH_FROM_FIRSTNAME = 'spodsync/shipping/from_firstname';
+    const XML_PATH_FROM_LASTNAME = 'spodsync/shipping/from_lastname';
+    const XML_PATH_SHIPPING_PREMIUM = 'spodsync/shipping/premium_shipping';
+    const XML_PATH_SHIPPING_EXPRESS = 'spodsync/shipping/express_shipping';
 
     /**
      * Method for reading Magento system.xml config values
@@ -95,5 +98,34 @@ class ConfigHelper extends AbstractHelper
     public function getToken(): string
     {
         return $this->getConfigValue(self::XML_PATH_APITOKEN);
+    }
+
+    /**
+     * Get lastname for FromAddress
+     *
+     * @return string|null
+     */
+    public function getFromLastname(): ?string
+    {
+        $lastname = $this->getConfigValue(self::XML_PATH_FROM_FIRSTNAME);
+        if ($lastname) {
+            return $lastname;
+        } else {
+            throw new \Exception("FromAddress lastname was not set in system config but is required.");
+        }
+    }
+
+    /**
+     * Get firstname for FromAddress
+     *
+     * @return string|null
+     */
+    public function getFromFirstname(): string
+    {
+        if ($firstname = $this->getConfigValue(self::XML_PATH_FROM_FIRSTNAME)) {
+            return $firstname;
+        } else {
+            return '';
+        }
     }
 }

@@ -301,8 +301,8 @@ class OrderExporter
     {
         $fromAddress = [];
         $fromAddress['company'] = $this->configHelper->getConfigValue('general/store_information/name', $order->getStoreId());
-        $fromAddress['firstName'] = '';
-        $fromAddress['lastName'] = '';
+        $fromAddress['firstName'] = $this->configHelper->getFromFirstname();
+        $fromAddress['lastName'] = $this->configHelper->getFromLastname();
         $fromAddress['street'] = $this->configHelper->getConfigValue('general/store_information/street_line1', $order->getStoreId());
         $fromAddress['streetAnnex'] = $this->configHelper->getConfigValue('general/store_information/street_line2', $order->getStoreId());
         $fromAddress['city'] = $this->configHelper->getConfigValue('general/store_information/city', $order->getStoreId());
