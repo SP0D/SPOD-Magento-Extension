@@ -1,6 +1,18 @@
 <?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
-        <add id="Spod_Sync::dashboard" title="SPOD" translate="title" module="Spod_Sync" sortOrder="20" dependsOnModule="Spod_Sync" action="spodsync/index/index" resource="Spod_Sync::dashboard" parent="Magento_Catalog::inventory"/>
+        <!-- menu entry -->
+        <add id="Spod_Sync::index" title="SPOD" module="Spod_Sync" sortOrder="51" resource="Spod_Sync::index"/>
+
+        <!-- status dashboard -->
+        <add id="Spod_Sync::status" title="Status" translate="title" module="Spod_Sync" sortOrder="1"
+             dependsOnModule="Spod_Sync" action="spodsync/index/index" resource="Spod_Sync::status"
+             parent="Spod_Sync::index"/>
+
+        <!-- config settings -->
+        <add id="Spod_Sync::config" title="Configuration" translate="title" module="Spod_Sync" sortOrder="2"
+             dependsOnModule="Spod_Sync" action="adminhtml/system_config/edit/section/spodsync" resource="Spod_Sync::config"
+             parent="Spod_Sync::index"/>
     </menu>
 </config>
