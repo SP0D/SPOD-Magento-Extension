@@ -21,7 +21,7 @@ class Index extends Action
 
     protected function _isAllowed()
     {
-        return $this->_authorization->isAllowed('Spod_Sync::dashboard');
+        return $this->_authorization->isAllowed('Spod_Sync::spodsync');
     }
 
     public function execute()
