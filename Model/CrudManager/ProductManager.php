@@ -126,9 +126,6 @@ class ProductManager
 
         // configurable images
         $this->imageHelper->resetOldImages($configurable);
-        $this->productRepository->save($configurable);
-
-        $configurable = $this->productRepository->get($configurable->getSku());
         $this->imageHelper->assignConfigurableImages($configurable, $apiData->images);
         $this->productRepository->save($configurable);
     }

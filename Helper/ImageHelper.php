@@ -5,6 +5,7 @@ namespace Spod\Sync\Helper;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Filesystem;
 use Spod\Sync\Api\SpodLoggerInterface;
 
@@ -21,16 +22,22 @@ class ImageHelper
 
     /** @var SpodLoggerInterface  */
     private $logger;
+    /**
+     * @var ResourceConnection
+     */
+    private $resourceConnection;
 
     public function __construct(
         DirectoryList $directoryList,
         Filesystem $filesystem,
         ProductRepository $productRepository,
+        ResourceConnection $resourceConnection,
         SpodLoggerInterface $logger
     ) {
         $this->directoryList = $directoryList;
         $this->filesystem = $filesystem;
         $this->productRepository = $productRepository;
+        $this->resourceConnection = $resourceConnection;
         $this->logger = $logger;
     }
 
@@ -151,17 +158,16 @@ class ImageHelper
      */
     public function resetOldImages($product): void
     {
-        $galleryEntries = $product->getMediaGalleryEntries();
-        if ($galleryEntries) {
-            foreach ($galleryEntries as $key => $entry) {
-                unset($galleryEntries[$key]);
-            }
-            $product->setMediaGalleryEntries($galleryEntries);
-        }
-
+        $product->setData('media_gallery', ['images' => []]);
+        $product->setMediaGalleryEntries([]);
         $product->setImage(false);
         $product->setThumbnail(false);
         $product->setSmallImage(false);
+
+        // workaround for possible M2 bug: while updating products,
+        // even after saving the product, sometimes image assignments
+        // are still in the database
+        $this->deleteGhostImages($product);
     }
 
     /**
@@ -176,5 +182,16 @@ class ImageHelper
         } else {
             $product->addImageToMediaGallery($imagePath, null, true, false);
         }
+    }
+
+    /**
+     * @param ProductInterface $product
+     */
+    private function deleteGhostImages(ProductInterface $product)
+    {
+        $connection = $this->resourceConnection->getConnection();
+        $table = $connection->getTableName('catalog_product_entity_media_gallery_value_to_entity');
+        $sql = sprintf('DELETE FROM %s WHERE entity_id = %d', $table, $product->getId());
+        $connection->query($sql);
     }
 }
