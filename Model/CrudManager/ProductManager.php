@@ -189,7 +189,14 @@ class ProductManager
 
         $variants = [];
         foreach ($apiData->variants as $variantInfo) {
-            $variant = $this->createVariantProduct($variantInfo, $apiData->images);
+            $variant = $this->createVariantProduct($variantInfo);
+            $this->productRepository->save($variant);
+
+            // required to get full product, otherwise image assignment fails
+            $savedProduct = $this->productRepository->get($variant->getSku());
+            $this->imageHelper->downloadAndAssignImages($savedProduct, $variantInfo->imageIds, $apiData->images);
+            $this->productRepository->save($savedProduct);
+
             $variants[] = $variant;
         }
 
@@ -213,15 +220,12 @@ class ProductManager
         $this->optionHelper->addOptionToAttribute('spod_appearance', $appearanceValues);
     }
 
-    private function createVariantProduct($variantInfo, $images)
+    private function createVariantProduct($variantInfo)
     {
         $product = $this->getOrCreateSimple($variantInfo->sku);
         $this->assignBaseValues($product, $variantInfo);
         $this->assignSpodValues($product, $variantInfo);
         $this->setStockInfo($product);
-        $this->productRepository->save($product);
-
-        $this->imageHelper->downloadAndAssignImages($variantInfo, $images);
 
         return $product;
     }

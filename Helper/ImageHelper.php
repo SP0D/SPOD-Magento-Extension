@@ -2,6 +2,7 @@
 
 namespace Spod\Sync\Helper;
 
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
@@ -52,29 +53,30 @@ class ImageHelper
     }
 
     /**
+     * @param $product
      * @param $variantInfo
      * @param $images
      */
-    public function downloadAndAssignImages($variantInfo, $images)
+    public function downloadAndAssignImages($product, $imageIds, $images)
     {
         try {
-            $product = $this->productRepository->get($variantInfo->sku);
-            $imagePaths = $this->getImagesForVariant($variantInfo, $images);
+            $imagePaths = $this->getImagesForVariant($imageIds, $images);
             $this->assignImages($product, $imagePaths);
+            return $product;
         } catch (\Exception $e) {
             $this->logger->logError($e->getMessage());
         }
     }
 
     /**
-     * @param $variantInfo
-     * @param $images
+     * @param array $imageIds
+     * @param array $images
      * @return array
      */
-    private function getImagesForVariant($variantInfo, $images)
+    private function getImagesForVariant($imageIds, $images)
     {
         $urls = [];
-        foreach ($variantInfo->imageIds as $imageId) {
+        foreach ($imageIds as $imageId) {
             foreach ($images as $imageInfo) {
                 if ($imageInfo->id == $imageId) {
                     $urls[$imageId] = $this->downloadImage($imageId, $imageInfo->imageUrl);
@@ -92,18 +94,18 @@ class ImageHelper
      * @throws \Magento\Framework\Exception\InputException
      * @throws \Magento\Framework\Exception\StateException
      */
-    private function assignImages($product, $imageUrls)
+    private function assignImages(ProductInterface $product, $imageUrls)
     {
         $this->resetOldImages($product);
 
+        $isMain = true;
         foreach ($imageUrls as $imageId => $imagePath) {
             try {
-                $product->addImageToMediaGallery($imagePath, ['image', 'small_image', 'thumbnail'], true, false);
+                $this->addImageToGallery($isMain, $product, $imagePath);
+                $isMain = false;
             } catch (\Exception $e) {
                 $this->logger->logError($e->getMessage());
             }
-
-            $this->productRepository->save($product);
         }
     }
 
@@ -157,6 +159,19 @@ class ImageHelper
         }
 
         $product->setMediaGalleryEntries($existingMediaGalleryEntries);
-        $this->productRepository->save($product);
+    }
+
+    /**
+     * @param bool $firstImage
+     * @param ProductInterface $product
+     * @param $imagePath
+     */
+    private function addImageToGallery(bool $isMain, ProductInterface $product, $imagePath): void
+    {
+        if ($isMain) {
+            $product->addImageToMediaGallery($imagePath, ['image', 'small_image', 'thumbnail'], true, false);
+        } else {
+            $product->addImageToMediaGallery($imagePath, null, true, false);
+        }
     }
 }
