@@ -33,6 +33,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '1.0.9') < 0) {
             $this->addEventTypeToOrderQueue($setup);
         }
+        if (version_compare($context->getVersion(), '1.1.0') < 0) {
+            $this->createLogTable($setup);
+        }
 
         $setup->endSetup();
     }
@@ -240,5 +243,60 @@ class UpgradeSchema implements UpgradeSchemaInterface
         );
 
         $setup->endSetup();
+    }
+
+    /**
+     * @param SchemaSetupInterface $setup
+     * @throws \Zend_Db_Exception
+     */
+    private function createLogTable(SchemaSetupInterface $setup): void
+    {
+        if (!$setup->tableExists('spodsync_error_log')) {
+            $table = $setup->getConnection()->newTable(
+                $setup->getTable('spodsync_error_log')
+            )
+                ->addColumn(
+                    'id',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    null,
+                    [
+                        'identity' => true,
+                        'nullable' => false,
+                        'primary' => true,
+                        'unsigned' => true,
+                    ],
+                    'Queue ID'
+                )
+                ->addColumn(
+                    'event',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    255,
+                    ['nullable => false'],
+                    'what type of event was processed'
+                )
+                ->addColumn(
+                    'message',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    '64k',
+                    [],
+                    'the error message'
+                )
+                ->addColumn(
+                    'payload',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    '64k',
+                    ['nullable' => true],
+                    'the payload that was processed, if any'
+                )
+                ->addColumn(
+                    'created_at',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    null,
+                    ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
+                    'Created At'
+                )
+                ->setComment('error log');
+            $setup->getConnection()->createTable($table);
+        }
     }
 }
