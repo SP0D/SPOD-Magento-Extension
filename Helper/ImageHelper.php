@@ -115,6 +115,20 @@ class ImageHelper
     }
 
     /**
+     * @param bool $firstImage
+     * @param ProductInterface $product
+     * @param $imagePath
+     */
+    private function addImageToGallery(bool $isMain, ProductInterface $product, $imagePath): void
+    {
+        if ($isMain) {
+            $product->addImageToMediaGallery($imagePath, ['image', 'small_image', 'thumbnail'], true, false);
+        } else {
+            $product->addImageToMediaGallery($imagePath, null, true, false);
+        }
+    }
+
+    /**
      * @param $imageId
      * @param $imageUrl
      * @return false|string
@@ -168,20 +182,6 @@ class ImageHelper
         // even after saving the product, sometimes image assignments
         // are still in the database
         $this->deleteGhostImages($product);
-    }
-
-    /**
-     * @param bool $firstImage
-     * @param ProductInterface $product
-     * @param $imagePath
-     */
-    private function addImageToGallery(bool $isMain, ProductInterface $product, $imagePath): void
-    {
-        if ($isMain) {
-            $product->addImageToMediaGallery($imagePath, ['image', 'small_image', 'thumbnail'], true, false);
-        } else {
-            $product->addImageToMediaGallery($imagePath, null, true, false);
-        }
     }
 
     /**
