@@ -36,6 +36,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
         if (version_compare($context->getVersion(), '1.1.0') < 0) {
             $this->createLogTable($setup);
         }
+        if (version_compare($context->getVersion(), '1.1.1') < 0) {
+            $this->createStatusTable($setup);
+        }
 
         $setup->endSetup();
     }
@@ -296,6 +299,35 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'Created At'
                 )
                 ->setComment('error log');
+            $setup->getConnection()->createTable($table);
+        }
+    }
+
+    /**
+     * @param SchemaSetupInterface $setup
+     * @throws \Zend_Db_Exception
+     */
+    private function createStatusTable(SchemaSetupInterface $setup): void
+    {
+        if (!$setup->tableExists('spodsync_status')) {
+            $table = $setup->getConnection()->newTable(
+                $setup->getTable('spodsync_status')
+            )
+                ->addColumn(
+                    'installed_at',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    null,
+                    ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
+                    'Created At'
+                )
+                ->addColumn(
+                    'installed_at',
+                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    null,
+                    ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
+                    'Created At'
+                )
+                ->setComment('status table');
             $setup->getConnection()->createTable($table);
         }
     }
