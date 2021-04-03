@@ -96,8 +96,6 @@ class ImageHelper
      */
     private function assignImages(ProductInterface $product, $imageUrls)
     {
-        $this->resetOldImages($product);
-
         $isMain = true;
         foreach ($imageUrls as $imageId => $imagePath) {
             try {
@@ -151,14 +149,19 @@ class ImageHelper
      * @throws \Magento\Framework\Exception\InputException
      * @throws \Magento\Framework\Exception\StateException
      */
-    private function resetOldImages($product): void
+    public function resetOldImages($product): void
     {
-        $existingMediaGalleryEntries = $product->getMediaGalleryEntries();
-        foreach ($existingMediaGalleryEntries as $key => $entry) {
-            unset($existingMediaGalleryEntries[$key]);
+        $galleryEntries = $product->getMediaGalleryEntries();
+        if ($galleryEntries) {
+            foreach ($galleryEntries as $key => $entry) {
+                unset($galleryEntries[$key]);
+            }
+            $product->setMediaGalleryEntries($galleryEntries);
         }
 
-        $product->setMediaGalleryEntries($existingMediaGalleryEntries);
+        $product->setImage(false);
+        $product->setThumbnail(false);
+        $product->setSmallImage(false);
     }
 
     /**

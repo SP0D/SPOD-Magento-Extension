@@ -116,13 +116,20 @@ class ProductManager
         $variantProducts = $this->getVariantProducts($configurable);
         $configurable->setAssociatedProductIds([]);
         $this->deleteVariantsOfConfigurable($variantProducts);
+        $this->productRepository->save($configurable);
 
         // recreate variants
+        $configurable = $this->productRepository->get($configurable->getSku());
         $variants = $this->createVariants($apiData);
         $this->assignVariants($configurable, $variants);
-        $this->imageHelper->assignConfigurableImages($configurable, $apiData->images);
+        $this->productRepository->save($configurable);
 
-        // remember, remember
+        // configurable images
+        $this->imageHelper->resetOldImages($configurable);
+        $this->productRepository->save($configurable);
+
+        $configurable = $this->productRepository->get($configurable->getSku());
+        $this->imageHelper->assignConfigurableImages($configurable, $apiData->images);
         $this->productRepository->save($configurable);
     }
 
@@ -190,6 +197,7 @@ class ProductManager
         $variants = [];
         foreach ($apiData->variants as $variantInfo) {
             $variant = $this->createVariantProduct($variantInfo);
+            $this->imageHelper->resetOldImages($variant);
             $this->productRepository->save($variant);
 
             // required to get full product, otherwise image assignment fails
