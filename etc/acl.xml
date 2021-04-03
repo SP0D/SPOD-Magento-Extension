@@ -5,7 +5,7 @@
             <resource id="Magento_Backend::admin">
                 <resource id="Magento_Backend::dashboard">
                     <resource id="Spod_Sync::general" title="Spod Sync" sortOrder="100">
-                        <resource id="Spod_Sync::dashboard" title="Spod Sync" />
+                        <resource id="Spod_Sync::spodsync" title="Spod Sync" />
                     </resource>
                 </resource>
             </resource>
