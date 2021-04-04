@@ -2,6 +2,7 @@
 
 namespace Spod\Sync\Setup;
 
+use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
@@ -55,7 +56,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             )
                 ->addColumn(
                     'id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    Table::TYPE_INTEGER,
                     null,
                     [
                         'identity' => true,
@@ -67,34 +68,34 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )
                 ->addColumn(
                     'event_type',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    Table::TYPE_TEXT,
                     255,
                     ['nullable => false'],
                     'which event occured'
                 )
                 ->addColumn(
                     'status',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    Table::TYPE_INTEGER,
                     1,
                     ['nullable => false'],
                     'Status'
                 )
                 ->addColumn(
                     'payload',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    Table::TYPE_TEXT,
                     '64k',
                     [],
                     'webhook request payload'
                 )
                 ->addColumn(
                     'created_at',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    Table::TYPE_TIMESTAMP,
                     null,
-                    ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
+                    ['nullable' => false, 'default' => Table::TIMESTAMP_INIT],
                     'Created At'
                 )->addColumn(
                     'processed_at',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    Table::TYPE_TIMESTAMP,
                     null,
                     ['nullable' => true],
                     'Processed At'
@@ -116,7 +117,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             )
                 ->addColumn(
                     'id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    Table::TYPE_INTEGER,
                     null,
                     [
                         'identity' => true,
@@ -128,27 +129,27 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )
                 ->addColumn(
                     'order_id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    Table::TYPE_INTEGER,
                     11,
                     ['nullable => false'],
                     'order id'
                 )
                 ->addColumn(
                     'status',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    Table::TYPE_INTEGER,
                     1,
                     ['nullable => false'],
                     'Status'
                 )
                 ->addColumn(
                     'created_at',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    Table::TYPE_TIMESTAMP,
                     null,
-                    ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
+                    ['nullable' => false, 'default' => Table::TIMESTAMP_INIT],
                     'Created At'
                 )->addColumn(
                     'processed_at',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    Table::TYPE_TIMESTAMP,
                     null,
                     ['nullable' => true],
                     'Processed At'
@@ -166,7 +167,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getTable('sales_order'),
             'spod_order_id',
             [
-                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'type' => Table::TYPE_TEXT,
                 'size' => 255,
                 'nullable' => true,
                 'comment' => 'SPOD Order Id',
@@ -184,7 +185,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getTable('sales_order_item'),
             'spod_order_item_id',
             [
-                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'type' => Table::TYPE_TEXT,
                 'size' => 255,
                 'nullable' => true,
                 'comment' => 'SPOD Order Item Id',
@@ -202,7 +203,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getTable('sales_order'),
             'spod_order_reference',
             [
-                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'type' => Table::TYPE_TEXT,
                 'size' => 255,
                 'nullable' => true,
                 'comment' => 'SPOD Order Reference',
@@ -220,7 +221,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getTable('sales_order'),
             'spod_cancelled',
             [
-                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                'type' => Table::TYPE_INTEGER,
                 'size' => 1,
                 'nullable' => true,
                 'comment' => 'Order cancelled by SPOD, no API call required',
@@ -238,7 +239,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $setup->getTable('spodsync_queue_orders'),
             'event_type',
             [
-                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'type' => Table::TYPE_TEXT,
                 'size' => 255,
                 'nullable' => false,
                 'comment' => 'Create new or update existing order',
@@ -260,7 +261,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             )
                 ->addColumn(
                     'id',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    Table::TYPE_INTEGER,
                     null,
                     [
                         'identity' => true,
@@ -272,30 +273,30 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )
                 ->addColumn(
                     'event',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    Table::TYPE_TEXT,
                     255,
                     ['nullable => false'],
                     'what type of event was processed'
                 )
                 ->addColumn(
                     'message',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    Table::TYPE_TEXT,
                     '64k',
                     [],
                     'the error message'
                 )
                 ->addColumn(
                     'payload',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    Table::TYPE_TEXT,
                     '64k',
                     ['nullable' => true],
                     'the payload that was processed, if any'
                 )
                 ->addColumn(
                     'created_at',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    Table::TYPE_TIMESTAMP,
                     null,
-                    ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
+                    ['nullable' => false, 'default' => Table::TIMESTAMP_INIT],
                     'Created At'
                 )
                 ->setComment('error log');
@@ -315,19 +316,33 @@ class UpgradeSchema implements UpgradeSchemaInterface
             )
                 ->addColumn(
                     'installed_at',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    Table::TYPE_TIMESTAMP,
                     null,
-                    ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
-                    'Created At'
+                    ['nullable' => false, 'default' => Table::TIMESTAMP_INIT],
+                    'Installer Executed At'
                 )
                 ->addColumn(
-                    'installed_at',
-                    \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                    'initsync_start_at',
+                    Table::TYPE_TIMESTAMP,
                     null,
-                    ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
-                    'Created At'
+                    ['nullable' => true],
+                    'Initial Sync Started At'
                 )
-                ->setComment('status table');
+                ->addColumn(
+                    'initsync_end_at',
+                    Table::TYPE_TIMESTAMP,
+                    null,
+                    ['nullable' => true],
+                    'Initial Sync Ended At'
+                )
+                ->addColumn(
+                    'lastsync_at',
+                    Table::TYPE_TIMESTAMP,
+                    null,
+                    ['nullable' => true],
+                    'Last Sync'
+                )
+                ->setComment('Status Table');
             $setup->getConnection()->createTable($table);
         }
     }
