@@ -318,7 +318,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     'installed_at',
                     Table::TYPE_TIMESTAMP,
                     null,
-                    ['nullable' => false, 'default' => Table::TIMESTAMP_INIT],
+                    ['nullable' => true],
                     'Installer Executed At'
                 )
                 ->addColumn(
@@ -344,6 +344,9 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 )
                 ->setComment('Status Table');
             $setup->getConnection()->createTable($table);
+
+            // status has only one row, create it right away
+            $setup->getConnection()->query(sprintf('INSERT INTO %s VALUES (NULL, NULL, NULL, NULL)', $setup->getTable('spodsync_status')));
         }
     }
 }
