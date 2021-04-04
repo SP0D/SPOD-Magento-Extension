@@ -31,6 +31,23 @@ abstract class AbstractHandler
         $this->encoder = $encoder;
     }
 
+    protected function testAuthentication(string $apiAction, string $apiToken): ApiResult
+    {
+        $baseUrl = $this->configHelper->getApiUrl();
+        $url = sprintf("%s%s", $baseUrl, $apiAction);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->builtAuthHeader($apiToken));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $result = $this->apiResultFactory->create();
+        $result->setPayload(curl_exec($ch));
+        $result->setHttpCode(curl_getinfo($ch, CURLINFO_HTTP_CODE));
+
+        return $result;
+    }
+
     /**
      * POST request to API
      *
@@ -45,7 +62,7 @@ abstract class AbstractHandler
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getHeader());
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getDefaultHeader());
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->encoder->encodePayload($params));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -71,7 +88,7 @@ abstract class AbstractHandler
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getHeader());
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getDefaultHeader());
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->encoder->encodePayload($params));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -96,7 +113,7 @@ abstract class AbstractHandler
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getHeader());
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getDefaultHeader());
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
@@ -120,7 +137,7 @@ abstract class AbstractHandler
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getHeader());
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getDefaultHeader());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         $result = $this->apiResultFactory->create();
@@ -133,11 +150,21 @@ abstract class AbstractHandler
     /**
      * @return array
      */
-    protected function getHeader(): array
+    protected function getDefaultHeader(): array
+    {
+        $token = $this->configHelper->getToken();
+        return $this->builtAuthHeader($token);
+    }
+
+    /**
+     * @param string $token
+     * @return array
+     */
+    protected function builtAuthHeader(string $token): array
     {
         return [
             sprintf('Content-Type: application/json'),
-            sprintf('X-SPOD-ACCESS-TOKEN: %s', $this->configHelper->getToken())
+            sprintf('X-SPOD-ACCESS-TOKEN: %s', $token)
         ];
     }
 
