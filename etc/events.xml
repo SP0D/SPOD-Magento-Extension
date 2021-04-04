@@ -10,6 +10,9 @@
     <event name="spodsync_webhook_event_article_updated">
         <observer name="observer_spodsync_webhook_event_article_updated" instance="Spod\Sync\Subscriber\Webhook\Article\Updated" />
     </event>
+    <event name="spodsync_webhook_event_article_initial_sync">
+        <observer name="observer_spodsync_webhook_event_article_initial_sync" instance="Spod\Sync\Subscriber\Webhook\Article\InitialSync" />
+    </event>
 
     <!-- webhooks: order -->
     <event name="spodsync_webhook_event_order_processed">

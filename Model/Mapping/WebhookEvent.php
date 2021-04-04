@@ -5,6 +5,7 @@ namespace Spod\Sync\Model\Mapping;
 class WebhookEvent
 {
     const EVENT_ARTICLE_ADDED = 'Article.added';
+    const EVENT_ARTICLE_INITALSYNC = 'Article.initial_sync';
     const EVENT_ARTICLE_UPDATED = 'Article.updated';
     const EVENT_ARTICLE_REMOVED = 'Article.removed';
     const EVENT_ORDER_CANCELLED = 'Order.cancelled';

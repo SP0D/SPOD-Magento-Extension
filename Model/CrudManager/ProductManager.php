@@ -76,6 +76,11 @@ class ProductManager
      */
     public function createAllProducts(ApiResult $apiResult)
     {
+        $apiData = $this->decoder->parsePayload($apiResult->getPayload());
+
+        foreach ($apiData->items as $articleData) {
+            $this->saveProduct($articleData);
+        }
     }
 
     /**
@@ -90,7 +95,18 @@ class ProductManager
     public function createProduct(ApiResult $apiResult)
     {
         $apiData = $this->decoder->parsePayload($apiResult->getPayload());
+        $this->saveProduct($apiData);
+    }
 
+    /**
+     * @param $apiData
+     * @throws NoSuchEntityException
+     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\StateException
+     */
+    protected function saveProduct($apiData): void
+    {
         $configurableProduct = $this->prepareConfigurableProduct($apiData);
         $this->productRepository->save($configurableProduct);
 
