@@ -4,6 +4,7 @@ namespace Spod\Sync\Subscriber\Webhook\Article;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Registry;
 use Spod\Sync\Api\SpodLoggerInterface;
+use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\CrudManager\ProductManager;
 use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Model\Webhook;
@@ -27,13 +28,14 @@ class Removed extends BaseSubscriber
         ProductManager $productManager,
         Registry $registry,
         SpodLoggerInterface $logger,
-        WebhookEventRepository $webhookEventRepository
+        WebhookEventRepository $webhookEventRepository,
+        StatusHelper $statusHelper
     ) {
         $this->productManager = $productManager;
         $this->registry = $registry;
         $this->logger = $logger;
 
-        parent::__construct($webhookEventRepository);
+        parent::__construct($webhookEventRepository, $statusHelper);
     }
 
     public function execute(Observer $observer)

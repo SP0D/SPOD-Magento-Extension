@@ -4,6 +4,7 @@ namespace Spod\Sync\Subscriber\Webhook\Article;
 use Magento\Framework\Event\Observer;
 use Spod\Sync\Api\PayloadEncoder;
 use Spod\Sync\Api\SpodLoggerInterface;
+use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\CrudManager\ProductManager;
 use Spod\Sync\Model\Mapping\WebhookEvent;
@@ -28,14 +29,15 @@ class Added extends BaseSubscriber
         PayloadEncoder $encoder,
         ProductManager $productManager,
         SpodLoggerInterface $logger,
-        WebhookEventRepository $webhookEventRepository
+        WebhookEventRepository $webhookEventRepository,
+        StatusHelper $statusHelper
     ) {
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
         $this->productManager = $productManager;
         $this->logger = $logger;
 
-        parent::__construct($webhookEventRepository);
+        parent::__construct($webhookEventRepository, $statusHelper);
     }
 
     public function execute(Observer $observer)

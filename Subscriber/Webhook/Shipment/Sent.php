@@ -4,6 +4,7 @@ namespace Spod\Sync\Subscriber\Webhook\Shipment;
 use Magento\Framework\Event\Observer;
 use Spod\Sync\Api\PayloadEncoder;
 use Spod\Sync\Api\SpodLoggerInterface;
+use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\CrudManager\ShipmentManager;
 use Spod\Sync\Model\Mapping\WebhookEvent;
@@ -28,14 +29,15 @@ class Sent extends BaseSubscriber
         PayloadEncoder $encoder,
         SpodLoggerInterface $logger,
         ShipmentManager $shipmentManager,
-        WebhookEventRepository $webhookEventRepository
+        WebhookEventRepository $webhookEventRepository,
+        StatusHelper $statusHelper
     ) {
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
         $this->logger = $logger;
         $this->shipmentManager = $shipmentManager;
 
-        parent::__construct($webhookEventRepository);
+        parent::__construct($webhookEventRepository, $statusHelper);
     }
 
     public function execute(Observer $observer)

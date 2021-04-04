@@ -3,6 +3,7 @@ namespace Spod\Sync\Subscriber\Webhook;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\Mapping\QueueStatus;
 use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Model\Webhook;
@@ -14,14 +15,20 @@ abstract class BaseSubscriber implements ObserverInterface
     /** @var WebhookEventRepository */
     protected $webhookEventRepository;
 
+    /** @var StatusHelper */
+    protected $statusHelper;
+
     public function __construct(
-        WebhookEventRepository $webhookEventRepository
+        WebhookEventRepository $webhookEventRepository,
+        StatusHelper $statusHelper
     ) {
         $this->webhookEventRepository = $webhookEventRepository;
+        $this->statusHelper = $statusHelper;
     }
 
     public function setEventProcessed(Webhook $webhookEvent)
     {
+        $this->statusHelper->setLastsyncDate();
         $webhookEvent->setStatus(QueueStatus::STATUS_PROCESSED);
         $webhookEvent->setProcessedAt(new \DateTime());
         $this->webhookEventRepository->save($webhookEvent);

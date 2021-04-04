@@ -5,6 +5,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Registry;
 use Spod\Sync\Api\PayloadEncoder;
+use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\CrudManager\ProductManager;
 use Spod\Sync\Model\Mapping\WebhookEvent;
@@ -25,14 +26,15 @@ class Updated extends BaseSubscriber
         PayloadEncoder $encoder,
         ProductManager $productManager,
         Registry $registry,
-        WebhookEventRepository $webhookEventRepository
+        WebhookEventRepository $webhookEventRepository,
+        StatusHelper $statusHelper
     ) {
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
         $this->productManager = $productManager;
         $this->registry = $registry;
 
-        parent::__construct($webhookEventRepository);
+        parent::__construct($webhookEventRepository, $statusHelper);
     }
 
     public function execute(Observer $observer)

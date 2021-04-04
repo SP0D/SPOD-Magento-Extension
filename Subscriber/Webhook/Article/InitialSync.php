@@ -4,6 +4,7 @@ namespace Spod\Sync\Subscriber\Webhook\Article;
 use Magento\Framework\Event\Observer;
 use Spod\Sync\Api\PayloadEncoder;
 use Spod\Sync\Api\SpodLoggerInterface;
+use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\ApiReader\ArticleHandler;
 use Spod\Sync\Model\CrudManager\ProductManager;
 use Spod\Sync\Model\Mapping\WebhookEvent;
@@ -28,13 +29,14 @@ class InitialSync extends BaseSubscriber
         PayloadEncoder $encoder,
         ProductManager $productManager,
         SpodLoggerInterface $logger,
+        StatusHelper $statusHelper,
         WebhookEventRepository $webhookEventRepository
     ) {
         $this->articleHandler = $articleHandler;
         $this->encoder = $encoder;
         $this->productManager = $productManager;
         $this->logger = $logger;
-        parent::__construct($webhookEventRepository);
+        parent::__construct($webhookEventRepository, $statusHelper);
     }
 
     public function execute(Observer $observer)
@@ -43,7 +45,12 @@ class InitialSync extends BaseSubscriber
         if ($this->isObserverResponsible($webhookEvent)) {
             try {
                 $articleResult = $this->articleHandler->getAllArticles();
+
+                $this->statusHelper->setInitialSyncStartDate();
                 $this->productManager->createAllProducts($articleResult);
+                $this->statusHelper->setInitialSyncEndDate();
+                $this->statusHelper->setLastsyncDate();
+
                 $this->setEventProcessed($webhookEvent);
 
             } catch (\Exception $e) {
