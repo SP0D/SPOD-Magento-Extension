@@ -9,7 +9,6 @@ use Spod\Sync\Helper\UrlGenerator;
 use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\Mapping\WebhookEvent as WebhookEventMapping;
-use Spod\Sync\Model\Webhook as WebhookEvent;
 
 class WebhookHandler extends AbstractHandler
 {
