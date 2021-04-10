@@ -1,0 +1,47 @@
+<div class="main-wrp">
+    <div class="api-bx-main">
+        <div class="top-part">
+            <div class="logo"><a href="#"><img
+                        src="<?php echo $block->getViewFileUrl('Spod_Sync::images/spod-logo.svg'); ?>"></a></div>
+            <h1>Connect SPOD</h1>
+        </div>
+        <div class="api-form-box">
+            <input name="form_key" type="hidden" value="<?php /* @escapeNotVerified */
+            echo $block->getFormKey(); ?>"/>
+
+            <div class="input-wrp">
+                <label for="Enter API Key">Enter SPOD API Key</label>
+                <div class="input-icn">
+                    <input type="text" id="Enter API Key" name="apiToken" class="spodsync--apitoken" value="<?= $block->getApiToken(); ?>">
+                    <span class="spodsyn-check-icn icn" style="display: none"></span>
+                    <span class="spodsyn-error-icn icn" style="display: none"></span>
+                </div>
+            </div>
+
+            <span class="msg-success msg-txt" style="display: none"> API key is valid</span>
+            <span class="msg-error msg-txt" style="display: none"> Invalid API key</span>
+
+            <div class="submit-btn-wrp">
+                <input type="submit" value="Submit API Key" class="submit-btn">
+            </div>
+            <div class="loader check-loader" style="display:none">
+                <img src="<?php echo $block->getViewFileUrl('Spod_Sync::images/sping-loader.gif'); ?>" width="40"
+                     height="40"> Checking API Key..
+            </div>
+
+            <div class="loader syncing-data" style="display:none">
+                <img src="<?php echo $block->getViewFileUrl('Spod_Sync::images/sping-loader.gif'); ?>" width="40"
+                     height="40">We started syncing your data. This will
+                take some time until it’s finished…
+            </div>
+        </div>
+        <div class="fo-btm-part">
+            <p>Do you need more information how to connect?</p>
+            <a href="#">Learn more about SPOD API connection</a>
+        </div>
+    </div>
+</div>
+
+
+<div class="syncmsg">
+</div>

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <referenceBlock name="page.title">
+        <action method="setPageTitle">
+            <argument name="title" xsi:type="string">Spod Sync Status</argument>
+        </action>
+    </referenceBlock>
+
+    <head>
+        <css src="Spod_Sync::css/main.css"/>
+    </head>
+
+    <body>
+        <referenceContainer name="content">
+            <block class="Spod\Sync\Block\Adminhtml\Status" template="Spod_Sync::status.phtml"/>
+            <block class="Magento\Backend\Block\Template" template="Spod_Sync::js.phtml"/>
+        </referenceContainer>
+
+        <referenceContainer name="footer" remove="true"/>
+    </body>
+</page>

@@ -1,0 +1,87 @@
+<script type="text/javascript">
+    require(
+        ['jquery'],
+        function($) {
+            function hideSuccess() {
+                $('.msg-success').hide();
+                $('.spodsyn-check-icn').hide();
+            }
+
+            function hideError() {
+                $('.msg-error').hide();
+                $('.spodsyn-error-icn').hide();
+            }
+
+            function showSuccess() {
+                $('.msg-success').show();
+                $('.spodsyn-check-icn').show();
+            }
+
+            function showError() {
+                $('.msg-error').show();
+                $('.spodsyn-error-icn').show();
+            }
+
+            function showTokenStatus(data) {
+                if (data.error === 0) {
+                    hideError();
+                    showSuccess();
+                } else {
+                    hideSuccess();
+                    showError();
+                }
+            }
+
+            function showLoader() {
+                $('.check-loader').show();
+            }
+
+            function hideLoader() {
+                $('.check-loader').hide();
+            }
+
+            function ajaxSubmitToken(spodSyncToken) {
+                showLoader();
+                jQuery.ajax({
+                    url: "<?php echo $this->getUrl('spodsync/ajax/setup') ?>",
+                    method: 'GET',
+                    data: {'apiToken': spodSyncToken},
+                    success: function (data) {
+                        hideLoader();
+                        enableSubmitButton();
+                        showTokenStatus(data);
+                    },
+                    error: function() {
+                        hideLoader();
+                        enableSubmitButton();
+                    }
+                });
+            }
+
+            function processToken() {
+                let spodSyncToken = $('.spodsync--apitoken').val();
+                if (spodSyncToken && spodSyncToken.length > 0) {
+                    ajaxSubmitToken(spodSyncToken);
+                }
+            }
+
+            function enableSubmitButton() {
+                $('.submit-btn').attr('disabled', false);
+            }
+
+            function disableSubmitButton() {
+                $('.submit-btn').attr('disabled', true);
+            }
+
+            $(function() {
+                $('.submit-btn').click(function () {
+                    disableSubmitButton();
+                    processToken();
+                });
+            });
+
+            $(document).ready(function () {
+                processToken();
+            });
+        });
+</script>
