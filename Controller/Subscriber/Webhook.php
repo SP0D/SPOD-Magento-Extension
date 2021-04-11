@@ -8,6 +8,7 @@ use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Spod\Sync\Api\ResultDecoder;
+use Spod\Sync\Model\CrudManager\WebhookManager;
 use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Model\WebhookFactory;
 use Spod\Sync\Model\Mapping\QueueStatus;
@@ -16,21 +17,18 @@ class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActio
 {
     /** @var ResultDecoder  */
     private $decoder;
-    /** @var WebhookFactory  */
-    private $webhookFactory;
-    /** @var WebhookEventRepository */
-    private $webhookEventRepository;
+    /**
+     * @var WebhookManager
+     */
+    private $webhookManager;
 
     public function __construct(
         Context $context,
         ResultDecoder $decoder,
-        WebhookFactory $webhookFactory,
-        WebhookEventRepository $webhookEventRepository
+        WebhookManager $webhookManager
     ) {
         $this->decoder = $decoder;
-        $this->webhookFactory = $webhookFactory;
-        $this->webhookEventRepository = $webhookEventRepository;
-
+        $this->webhookManager = $webhookManager;
         return parent::__construct($context);
     }
 
@@ -38,7 +36,7 @@ class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActio
     {
         $rawJson = $this->getRequest()->getContent();
         $eventType = $this->getEventTypeFromWebhookJson($rawJson);
-        $this->saveWebhookEvent($eventType, $rawJson);
+        $this->webhookManager->saveWebhookEvent($eventType, $rawJson);
 
         echo "[accepted]";
     }
@@ -59,21 +57,6 @@ class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActio
     public function validateForCsrf(RequestInterface $request): ?bool
     {
         return true;
-    }
-
-    /**
-     * @param $eventType
-     * @param $rawJson
-     * @throws \Exception
-     */
-    private function saveWebhookEvent($eventType, $rawJson): void
-    {
-        $webhook = $this->webhookFactory->create();
-        $webhook->setEventType($eventType);
-        $webhook->setStatus(QueueStatus::STATUS_PENDING);
-        $webhook->setPayload($rawJson);
-
-        $this->webhookEventRepository->save($webhook);
     }
 
     /**
