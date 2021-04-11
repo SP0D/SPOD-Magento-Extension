@@ -2,7 +2,9 @@
 
 namespace Spod\Sync\Helper;
 
-use \Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
 use Magento\Store\Model\ScopeInterface;
 
 class ConfigHelper extends AbstractHelper
@@ -16,6 +18,18 @@ class ConfigHelper extends AbstractHelper
     const XML_PATH_FROM_LASTNAME = 'spodsync/shipping/from_lastname';
     const XML_PATH_SHIPPING_PREMIUM = 'spodsync/shipping/premium_shipping';
     const XML_PATH_SHIPPING_EXPRESS = 'spodsync/shipping/express_shipping';
+    /**
+     * @var WriterInterface
+     */
+    private $configWriter;
+
+    public function __construct(
+        Context $context,
+        WriterInterface $configWriter
+    ) {
+        $this->configWriter = $configWriter;
+        parent::__construct($context);
+    }
 
     /**
      * Method for reading Magento system.xml config values
@@ -126,5 +140,19 @@ class ConfigHelper extends AbstractHelper
         } else {
             return '';
         }
+    }
+
+    /**
+     * @param $path
+     * @param $value
+     */
+    private function saveValue($path, $value)
+    {
+        $this->configWriter->save($path, $value);
+    }
+
+    public function saveApiToken($token)
+    {
+        $this->saveValue(self::XML_PATH_APITOKEN, $token);
     }
 }
