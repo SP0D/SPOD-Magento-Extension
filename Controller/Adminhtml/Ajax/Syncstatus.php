@@ -7,7 +7,7 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Spod\Sync\Model\ApiReader\AuthenticationHandler;
 
-class Setup extends Action
+class Syncstatus extends Action
 {
     /**
      * @var AuthenticationHandler
@@ -41,14 +41,23 @@ class Setup extends Action
         if ($this->authHandler->isTokenValid($apiToken)) {
             $data['error'] = 0;
             $data['message'] = 'API key is valid';
+
+            $this->handleValidKey($apiToken);
+
         } else {
             $data['error'] = 1;
             $data['message'] = 'Invalid API key';
+            $data['syncstatus'] = 0;
         }
 
         $result = $this->jsonResultFactory->create();
         $result->setData($data);
 
         return $result;
+    }
+
+    private function handleValidKey(string $apiToken)
+    {
+
     }
 }

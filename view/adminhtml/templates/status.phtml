@@ -5,7 +5,7 @@
                         src="<?php echo $block->getViewFileUrl('Spod_Sync::images/spod-logo.svg'); ?>"></a></div>
             <h1>Connect SPOD</h1>
         </div>
-        <div class="api-form-box">
+        <div class="api-form-box" data-validkey="0">
             <input name="form_key" type="hidden" value="<?php /* @escapeNotVerified */
             echo $block->getFormKey(); ?>"/>
 
@@ -16,6 +16,16 @@
                     <span class="spodsyn-check-icn icn" style="display: none"></span>
                     <span class="spodsyn-error-icn icn" style="display: none"></span>
                 </div>
+                <span class="info-txt msg-txt date-msg" style="display:none">API connection date: <span class="date-info">&nbsp;</span></span>
+            </div>
+
+            <div class="success-msg sync-success" style="display:none">
+                All your data is synced and up to date.
+            </div>
+
+            <div class="disconnect-part" style="display:none">
+                <button class="dis-btn">Disconnect</button>
+                <p>If you disconnect, your products and orders won’t sync anymore. But we will keep your data on SPOD.</p>
             </div>
 
             <span class="msg-success msg-txt" style="display: none"> API key is valid</span>
@@ -40,8 +50,42 @@
             <a href="#">Learn more about SPOD API connection</a>
         </div>
     </div>
+
+    <div class="alert-msg disconnected-msg" style="display:none">
+        <div class="svg-icn">
+            <img class="alt-icn" src="<?php echo $block->getViewFileUrl('Spod_Sync::images/sm-check-circle.png'); ?>">
+        </div>
+        You have been successfully disconnected
+    </div>
+
+    <div class="modal modalcenter" id="popupOne">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <a class="closeBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15.6" height="15.6" viewBox="0 0 15.6 15.6">
+                        <path
+                            d="M.381.381a1.3,1.3,0,0,1,1.838,0L7.8,5.962,13.381.381a1.3,1.3,0,0,1,1.838,1.838L9.638,7.8l5.581,5.581a1.3,1.3,0,0,1-1.838,1.838L7.8,9.638,2.219,15.219A1.3,1.3,0,0,1,.381,13.381L5.962,7.8.381,2.219A1.3,1.3,0,0,1,.381.381Z"
+                            fill="#4a5568"/>
+                    </svg>
+                </a>
+                <div class="modal-body-wrp">
+                    <div class="modal-icncnt-wrp">
+                        <div class="svg-icn">
+                            <img class="alt-icn" src="<?php echo $block->getViewFileUrl('Spod_Sync::images/sm-information-circle.png'); ?>">
+                        </div>
+
+                        <div class="modal-icncont-wrp">
+                            <h3>Disconnect</h3>
+                            <p>Are you sure you want to disconnect?</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel">Cancel</button>
+                    <button type="button" class="btn btn-default btn-confirm-disconnect">Yes, disconnect</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-
-<div class="syncmsg">
-</div>

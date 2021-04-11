@@ -4,6 +4,7 @@ namespace Spod\Sync\Setup;
 
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UninstallInterface;
 use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Model\ApiReader\WebhookHandler;
@@ -34,7 +35,7 @@ class Uninstall implements UninstallInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function uninstall(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
+    public function uninstall(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
         $this->webhookHandler->unregisterWebhooks();

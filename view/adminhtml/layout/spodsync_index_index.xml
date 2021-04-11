@@ -16,6 +16,7 @@
             <block class="Magento\Backend\Block\Template" template="Spod_Sync::js.phtml"/>
         </referenceContainer>
 
+        <referenceContainer name="header" remove="true"/>
         <referenceContainer name="footer" remove="true"/>
     </body>
 </page>

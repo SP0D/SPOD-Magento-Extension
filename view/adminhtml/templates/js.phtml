@@ -2,8 +2,15 @@
     require(
         ['jquery'],
         function($) {
-            function hideSuccess() {
+            //
+            // Hide/Show/Status
+            function hideSuccessMsg() {
                 $('.msg-success').hide();
+            }
+
+            function hideSuccess() {
+                hideSuccessMsg();
+                $('.sync-success').hide();
                 $('.spodsyn-check-icn').hide();
             }
 
@@ -22,16 +29,6 @@
                 $('.spodsyn-error-icn').show();
             }
 
-            function showTokenStatus(data) {
-                if (data.error === 0) {
-                    hideError();
-                    showSuccess();
-                } else {
-                    hideSuccess();
-                    showError();
-                }
-            }
-
             function showLoader() {
                 $('.check-loader').show();
             }
@@ -40,29 +37,24 @@
                 $('.check-loader').hide();
             }
 
-            function ajaxSubmitToken(spodSyncToken) {
-                showLoader();
-                jQuery.ajax({
-                    url: "<?php echo $this->getUrl('spodsync/ajax/setup') ?>",
-                    method: 'GET',
-                    data: {'apiToken': spodSyncToken},
-                    success: function (data) {
-                        hideLoader();
-                        enableSubmitButton();
-                        showTokenStatus(data);
-                    },
-                    error: function() {
-                        hideLoader();
-                        enableSubmitButton();
-                    }
-                });
+            function showSyncFinished() {
+                $('.success-msg').show();
             }
 
-            function processToken() {
-                let spodSyncToken = $('.spodsync--apitoken').val();
-                if (spodSyncToken && spodSyncToken.length > 0) {
-                    ajaxSubmitToken(spodSyncToken);
-                }
+            function showDisconnect() {
+                $('.disconnect-part').show();
+            }
+
+            function hideDisconnect() {
+                $('.disconnect-part').hide();
+            }
+
+            function showSubmitButton() {
+                $('.submit-btn').show();
+            }
+
+            function hideSubmitButton() {
+                $('.submit-btn').hide();
             }
 
             function enableSubmitButton() {
@@ -73,6 +65,148 @@
                 $('.submit-btn').attr('disabled', true);
             }
 
+            function showDateMsg() {
+                $('.date-msg').show();
+            }
+
+            function hideDateMsg() {
+                $('.date-msg').hide();
+            }
+
+            function setConnectionDate(datetimeStr) {
+                $('.date-msg .date-info').html(datetimeStr);
+            }
+
+            function showDisconnectPopup() {
+                $('#popupOne').show();
+            }
+
+            function addModalOpenTrigger() {
+                $('.dis-btn').click(function () {
+                    showDisconnectPopup();
+                });
+            }
+
+            function hideDisconnectPopup() {
+                $('#popupOne').hide();
+            }
+
+            function addModelCloseTrigger() {
+                $('.closeBtn, .btn-cancel').click(function () {
+                    hideDisconnectPopup();
+                });
+            }
+
+            function addDisconnectTrigger() {
+                $('.btn-confirm-disconnect').click(function () {
+                    triggerDisconnect();
+                });
+            }
+
+            function showDisconnectedMsg() {
+                $('.disconnected-msg').show();
+                setTimeout(function() {
+                    $('.disconnected-msg').hide();
+                }, 10000);
+            }
+
+            function emptyTokenInput() {
+                $('.spodsync--apitoken').val('');
+            }
+
+            //
+            // Processing functions to connect
+            function processToken() {
+                let spodSyncToken = $('.spodsync--apitoken').val();
+                if (spodSyncToken && spodSyncToken.length > 0) {
+                    ajaxSubmitToken(spodSyncToken);
+                }
+            }
+
+            function ajaxSubmitToken(spodSyncToken) {
+                showLoader();
+                jQuery.ajax({
+                    url: "<?php echo $this->getUrl('spodsync/ajax/connect') ?>",
+                    method: 'GET',
+                    data: {'apiToken': spodSyncToken},
+                    success: function (data) {
+                        handleSuccess(data);
+                    },
+                    error: function() {
+                        hideLoader();
+                        enableSubmitButton();
+                    }
+                });
+            }
+
+            function handleSuccess(data) {
+                hideLoader();
+                showButtonOrSyncStatus(data);
+                showTokenStatus(data);
+                hideSuccessMsg();
+            }
+
+            function showButtonOrSyncStatus(data)
+            {
+                if (data.error === 0) {
+                    hideSubmitButton();
+                    showSyncProgress(data);
+                    showConnectionDate(data);
+                } else {
+                    enableSubmitButton();
+                }
+            }
+
+            function showSyncProgress(data)
+            {
+                if (!data.initsyncEndDate) {
+                    $('.syncing-data').show();
+                } else {
+                    showSyncFinished();
+                    showDisconnect();
+                }
+            }
+
+            function showConnectionDate(data) {
+                if (data.installDate) {
+                    setConnectionDate(data.installDate);
+                    showDateMsg();
+                }
+            }
+
+            function showTokenStatus(data) {
+                if (data.error === 0) {
+                    hideError();
+                    showSuccess();
+                } else {
+                    hideSuccess();
+                    showError();
+                }
+            }
+
+            //
+            // Disconnect function
+            function triggerDisconnect() {
+                jQuery.ajax({
+                    url: "<?php echo $this->getUrl('spodsync/ajax/disconnect') ?>",
+                    method: 'GET',
+                    data: {},
+                    success: function () {
+                        emptyTokenInput();
+                        hideDisconnect();
+                        hideSuccess();
+                        hideDateMsg();
+                        showSubmitButton();
+                        hideDisconnectPopup();
+                        showDisconnectedMsg();
+                    },
+                    error: function() {
+                        hideDisconnectPopup();
+                    }
+                });
+            }
+
+            // Entry points
             $(function() {
                 $('.submit-btn').click(function () {
                     disableSubmitButton();
@@ -82,6 +216,9 @@
 
             $(document).ready(function () {
                 processToken();
+                addModalOpenTrigger();
+                addModelCloseTrigger();
+                addDisconnectTrigger();
             });
         });
 </script>
