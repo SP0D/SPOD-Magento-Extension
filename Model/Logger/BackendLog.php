@@ -31,7 +31,7 @@ class BackendLog implements SpodLoggerInterface
         $this->spodLogResource = $spodLogResource;
     }
 
-    public function logDebug($message)
+    public function logDebug($message, $event = 'debug')
     {
         if ($this->configHelper->debugLogging()) {
             /** @var SpodLog $log */

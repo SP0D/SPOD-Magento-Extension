@@ -48,7 +48,7 @@ class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActio
 
     public function execute()
     {
-        $this->logger->logDebug("webhook: " . $this->getRequest()->getContent());
+        $this->logger->logDebug($this->getRequest()->getContent(), 'webhook received');
         if ($this->isSignatureValid()) {
             $this->processValidatedRequest();
         } else {
