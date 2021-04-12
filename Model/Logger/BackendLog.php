@@ -36,7 +36,7 @@ class BackendLog implements SpodLoggerInterface
         if ($this->configHelper->debugLogging()) {
             /** @var SpodLog $log */
             $log = $this->spodLogFactory->create();
-            $log->setEvent('debug');
+            $log->setEvent($event);
             $log->setMessage($message);
             $log->setPayload('');
             $log->setCreatedAt(new \DateTime());
