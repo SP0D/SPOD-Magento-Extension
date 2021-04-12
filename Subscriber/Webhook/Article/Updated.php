@@ -42,12 +42,15 @@ class Updated extends BaseSubscriber
         $webhookEvent = $this->getWebhookEventFromObserver($observer);
 
         if ($this->isObserverResponsible($webhookEvent)) {
+            // decode and extract only article portion
             $payload = $webhookEvent->getDecodedPayload();
             $articleData = $payload->data->article;
 
             try {
+                // put back json encoded article data
                 $apiResult = $this->apiResultFactory->create();
-                $apiResult->setPayload($this->encoder->encodePayload($articleData));
+                $jsonArticleData = $this->encoder->encodePayload($articleData);
+                $apiResult->setPayload($jsonArticleData);
 
                 $this->setAreaSecure();
                 $this->productManager->updateProduct($apiResult);

@@ -45,12 +45,15 @@ class Sent extends BaseSubscriber
         $webhookEvent = $this->getWebhookEventFromObserver($observer);
 
         if ($this->isObserverResponsible($webhookEvent)) {
+            // decode and extract only shipment portion
             $payload = $webhookEvent->getDecodedPayload();
             $shipmentData = $payload->data->shipment;
 
             try {
+                // put back json encoded shipment data
                 $apiResult = $this->apiResultFactory->create();
-                $apiResult->setPayload($this->encoder->encodePayload($shipmentData));
+                $jsonShipmentData = $this->encoder->encodePayload($shipmentData);
+                $apiResult->setPayload($jsonShipmentData);
 
                 $this->shipmentManager->addShipment($apiResult);
                 $this->setEventProcessed($webhookEvent);

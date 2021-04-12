@@ -6,6 +6,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order\ItemRepository;
 use Magento\Sales\Model\OrderRepository;
 
+use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\ApiReader\OrderHandler;
@@ -34,6 +35,14 @@ class OrderProcessor
     private $orderItemRepository;
     /** @var OrderRecordRepository  */
     private $orderRecordRepository;
+    /**
+     * @var ConfigHelper
+     */
+    private $configHelper;
+    /**
+     * @var ResultDecoder
+     */
+    private $decoder;
 
     public function __construct(
         CollectionFactory $collectionFactory,
@@ -43,10 +52,12 @@ class OrderProcessor
         ItemRepository $orderItemRepository,
         OrderRepository $orderRepository,
         OrderRecordRepository $orderRecordRepository,
-        SpodLoggerInterface $logger
+        SpodLoggerInterface $logger,
+        ResultDecoder $decoder
     ) {
         $this->collectionFactory = $collectionFactory;
         $this->configHelper = $configHelper;
+        $this->decoder = $decoder;
         $this->logger = $logger;
         $this->orderExporter = $orderExporter;
         $this->orderHandler = $orderHandler;
@@ -128,7 +139,7 @@ class OrderProcessor
      */
     private function saveSpodOrderId(ApiResult $apiResult, OrderInterface $order): void
     {
-        $apiResponse = $apiResult->getPayload();
+        $apiResponse = $this->decoder->parsePayload($apiResult->getPayload());
         $order->setSpodOrderId($apiResponse->id);
         $order->setSpodOrderReference($apiResponse->orderReference);
         $this->orderRepository->save($order);
@@ -142,7 +153,7 @@ class OrderProcessor
      */
     private function saveOrderItemIds(ApiResult $apiResult, OrderInterface $order): void
     {
-        $apiResponse = $apiResult->getPayload();
+        $apiResponse = $this->decoder->parsePayload($apiResult->getPayload());
         foreach ($apiResponse->orderItems as $apiResponseItem) {
             $salesOrderItem = $this->getItemFromOrderBySku($order, $apiResponseItem->sku);
             $salesOrderItem->setData('spod_order_item_id', $apiResponseItem->orderItemReference);

@@ -178,10 +178,7 @@ abstract class AbstractHandler
      */
     protected function postRequest(string $apiAction, array $params = []): ApiResult
     {
-        $result = $this->sendPostRequest($apiAction, $params);
-        $result->setPayload($this->decoder->parsePayload($result->getPayload()));
-
-        return $result;
+        return $this->sendPostRequest($apiAction, $params);
     }
 
     /**
