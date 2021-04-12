@@ -49,7 +49,7 @@ class WebhookHandler extends AbstractHandler
         $params = [
             'eventType' => $eventType,
             'url' => $this->urlGenerator->generateUrl('spodsync/subscriber/webhook'),
-            'secret' => 'spodsync' // TODO
+            'secret' => $this->configHelper->getWebhookSecret()
         ];
 
         $result = $this->postRequest(self::ACTION_BASE_URL, $params);
