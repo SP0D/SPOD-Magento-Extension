@@ -8,6 +8,7 @@ use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Spod\Sync\Api\ResultDecoder;
+use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\CrudManager\WebhookManager;
 use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Model\WebhookFactory;
@@ -21,12 +22,18 @@ class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActio
      * @var WebhookManager
      */
     private $webhookManager;
+    /**
+     * @var ConfigHelper
+     */
+    private $configHelper;
 
     public function __construct(
         Context $context,
+        ConfigHelper $configHelper,
         ResultDecoder $decoder,
         WebhookManager $webhookManager
     ) {
+        $this->configHelper = $configHelper;
         $this->decoder = $decoder;
         $this->webhookManager = $webhookManager;
         return parent::__construct($context);
@@ -34,11 +41,27 @@ class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActio
 
     public function execute()
     {
-        $rawJson = $this->getRequest()->getContent();
-        $eventType = $this->getEventTypeFromWebhookJson($rawJson);
-        $this->webhookManager->saveWebhookEvent($eventType, $rawJson);
+        if ($this->isSignatureValid()) {
+            $this->processValidatedRequest();
+        } else {
+            throw new \Exception('Invalid signature in webhook request');
+        }
+    }
 
-        echo "[accepted]";
+    private function isSignatureValid()
+    {
+        $secret = $this->configHelper->getWebhookSecret();
+        $content = $this->getRequest()->getContent();
+        $s = hash_hmac('sha256', $content, $secret, true);
+
+        $calculatedHmac = base64_encode($s);
+        $signature = $this->getRequest()->getHeader('X-SPRD-SIGNATURE');
+
+        if ($calculatedHmac == $signature) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -67,5 +90,14 @@ class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActio
     {
         $responseObject = $this->decoder->parsePayload($rawJson);
         return $responseObject->eventType;
+    }
+
+    private function processValidatedRequest(): void
+    {
+        $rawJson = $this->getRequest()->getContent();
+        $eventType = $this->getEventTypeFromWebhookJson($rawJson);
+        $this->webhookManager->saveWebhookEvent($eventType, $rawJson);
+
+        echo "[accepted]";
     }
 }
