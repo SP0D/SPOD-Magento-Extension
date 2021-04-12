@@ -255,7 +255,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
      */
     private function createLogTable(SchemaSetupInterface $setup): void
     {
-        if (!$setup->tableExists('spodsync_error_log')) {
+        if (!$setup->tableExists('spodsync_log')) {
             $table = $setup->getConnection()->newTable(
                 $setup->getTable('spodsync_error_log')
             )
