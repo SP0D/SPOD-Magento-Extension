@@ -3,9 +3,11 @@
 namespace Spod\Sync\Helper;
 
 use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 use Magento\Catalog\Setup\CategorySetupFactory;
 use Magento\Eav\Model\AttributeSetRepository;
 use Magento\Eav\Model\Config;
+use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Eav\Model\Entity\Attribute\Source\Boolean;
@@ -24,10 +26,12 @@ class AttributeHelper extends AbstractHelper
     private $eavConfig;
     private $eavSetupFactory;
     private $setup;
+    private $attributeResource;
 
     public function __construct(
         AttributeSetFactory $attributeSetFactory,
         AttributeSetRepository $attributeSetRepository,
+        Attribute $attributeResource,
         CategorySetupFactory $categorySetupFactory,
         CollectionFactory $attributeSetCollection,
         Config $eavConfig,
@@ -37,6 +41,7 @@ class AttributeHelper extends AbstractHelper
         $this->attributeSetCollection = $attributeSetCollection;
         $this->attributeSetFactory = $attributeSetFactory;
         $this->attributeSetRepository = $attributeSetRepository;
+        $this->attributeResource = $attributeResource;
         $this->categorySetupFactory = $categorySetupFactory;
         $this->eavConfig = $eavConfig;
         $this->eavSetupFactory = $eavSetupFactory;
@@ -231,13 +236,16 @@ class AttributeHelper extends AbstractHelper
     }
 
     /**
-     * @param \Magento\Eav\Model\Entity\Attribute\AbstractAttribute|null $sizeAttr
+     * @param AbstractAttribute|null $sizeAttr
      * @return array
      */
-    public function getPreparedOptionValues(?\Magento\Eav\Model\Entity\Attribute\AbstractAttribute $attr): array
+    public function getPreparedOptionValues(?AbstractAttribute $attr): array
     {
+        // reload required, to get newly created options
+        $reloadedAttr = $this->attributeResource->load($attr->getId());
+
         $attrValues = [];
-        $options = $attr->getOptions();
+        $options = $reloadedAttr->getOptions();
         foreach ($options as $option) {
             if ($option->getLabel() == '' || $option->getValue() == '') {
                 continue;

@@ -111,11 +111,9 @@ class ProductManager
         $this->productRepository->save($configurableProduct);
 
         $variants = $this->createVariants($apiData);
-
         $configurableProduct = $this->productRepository->get($configurableProduct->getSku());
         $configurableProduct = $this->assignVariants($configurableProduct, $variants);
         $configurableProduct = $this->setStockInfo($configurableProduct);
-
         $this->imageHelper->assignConfigurableImages($configurableProduct, $apiData->images);
         $this->productRepository->save($configurableProduct);
     }
@@ -209,8 +207,6 @@ class ProductManager
      */
     private function createVariants($apiData)
     {
-        $this->createOptionValues($apiData);
-
         $variants = [];
         foreach ($apiData->variants as $variantInfo) {
             $variant = $this->createVariantProduct($variantInfo);
@@ -231,7 +227,7 @@ class ProductManager
     /**
      * @param $apiData
      */
-    private function createOptionValues($apiData)
+    public function createOptionValues($apiData)
     {
         $sizeValues = [];
         $appearanceValues = [];

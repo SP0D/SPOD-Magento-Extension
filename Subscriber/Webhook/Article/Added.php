@@ -52,11 +52,12 @@ class Added extends BaseSubscriber
                 $jsonArticleData = $this->encoder->encodePayload($articleData);
                 $apiResult->setPayload($jsonArticleData);
 
+                $this->productManager->createOptionValues($articleData);
                 $this->productManager->createProduct($apiResult);
                 $this->setEventProcessed($webhookEvent);
             } catch (\Exception $e) {
                 $this->setEventFailed($webhookEvent);
-                $this->logger->logError("article added", $e->getMessage());
+                $this->logger->logError("article added", $e->getMessage(), $e->getTraceAsString());
             }
         }
 
