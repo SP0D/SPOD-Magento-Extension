@@ -58,10 +58,12 @@
             }
 
             function enableSubmitButton() {
-                $('.submit-btn').attr('disabled', false);
+                $('.submit-btn').css('opacity', '1.0');
+                $('.submit-btn').attr('enabled', false);
             }
 
             function disableSubmitButton() {
+                $('.submit-btn').css('opacity', '0.3');
                 $('.submit-btn').attr('disabled', true);
             }
 
