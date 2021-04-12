@@ -6,6 +6,7 @@ use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\ResourceModel\SpodLog as SpodLogResource;
 use Spod\Sync\Model\SpodLog;
+use Spod\Sync\Model\SpodLogFactory;
 
 class BackendLog implements SpodLoggerInterface
 {
