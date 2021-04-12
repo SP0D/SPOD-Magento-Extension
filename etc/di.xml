@@ -23,4 +23,19 @@
         <plugin name="spodsync_after_place_order_operation"
                 type="Spod\Sync\Plugin\OrderPlugin"/>
     </type>
+
+    <!-- log grid -->
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="spodsync_log_listing_data_source" xsi:type="string">Spod\Sync\Model\ResourceModel\SpodLog\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="Spod\Sync\Model\ResourceModel\SpodLog\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">spodsync_log</argument>
+            <argument name="resourceModel" xsi:type="string">Spod\Sync\Model\ResourceModel\SpodLog</argument>
+        </arguments>
+    </virtualType>
 </config>

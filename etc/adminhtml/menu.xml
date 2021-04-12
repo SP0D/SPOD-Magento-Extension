@@ -10,8 +10,12 @@
              dependsOnModule="Spod_Sync" action="spodsync/index/index" resource="Spod_Sync::status"
              parent="Spod_Sync::spodsync"/>
 
+        <add id="Spod_Sync::spodsync_log" title="Log" translate="title" module="Spod_Sync" sortOrder="2"
+             dependsOnModule="Spod_Sync" action="spodsync/log/index" resource="Spod_Sync::spodsync_log"
+             parent="Spod_Sync::spodsync"/>
+
         <!-- config settings -->
-        <add id="Spod_Sync::config" title="Configuration" translate="title" module="Spod_Sync" sortOrder="2"
+        <add id="Spod_Sync::config" title="Configuration" translate="title" module="Spod_Sync" sortOrder="3"
              dependsOnModule="Spod_Sync" action="adminhtml/system_config/edit/section/spodsync" resource="Spod_Sync::config"
              parent="Spod_Sync::spodsync"/>
     </menu>
