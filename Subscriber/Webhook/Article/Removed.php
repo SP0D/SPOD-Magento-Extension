@@ -18,9 +18,6 @@ class Removed extends BaseSubscriber
     /** @var ProductManager  */
     private $productManager;
 
-    /** @var SpodLoggerInterface  */
-    private $logger;
-
     /** @var Registry  */
     private $registry;
 
@@ -35,7 +32,7 @@ class Removed extends BaseSubscriber
         $this->registry = $registry;
         $this->logger = $logger;
 
-        parent::__construct($webhookEventRepository, $statusHelper);
+        parent::__construct($webhookEventRepository, $statusHelper, $logger);
     }
 
     public function execute(Observer $observer)

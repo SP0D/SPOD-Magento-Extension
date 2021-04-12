@@ -19,8 +19,6 @@ class Sent extends BaseSubscriber
     private $apiResultFactory;
     /** @var PayloadEncoder  */
     private $encoder;
-    /** @var SpodLoggerInterface  */
-    private $logger;
     /** @var ShipmentManager */
     private $shipmentManager;
 
@@ -34,10 +32,9 @@ class Sent extends BaseSubscriber
     ) {
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
-        $this->logger = $logger;
         $this->shipmentManager = $shipmentManager;
 
-        parent::__construct($webhookEventRepository, $statusHelper);
+        parent::__construct($webhookEventRepository, $statusHelper, $logger);
     }
 
     public function execute(Observer $observer)
@@ -66,6 +63,4 @@ class Sent extends BaseSubscriber
 
         return $this;
     }
-
-
 }

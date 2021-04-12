@@ -5,6 +5,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Registry;
 use Spod\Sync\Api\PayloadEncoder;
+use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\CrudManager\ProductManager;
@@ -27,14 +28,16 @@ class Updated extends BaseSubscriber
         ProductManager $productManager,
         Registry $registry,
         WebhookEventRepository $webhookEventRepository,
-        StatusHelper $statusHelper
+        StatusHelper $statusHelper,
+        SpodLoggerInterface $logger
     ) {
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
+        $this->logger = $logger;
         $this->productManager = $productManager;
         $this->registry = $registry;
 
-        parent::__construct($webhookEventRepository, $statusHelper);
+        parent::__construct($webhookEventRepository, $statusHelper, $logger);
     }
 
     public function execute(Observer $observer)
@@ -56,7 +59,7 @@ class Updated extends BaseSubscriber
                 $this->productManager->updateProduct($apiResult);
                 $this->setEventProcessed($webhookEvent);
             } catch (\Exception $e) {
-                // TODO: log
+                $this->logger->logError("article updated", $e->getMessage());
                 $this->setEventFailed($webhookEvent);
             }
         }

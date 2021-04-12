@@ -21,8 +21,6 @@ class InitialSync extends BaseSubscriber
     private $encoder;
     /** @var ProductManager  */
     private $productManager;
-    /** @var SpodLoggerInterface  */
-    private $logger;
 
     public function __construct(
         ArticleHandler $articleHandler,
@@ -36,7 +34,7 @@ class InitialSync extends BaseSubscriber
         $this->encoder = $encoder;
         $this->productManager = $productManager;
         $this->logger = $logger;
-        parent::__construct($webhookEventRepository, $statusHelper);
+        parent::__construct($webhookEventRepository, $statusHelper, $logger);
     }
 
     public function execute(Observer $observer)

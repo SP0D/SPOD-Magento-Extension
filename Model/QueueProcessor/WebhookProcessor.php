@@ -3,6 +3,7 @@
 namespace Spod\Sync\Model\QueueProcessor;
 
 use Magento\Framework\Event\Manager;
+use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\Mapping\QueueStatus;
 use Spod\Sync\Model\ResourceModel\Webhook\Collection;
 use Spod\Sync\Model\ResourceModel\Webhook\CollectionFactory;
@@ -12,14 +13,20 @@ class WebhookProcessor
 {
     private $collectionFactory;
     private $eventManager;
+    /**
+     * @var SpodLoggerInterface
+     */
+    private $logger;
 
     public function __construct(
         CollectionFactory $collectionFactory,
         Manager $eventManager,
+        SpodLoggerInterface $logger,
         string $name = null
     ) {
         $this->collectionFactory = $collectionFactory;
         $this->eventManager = $eventManager;
+        $this->logger = $logger;
     }
 
     public function processPendingWebhookEvents()
@@ -27,7 +34,7 @@ class WebhookProcessor
         $collection = $this->getPendingEventCollection();
 
         foreach ($collection as $webhookEvent) {
-            /** @var $webhook Webhook */
+            /** @var $webhookEvent Webhook */
             $this->eventManager->dispatch($this->getEventName($webhookEvent), ['webhook_event' => $webhookEvent]);
         }
     }

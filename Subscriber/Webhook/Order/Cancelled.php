@@ -19,8 +19,6 @@ class Cancelled extends BaseSubscriber
     private $apiResultFactory;
     /** @var PayloadEncoder  */
     private $encoder;
-    /** @var SpodLoggerInterface  */
-    private $logger;
     /** @var OrderManager  */
     private $orderManager;
 
@@ -34,10 +32,9 @@ class Cancelled extends BaseSubscriber
     ) {
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
-        $this->logger = $logger;
         $this->orderManager = $orderManager;
 
-        parent::__construct($webhookEventRepository, $statusHelper);
+        parent::__construct($webhookEventRepository, $statusHelper, $logger);
     }
 
     public function execute(Observer $observer)

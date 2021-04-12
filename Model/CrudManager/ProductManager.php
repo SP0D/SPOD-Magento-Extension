@@ -125,6 +125,10 @@ class ProductManager
         $apiData = $this->decoder->parsePayload($apiResult->getPayload());
 
         $configurable = $this->getProductBySpodId($apiData->id);
+        if (!$configurable) {
+            throw new \Exception(sprintf("Product with ID %s could not be found", $apiData->id));
+        }
+
         $configurable->setName($apiData->title);
         $this->productRepository->save($configurable);
 

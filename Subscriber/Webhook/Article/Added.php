@@ -21,8 +21,6 @@ class Added extends BaseSubscriber
     private $encoder;
     /** @var ProductManager  */
     private $productManager;
-    /** @var SpodLoggerInterface  */
-    private $logger;
 
     public function __construct(
         ApiResultFactory $apiResultFactory,
@@ -35,9 +33,8 @@ class Added extends BaseSubscriber
         $this->apiResultFactory = $apiResultFactory;
         $this->encoder = $encoder;
         $this->productManager = $productManager;
-        $this->logger = $logger;
 
-        parent::__construct($webhookEventRepository, $statusHelper);
+        parent::__construct($webhookEventRepository, $statusHelper, $logger);
     }
 
     public function execute(Observer $observer)
