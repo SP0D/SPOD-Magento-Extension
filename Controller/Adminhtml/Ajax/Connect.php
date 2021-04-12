@@ -91,7 +91,9 @@ class Connect extends Action
     {
         $this->configHelper->saveApiToken($apiToken);
         $this->cacheHelper->clearConfigCache();
-        $this->statusHelper->setInstallDate();
-        $this->webhookManager->saveWebhookEvent(WebhookEvent::EVENT_ARTICLE_INITALSYNC, "");
+        if (!$this->statusHelper->getInstallDate()) {
+            $this->statusHelper->setInstallDate();
+            $this->webhookManager->saveWebhookEvent(WebhookEvent::EVENT_ARTICLE_INITALSYNC, "");
+        }
     }
 }
