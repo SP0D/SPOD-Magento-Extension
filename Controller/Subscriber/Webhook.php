@@ -8,6 +8,7 @@ use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Spod\Sync\Api\ResultDecoder;
+use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\CrudManager\WebhookManager;
 use Spod\Sync\Model\Repository\WebhookEventRepository;
@@ -26,15 +27,21 @@ class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActio
      * @var ConfigHelper
      */
     private $configHelper;
+    /**
+     * @var SpodLoggerInterface
+     */
+    private $logger;
 
     public function __construct(
         Context $context,
         ConfigHelper $configHelper,
         ResultDecoder $decoder,
-        WebhookManager $webhookManager
+        WebhookManager $webhookManager,
+        SpodLoggerInterface $logger
     ) {
         $this->configHelper = $configHelper;
         $this->decoder = $decoder;
+        $this->logger = $logger;
         $this->webhookManager = $webhookManager;
         return parent::__construct($context);
     }
@@ -55,7 +62,10 @@ class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActio
         $s = hash_hmac('sha256', $content, $secret, true);
 
         $calculatedHmac = base64_encode($s);
+        $this->logger->logDebug("calculated hmac: " . $calculatedHmac);
+
         $signature = $this->getRequest()->getHeader('X-SPRD-SIGNATURE');
+        $this->logger->logDebug("request signature: " . $signature);
 
         if ($calculatedHmac == $signature) {
             return true;
