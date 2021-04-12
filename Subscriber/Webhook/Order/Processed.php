@@ -53,7 +53,7 @@ class Processed extends BaseSubscriber
                 $this->setEventProcessed($webhookEvent);
 
             } catch (\Exception $e) {
-                $this->logger->logError($e->getMessage());
+                $this->logger->logError("order processed", $e->getMessage());
                 $this->setEventFailed($webhookEvent);
             }
         }

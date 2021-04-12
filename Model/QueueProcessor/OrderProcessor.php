@@ -63,7 +63,7 @@ class OrderProcessor
                 $this->submitOrder($order);
                 $this->setOrderRecordProcessed($order);
             } catch (\Exception $e) {
-                $this->logger->logError($e->getMessage());
+                $this->logger->logError("process pending orders", $e->getMessage());
                 $this->setOrderRecordFailed($order);
             }
         }
@@ -173,7 +173,7 @@ class OrderProcessor
             $this->logger->logDebug('order was updated');
 
         } else {
-            $this->logger->logError('order could not be updated');
+            $this->logger->logError('update order', 'order could not be updated');
             throw new \Exception(__("Order could not be updated"));
         }
     }

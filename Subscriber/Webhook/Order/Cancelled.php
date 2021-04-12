@@ -53,7 +53,7 @@ class Cancelled extends BaseSubscriber
                 $this->setEventProcessed($webhookEvent);
 
             } catch (\Exception $e) {
-                $this->logger->logError($e->getMessage());
+                $this->logger->logError("order cancelled", $e->getMessage());
                 $this->setEventFailed($webhookEvent);
             }
         }

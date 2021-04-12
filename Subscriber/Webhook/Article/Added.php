@@ -56,7 +56,7 @@ class Added extends BaseSubscriber
                 $this->setEventProcessed($webhookEvent);
             } catch (\Exception $e) {
                 $this->setEventFailed($webhookEvent);
-                $this->logger->logError($e->getMessage());
+                $this->logger->logError("article added", $e->getMessage());
             }
         }
 

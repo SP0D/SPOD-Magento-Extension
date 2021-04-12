@@ -56,7 +56,7 @@ class Sent extends BaseSubscriber
                 $this->setEventProcessed($webhookEvent);
 
             } catch (\Exception $e) {
-                $this->logger->logError($e->getMessage());
+                $this->logger->logError("shipment sent", $e->getMessage());
                 $this->setEventFailed($webhookEvent);
             }
         }

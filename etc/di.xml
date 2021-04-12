@@ -16,7 +16,7 @@
     <preference for="Spod\Sync\Api\PayloadEncoder" type="Spod\Sync\Model\Encoder\JsonEncoder" />
 
     <!-- file based logging -->
-    <preference for="Spod\Sync\Api\SpodLoggerInterface" type="Spod\Sync\Model\Logger\PsrLog" />
+    <preference for="Spod\Sync\Api\SpodLoggerInterface" type="Spod\Sync\Model\Logger\BackendLog" />
 
     <!-- capture orders -->
     <type name="Magento\Sales\Api\OrderManagementInterface">

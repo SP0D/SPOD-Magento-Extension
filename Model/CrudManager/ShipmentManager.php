@@ -229,7 +229,7 @@ class ShipmentManager
             $this->shipmentRepository->save($magentoShipment);
 
         } catch (NoSuchEntityException $e) {
-            $this->logger->logError("could not save tracking");
+            $this->logger->logError("add tracking to shipment", "could not save tracking");
         }
     }
 }

@@ -31,10 +31,11 @@ class CancelOrder implements ObserverInterface
 
         $this->logger->logDebug(sprintf('trying to cancel order #%s', $order->getId()));
 
+        $spodOrderId = $order->getSpodOrderId();
         if ($this->orderHandler->cancelOrder($order->getSpodOrderId())) {
-            $this->logger->logDebug('order was cancelled');
+            $this->logger->logDebug(sprintf('%s order was cancelled', $spodOrderId));
         } else {
-            $this->logger->logError('order could not be cancelled');
+            $this->logger->logError('cancel order observer', 'order could not be cancelled');
             throw new \Exception(__("Order could not be cancelled"));
         }
     }

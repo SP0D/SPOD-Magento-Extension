@@ -55,7 +55,7 @@ class InitialSync extends BaseSubscriber
 
             } catch (\Exception $e) {
                 $this->setEventFailed($webhookEvent);
-                $this->logger->logError($e->getMessage());
+                $this->logger->logError("initial sync", $e->getMessage());
             }
         }
 

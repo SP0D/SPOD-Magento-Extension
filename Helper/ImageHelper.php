@@ -71,7 +71,7 @@ class ImageHelper
             $this->assignImages($product, $imagePaths);
             return $product;
         } catch (\Exception $e) {
-            $this->logger->logError($e->getMessage());
+            $this->logger->logError("image download", $e->getMessage());
         }
     }
 
@@ -109,7 +109,7 @@ class ImageHelper
                 $this->addImageToGallery($isMain, $product, $imagePath);
                 $isMain = false;
             } catch (\Exception $e) {
-                $this->logger->logError($e->getMessage());
+                $this->logger->logError("assignImages", $e->getMessage());
             }
         }
     }

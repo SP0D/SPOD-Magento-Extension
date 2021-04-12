@@ -77,7 +77,11 @@ class OrderHandler extends AbstractHandler
         $result = $this->putRequest($action, $order);
 
         if ($result->getHttpCode() !== 201) {
-            $this->logger->logError(sprintf("updating order failed, httpStatus %s", $result->getHttpCode()));
+            $this->logger->logError(
+                "update order",
+                sprintf("updating order failed, httpStatus %s", $result->getHttpCode()),
+                $result->getPayload()
+            );
             throw new \Exception(sprintf("failed to update order"));
         }
 
