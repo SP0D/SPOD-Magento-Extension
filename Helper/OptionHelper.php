@@ -6,6 +6,7 @@ use Magento\Eav\Model\Config;
 use Magento\Eav\Setup\EavSetup;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ObjectManager;
 
 class OptionHelper extends AbstractHelper
 {
@@ -37,7 +38,12 @@ class OptionHelper extends AbstractHelper
     public function getDropdownOptionValueForLabel($attributeCode, $label)
     {
         $attribute = $this->eavConfig->getAttribute('catalog_product', $attributeCode);
-        $options = $attribute->getSource()->getAllOptions(false);
+
+        // reload required to catch new options
+        $objManager = ObjectManager::getInstance();
+        $sourceModel = $objManager->create('Magento\Eav\Model\Entity\Attribute\Source\Table');
+        $sourceModel->setAttribute($attribute);
+        $options = $sourceModel->getAllOptions(false);
 
         foreach ($options as $option) {
             if ($option['label'] == $label) {
