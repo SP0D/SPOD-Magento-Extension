@@ -2,8 +2,6 @@
 
 namespace Spod\Sync\Model;
 
-use Spod\Sync\Api\ResultDecoder;
-
 class ApiResult
 {
     private $httpCode;
