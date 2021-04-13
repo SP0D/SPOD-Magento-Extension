@@ -2,8 +2,6 @@
 
 namespace Spod\Sync\Setup;
 
-use Magento\Catalog\Model\Product;
-use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
