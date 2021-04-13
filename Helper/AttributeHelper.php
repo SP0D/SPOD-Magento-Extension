@@ -211,7 +211,7 @@ class AttributeHelper extends AbstractHelper
             'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
             'visible' => true,
             'required' => false,
-            'user_defined' => false,
+            'user_defined' => true,
             'default' => '1',
             'searchable' => false,
             'filterable' => false,
