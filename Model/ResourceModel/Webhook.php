@@ -1,13 +1,14 @@
 <?php
 namespace Spod\Sync\Model\ResourceModel;
 
-class Webhook extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
-{
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Magento\Framework\Model\ResourceModel\Db\Context;
 
+class Webhook extends AbstractDb
+{
     public function __construct(
-        \Magento\Framework\Model\ResourceModel\Db\Context $context
-    )
-    {
+        Context $context
+    ) {
         parent::__construct($context);
     }
 
@@ -15,5 +16,4 @@ class Webhook extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     {
         $this->_init('spodsync_queue_webhook', 'id');
     }
-
 }
