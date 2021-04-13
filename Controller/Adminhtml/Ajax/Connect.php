@@ -9,6 +9,7 @@ use Spod\Sync\Helper\CacheHelper;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\ApiReader\AuthenticationHandler;
+use Spod\Sync\Model\ApiReader\WebhookHandler;
 use Spod\Sync\Model\CrudManager\WebhookManager;
 use Spod\Sync\Model\Mapping\WebhookEvent;
 
@@ -38,6 +39,10 @@ class Connect extends Action
      * @var WebhookManager
      */
     private $webhookManager;
+    /**
+     * @var WebhookHandler
+     */
+    private $webhookHandler;
 
     public function __construct(
         AuthenticationHandler $authHandler,
@@ -46,6 +51,7 @@ class Connect extends Action
         Context $context,
         JsonFactory $jsonResultFactory,
         StatusHelper $statusHelper,
+        WebhookHandler $webhookHandler,
         WebhookManager $webhookManager
     ) {
         parent::__construct($context);
@@ -54,6 +60,7 @@ class Connect extends Action
         $this->configHelper = $configHelper;
         $this->jsonResultFactory = $jsonResultFactory;
         $this->statusHelper = $statusHelper;
+        $this->webhookHandler = $webhookHandler;
         $this->webhookManager = $webhookManager;
     }
 
@@ -93,6 +100,7 @@ class Connect extends Action
         $this->cacheHelper->clearConfigCache();
         if (!$this->statusHelper->getInstallDate()) {
             $this->statusHelper->setInstallDate();
+            $this->webhookHandler->registerWebhooks();
             $this->webhookManager->saveWebhookEvent(WebhookEvent::EVENT_ARTICLE_INITALSYNC, "");
         }
     }
