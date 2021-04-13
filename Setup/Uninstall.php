@@ -47,14 +47,6 @@ class Uninstall implements UninstallInterface
         $setup->getConnection()->dropTable($setup->getTable('spodsync_queue_webhook'));
         $setup->getConnection()->dropTable($setup->getTable('spodsync_status'));
 
-        $this->attributeHelper->setSetup($setup);
-        $this->attributeHelper->removeAttribute('spod_appearance');
-        $this->attributeHelper->removeAttribute('spod_size');
-        $this->attributeHelper->removeAttribute('spod_product_id');
-        $this->attributeHelper->removeAttribute('spod_product_type_id');
-        $this->attributeHelper->removeAttribute('spod_appearance_id');
-        $this->attributeHelper->removeAttribute('spod_size_id');
-
         $setup->endSetup();
     }
 }
