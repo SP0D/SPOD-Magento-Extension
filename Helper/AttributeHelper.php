@@ -3,7 +3,6 @@
 namespace Spod\Sync\Helper;
 
 use Magento\Catalog\Model\Product;
-use Magento\Catalog\Model\ResourceModel\Eav\Attribute;
 use Magento\Catalog\Setup\CategorySetupFactory;
 use Magento\Eav\Model\AttributeSetRepository;
 use Magento\Eav\Model\Config;
@@ -15,6 +14,7 @@ use Magento\Eav\Model\ResourceModel\Entity\Attribute\Set\CollectionFactory;
 use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 
 class AttributeHelper extends AbstractHelper
@@ -31,7 +31,6 @@ class AttributeHelper extends AbstractHelper
     public function __construct(
         AttributeSetFactory $attributeSetFactory,
         AttributeSetRepository $attributeSetRepository,
-        Attribute $attributeResource,
         CategorySetupFactory $categorySetupFactory,
         CollectionFactory $attributeSetCollection,
         Config $eavConfig,
@@ -41,7 +40,6 @@ class AttributeHelper extends AbstractHelper
         $this->attributeSetCollection = $attributeSetCollection;
         $this->attributeSetFactory = $attributeSetFactory;
         $this->attributeSetRepository = $attributeSetRepository;
-        $this->attributeResource = $attributeResource;
         $this->categorySetupFactory = $categorySetupFactory;
         $this->eavConfig = $eavConfig;
         $this->eavSetupFactory = $eavSetupFactory;
@@ -241,8 +239,10 @@ class AttributeHelper extends AbstractHelper
      */
     public function getPreparedOptionValues(?AbstractAttribute $attr): array
     {
-        // reload required, to get newly created options
-        $reloadedAttr = $this->attributeResource->load($attr->getId());
+        // reload of class required, to get newly created options
+        $objectManager = ObjectManager::getInstance();
+        $reloadedAttrObj = $objectManager->create('Magento\Catalog\Model\ResourceModel\Eav\Attribute');
+        $reloadedAttr = $reloadedAttrObj->load($attr->getId());
 
         $attrValues = [];
         $options = $reloadedAttr->getOptions();
