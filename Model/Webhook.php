@@ -1,9 +1,15 @@
 <?php
 namespace Spod\Sync\Model;
 
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\DataObject\IdentityInterface;
+use Magento\Framework\Model\AbstractModel;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
 use Spod\Sync\Api\ResultDecoder;
 
-class Webhook extends \Magento\Framework\Model\AbstractModel implements \Magento\Framework\DataObject\IdentityInterface
+class Webhook extends AbstractModel implements IdentityInterface
 {
     const CACHE_TAG = 'spod_sync_webhook';
 
@@ -15,10 +21,10 @@ class Webhook extends \Magento\Framework\Model\AbstractModel implements \Magento
     private $decoder;
 
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        Context $context,
+        Registry $registry,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         ResultDecoder $decoder,
         array $data = [])
     {
