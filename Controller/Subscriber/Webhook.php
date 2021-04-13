@@ -11,9 +11,7 @@ use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\CrudManager\WebhookManager;
-use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Model\WebhookFactory;
-use Spod\Sync\Model\Mapping\QueueStatus;
 
 class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActionInterface
 {
