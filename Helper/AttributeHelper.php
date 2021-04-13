@@ -27,7 +27,6 @@ class AttributeHelper extends AbstractHelper
     private $eavConfig;
     private $eavSetupFactory;
     private $setup;
-    private $attributeResource;
 
     public function __construct(
         AttributeSetFactory $attributeSetFactory,
