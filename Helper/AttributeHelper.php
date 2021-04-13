@@ -16,6 +16,7 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\SchemaSetupInterface;
 
 class AttributeHelper extends AbstractHelper
 {
@@ -131,6 +132,18 @@ class AttributeHelper extends AbstractHelper
             Product::ENTITY,
             $code,
             $options
+        );
+    }
+
+    /**
+     * @param SchemaSetupInterface $setup
+     */
+    public function removeAttribute(string $code): void
+    {
+        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);
+        $eavSetup->removeAttribute(
+            Product::ENTITY,
+            $code
         );
     }
 
