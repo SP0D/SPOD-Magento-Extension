@@ -58,6 +58,4 @@ class Processed extends BaseSubscriber
 
         return $this;
     }
-
-
 }

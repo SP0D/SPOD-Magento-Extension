@@ -4,6 +4,7 @@ namespace Spod\Sync\Model\CrudManager;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderRepository;
 use Spod\Sync\Api\SpodLoggerInterface;
 
@@ -57,5 +58,19 @@ class OrderManager
         }
 
         throw new \Exception('SPOD Order Id not found');
+    }
+
+    /**
+     * @param $spodOrderId
+     * @throws \Magento\Framework\Exception\AlreadyExistsException
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function completeOrder($spodOrderId)
+    {
+        $order = $this->getOrderBySpodOrderId($spodOrderId);
+        $order->setState(Order::STATE_COMPLETE)->setStatus(Order::STATE_COMPLETE);
+        $this->orderRepository->save($order);
+        $this->logger->logDebug(sprintf("completed order %d", $order->getId()));
     }
 }
