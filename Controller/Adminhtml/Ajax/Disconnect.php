@@ -5,11 +5,17 @@ namespace Spod\Sync\Controller\Adminhtml\Ajax;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\CacheHelper;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\ApiReader\WebhookHandler;
 
+/**
+ * Handle disconnect requests in the backend App.
+ *
+ * @package Spod\Sync\Controller\Adminhtml\Ajax
+ */
 class Disconnect extends Action
 {
     /**
@@ -32,6 +38,10 @@ class Disconnect extends Action
      * @var WebhookHandler
      */
     private $webhookHandler;
+    /**
+     * @var SpodLoggerInterface
+     */
+    private $spodLogger;
 
     public function __construct(
         CacheHelper $cacheHelper,
@@ -39,6 +49,7 @@ class Disconnect extends Action
         Context $context,
         JsonFactory $jsonResultFactory,
         StatusHelper $statusHelper,
+        SpodLoggerInterface $spodLogger,
         WebhookHandler $webhookHandler
     ) {
         parent::__construct($context);
@@ -46,6 +57,7 @@ class Disconnect extends Action
         $this->configHelper = $configHelper;
         $this->jsonResultFactory = $jsonResultFactory;
         $this->statusHelper = $statusHelper;
+        $this->spodLogger = $spodLogger;
         $this->webhookHandler = $webhookHandler;
     }
 
@@ -56,11 +68,21 @@ class Disconnect extends Action
 
     public function execute()
     {
-        $this->handleDisconnect();
-
         $data = [];
-        $data['error'] = 0;
-        $data['message'] = 'disconnected';
+
+        try {
+            $this->handleDisconnect();
+            $data['error'] = 0;
+            $data['message'] = 'disconnected';
+        } catch (\Exception $e) {
+            $data['error'] = 1;
+            $data['message'] = $e->getMessage();
+            $this->spodLogger->logError(
+                'API disconnect',
+                $e->getMessage(),
+                $e->getTraceAsString()
+            );
+        }
 
         $result = $this->jsonResultFactory->create();
         $result->setData($data);
@@ -68,11 +90,15 @@ class Disconnect extends Action
         return $result;
     }
 
+    /**
+     * Disconnect from API
+     * @throws \Exception
+     */
     private function handleDisconnect()
     {
+        $this->webhookHandler->unregisterWebhooks();
         $this->configHelper->saveApiToken('');
         $this->statusHelper->resetStatusDates();
         $this->cacheHelper->clearConfigCache();
-        $this->webhookHandler->unregisterWebhooks();
     }
 }
