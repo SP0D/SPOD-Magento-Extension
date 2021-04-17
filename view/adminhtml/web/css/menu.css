@@ -1,0 +1,6 @@
+.admin__menu .level-0.item-spodsync > a:before {
+    content: url('../images/menu.png');
+    height: 22px;
+    margin: 0 auto;
+    width: 70px;
+}
