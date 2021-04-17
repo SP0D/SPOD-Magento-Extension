@@ -6,6 +6,11 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
 
+/**
+ * Adminhtml controller for the Spod_Sync Log.
+ *
+ * @package Spod\Sync\Controller\Adminhtml\Log
+ */
 class Index extends Action
 {
     protected $resultPageFactory = false;

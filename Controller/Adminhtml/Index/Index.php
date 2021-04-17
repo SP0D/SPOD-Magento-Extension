@@ -6,6 +6,11 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
 
+/**
+ * Backend Controller for the installer and status application.
+ *
+ * @package Spod\Sync\Controller\Adminhtml\Index
+ */
 class Index extends Action
 {
     protected $resultPageFactory;
@@ -13,8 +18,7 @@ class Index extends Action
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
     }
