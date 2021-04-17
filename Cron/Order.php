@@ -6,6 +6,14 @@ use Magento\Framework\App\State;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\QueueProcessor\OrderProcessor;
 
+/**
+ * Cronjob for orders. Magento orders are
+ * not processed directly, but added to a local queue.
+ * This classed is reponsible for submitting them
+ * to the SPOD API.
+ *
+ * @package Spod\Sync\Cron
+ */
 class Order
 {
     /** @var SpodLoggerInterface */
@@ -29,7 +37,7 @@ class Order
 
     public function execute()
     {
-        $this->logger->logDebug('Executing Order Cronjob');
+        $this->logger->logDebug('[cron]: submitting pending orders');
         $this->orderProcessor->processPendingNewOrders();
     }
 }
