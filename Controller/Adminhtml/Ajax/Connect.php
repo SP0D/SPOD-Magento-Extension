@@ -5,6 +5,7 @@ namespace Spod\Sync\Controller\Adminhtml\Ajax;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\CacheHelper;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Helper\StatusHelper;
@@ -13,6 +14,11 @@ use Spod\Sync\Model\ApiReader\WebhookHandler;
 use Spod\Sync\Model\CrudManager\WebhookManager;
 use Spod\Sync\Model\Mapping\WebhookEvent;
 
+/**
+ * Backend controller which handles the API connect.
+ *
+ * @package Spod\Sync\Controller\Adminhtml\Ajax
+ */
 class Connect extends Action
 {
     /**
@@ -43,6 +49,10 @@ class Connect extends Action
      * @var WebhookHandler
      */
     private $webhookHandler;
+    /**
+     * @var SpodLoggerInterface
+     */
+    private $spodLogger;
 
     public function __construct(
         AuthenticationHandler $authHandler,
@@ -51,6 +61,7 @@ class Connect extends Action
         Context $context,
         JsonFactory $jsonResultFactory,
         StatusHelper $statusHelper,
+        SpodLoggerInterface $spodLogger,
         WebhookHandler $webhookHandler,
         WebhookManager $webhookManager
     ) {
@@ -62,6 +73,7 @@ class Connect extends Action
         $this->statusHelper = $statusHelper;
         $this->webhookHandler = $webhookHandler;
         $this->webhookManager = $webhookManager;
+        $this->spodLogger = $spodLogger;
     }
 
     protected function _isAllowed()
@@ -72,20 +84,13 @@ class Connect extends Action
     public function execute()
     {
         $apiToken = $this->getRequest()->getParam('apiToken');
-        $data = [];
 
         if ($this->authHandler->isTokenValid($apiToken)) {
             $this->handleValidKey($apiToken);
-
-            $data['error'] = 0;
-            $data['message'] = 'API key is valid';
-            $data['installDate'] = $this->statusHelper->getInstallDate();
-            $data['initsyncStartDate'] = $this->statusHelper->getInitialSyncStartDate();
-            $data['initsyncEndDate'] = $this->statusHelper->getInitialSyncEndDate();
-
+            $data = $this->getSuccessMessage();
         } else {
-            $data['error'] = 1;
-            $data['message'] = 'Invalid API key';
+            $data = $this->getFailedMessage();
+            $this->spodLogger->logError('API connect', 'Invalid API key');
         }
 
         $result = $this->jsonResultFactory->create();
@@ -103,5 +108,36 @@ class Connect extends Action
             $this->webhookHandler->registerWebhooks();
             $this->webhookManager->saveWebhookEvent(WebhookEvent::EVENT_ARTICLE_INITALSYNC, "");
         }
+    }
+
+    /**
+     * Prepare API response for successful connections.
+     *
+     * @param array $data
+     * @return array
+     */
+    private function getSuccessMessage(): array
+    {
+        $data = [];
+        $data['error'] = 0;
+        $data['message'] = 'API key is valid';
+        $data['installDate'] = $this->statusHelper->getInstallDate();
+        $data['initsyncStartDate'] = $this->statusHelper->getInitialSyncStartDate();
+        $data['initsyncEndDate'] = $this->statusHelper->getInitialSyncEndDate();
+        return $data;
+    }
+
+    /**
+     * Prepare API response when connection failed.
+     *
+     * @param array $data
+     * @return array
+     */
+    private function getFailedMessage(): array
+    {
+        $data = [];
+        $data['error'] = 1;
+        $data['message'] = 'Invalid API key';
+        return $data;
     }
 }
