@@ -8,6 +8,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Triggers the webhook processor, which in turn
+ * handles the processing of all received but yet
+ * unprocessed webhook calls.
+ *
+ * @package Spod\Sync\Console
+ */
 class WebhookQueue extends Command
 {
     /** @var WebhookProcessor */
@@ -39,6 +46,4 @@ class WebhookQueue extends Command
         $this->state->setAreaCode(Area::AREA_ADMINHTML);
         $this->webhookProcessor->processPendingWebhookEvents();
     }
-
-
 }

@@ -10,6 +10,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Command WebhookRegistration
+ *
+ * Can be used on the command line
+ * to register, unregister and list
+ * all webhooks.
+ *
+ * @package Spod\Sync\Console
+ */
 class WebhookRegistration extends Command
 {
     /** @var ResultDecoder  */
@@ -59,14 +68,21 @@ class WebhookRegistration extends Command
 
         parent::configure();
     }
+
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int|void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->state->setAreaCode(Area::AREA_ADMINHTML);
 
         if ($input->getOption('register')) {
-            echo "Registering webhooks...";
+            $output->write("<info>Registering webhooks...</info>");
             $this->webhookHandler->registerWebhooks();
-            echo "done\n";
+            $output->writeln("<info>done</info>");
 
         } elseif ($input->getOption('list')) {
             $this->listWebhooks();
@@ -76,13 +92,19 @@ class WebhookRegistration extends Command
         }
     }
 
-    protected function listWebhooks(): void
+    /**
+     * List all registered webhook subscriptions.
+     *
+     * @param $output
+     * @throws \Exception
+     */
+    protected function listWebhooks(OutputInterface $output): void
     {
         $hooksResult = $this->webhookHandler->getWebhooks();
         $hooks = $this->decoder->parsePayload($hooksResult->getPayload());
 
         foreach ($hooks as $hook) {
-            echo sprintf("- %s: %s\n", $hook->eventType, $hook->url);
+            $output->writeln(sprintf("<info>%s: %s</info>", $hook->eventType, $hook->url));
         }
     }
 }

@@ -8,6 +8,11 @@ use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Spod\Sync\Helper\ConfigHelper;
 
+/**
+ * Status Block for the Backend-Installer.
+ *
+ * @package Spod\Sync\Block\Adminhtml
+ */
 class Status extends Template
 {
     /**
@@ -26,6 +31,11 @@ class Status extends Template
         parent::__construct($context, $data, $jsonHelper, $directoryHelper);
     }
 
+    /**
+     * Get API token from config and return it.
+     *
+     * @return string
+     */
     public function getApiToken()
     {
         return $this->configHelper->getToken();
