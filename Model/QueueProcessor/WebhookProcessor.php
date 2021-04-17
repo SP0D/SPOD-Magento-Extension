@@ -9,6 +9,13 @@ use Spod\Sync\Model\ResourceModel\Webhook\Collection;
 use Spod\Sync\Model\ResourceModel\Webhook\CollectionFactory;
 use Spod\Sync\Model\Webhook;
 
+/**
+ * Reads the stored webhooks and processed them
+ * by dispatching events, which are picked up by
+ * classes for handling each particular case.
+ *
+ * @package Spod\Sync\Model\QueueProcessor
+ */
 class WebhookProcessor
 {
     private $collectionFactory;
@@ -36,10 +43,14 @@ class WebhookProcessor
         foreach ($collection as $webhookEvent) {
             /** @var $webhookEvent Webhook */
             $this->eventManager->dispatch($this->getEventName($webhookEvent), ['webhook_event' => $webhookEvent]);
+            $this->logger->logDebug('processing stored webhook event', $webhookEvent);
         }
     }
 
     /**
+     * Get the event name, based on the event type.
+     * (Article.added becomes spodsync_webhook_event_article_added)
+     *
      * @param $webhookEvent
      * @return string
      */
@@ -53,6 +64,8 @@ class WebhookProcessor
     }
 
     /**
+     * Get collection of webhooks with status pending.
+     *
      * @return Collection
      */
     protected function getPendingEventCollection(): Collection

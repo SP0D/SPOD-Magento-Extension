@@ -5,6 +5,12 @@ namespace Spod\Sync\Cron;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\QueueProcessor\WebhookProcessor;
 
+/**
+ * Cronjob for webhooks. Executes stored and
+ * yet unprocessed webhook events.
+ *
+ * @package Spod\Sync\Cron
+ */
 class Webhook
 {
     /** @var SpodLoggerInterface */
@@ -23,7 +29,7 @@ class Webhook
 
     public function execute()
     {
-        $this->logger->logDebug('Executing Webhook Cronjob');
+        $this->logger->logDebug('[Cron]: Executing Webhooks');
         $this->webhookProcessor->processPendingWebhookEvents();
     }
 }
