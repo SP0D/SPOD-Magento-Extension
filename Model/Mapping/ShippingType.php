@@ -5,6 +5,11 @@ namespace Spod\Sync\Model\Mapping;
 use Magento\Sales\Api\Data\OrderInterface;
 use Spod\Sync\Helper\ConfigHelper;
 
+/**
+ * Mapping of SPOD shipping types.
+ *
+ * @package Spod\Sync\Model\Mapping
+ */
 class ShippingType
 {
     const SHIPPING_STANDARD = 'STANDARD';

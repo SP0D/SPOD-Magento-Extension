@@ -2,6 +2,13 @@
 
 namespace Spod\Sync\Model\Mapping;
 
+/**
+ * Class which maps the API webhooks event strings
+ * to a shared constant that can be accessed throughout
+ * the extension.
+ *
+ * @package Spod\Sync\Model\Mapping
+ */
 class WebhookEvent
 {
     const EVENT_ARTICLE_ADDED = 'Article.added';
