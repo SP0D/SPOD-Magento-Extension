@@ -18,6 +18,12 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 
+/**
+ * Helper which provides methods for managing
+ * required attributes.
+ *
+ * @package Spod\Sync\Helper
+ */
 class AttributeHelper extends AbstractHelper
 {
     private $attributeSetCollection;
@@ -47,11 +53,24 @@ class AttributeHelper extends AbstractHelper
         return parent::__construct($context);
     }
 
+    /**
+     * Find attribute config by attribute code.
+     *
+     * @param $attrCode
+     * @return AbstractAttribute|null
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function getAttributeByCode($attrCode)
     {
         return $this->eavConfig->getAttribute('catalog_product', $attrCode);
     }
 
+    /**
+     * Get attribute set id by attribute set name.
+     *
+     * @param $attrSetName
+     * @return int
+     */
     public function getAttrSetId($attrSetName): int
     {
         $attributeSetCollection = $this->attributeSetCollection->create()
@@ -64,6 +83,8 @@ class AttributeHelper extends AbstractHelper
     }
 
     /**
+     * Create the SPOD attribute set.
+     *
      * @param ModuleDataSetupInterface $setup
      * @throws \Magento\Framework\Exception\InputException
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -94,7 +115,7 @@ class AttributeHelper extends AbstractHelper
     }
 
     /**
-     * Add a specific eav attribute
+     * Add a configurable eav attribute
      *
      * @param $eavSetup
      */
@@ -135,6 +156,8 @@ class AttributeHelper extends AbstractHelper
     }
 
     /**
+     * Remove an existing attribute with a given code.
+     *
      * @param SchemaSetupInterface $setup
      */
     public function removeAttribute(string $code): void
@@ -147,7 +170,7 @@ class AttributeHelper extends AbstractHelper
     }
 
     /**
-     * Add a specific eav attribute
+     * Add a varchar attribute
      *
      * @param $eavSetup
      */
@@ -187,6 +210,8 @@ class AttributeHelper extends AbstractHelper
     }
 
     /**
+     * Add a boolean (yes/no) attribute
+     *
      * @param $label
      * @param $code
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -230,6 +255,8 @@ class AttributeHelper extends AbstractHelper
     }
 
     /**
+     * getter which read the injected setup.
+     *
      * @return ModuleDataSetupInterface
      */
     public function getSetup()
@@ -238,6 +265,8 @@ class AttributeHelper extends AbstractHelper
     }
 
     /**
+     * setter which injects the setup from the outside.
+
      * @param ModuleDataSetupInterface $setup
      */
     public function setSetup(ModuleDataSetupInterface $setup): void
@@ -246,6 +275,8 @@ class AttributeHelper extends AbstractHelper
     }
 
     /**
+     * Get existing option values in the required format.
+     *
      * @param AbstractAttribute|null $sizeAttr
      * @return array
      */

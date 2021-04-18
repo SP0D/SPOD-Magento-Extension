@@ -7,6 +7,12 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Store\Model\ScopeInterface;
 
+/**
+ * Used to access the system config for
+ * reading and writing values.
+ *
+ * @package Spod\Sync\Helper
+ */
 class ConfigHelper extends AbstractHelper
 {
     const XML_PATH_APITOKEN = 'spodsync/general/apiToken';
@@ -23,12 +29,18 @@ class ConfigHelper extends AbstractHelper
      * @var WriterInterface
      */
     private $configWriter;
+    /**
+     * @var SignatureHelper
+     */
+    private $signatureHelper;
 
     public function __construct(
         Context $context,
-        WriterInterface $configWriter
+        WriterInterface $configWriter,
+        SignatureHelper $signatureHelper
     ) {
         $this->configWriter = $configWriter;
+        $this->signatureHelper = $signatureHelper;
         parent::__construct($context);
     }
 
@@ -42,14 +54,11 @@ class ConfigHelper extends AbstractHelper
      */
     public function getConfigValue($path, $storeId = null)
     {
-        return $this->scopeConfig->getValue(
-            $path, ScopeInterface::SCOPE_STORE, $storeId
-        );
+        return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
     /**
      * Return wether to activate debug logging or not.
-
      *
      * @return bool
      */
@@ -69,7 +78,7 @@ class ConfigHelper extends AbstractHelper
     }
 
     /**
-     * The API URL.
+     * Get the API URL.
      *
      * @return string
      */
@@ -144,6 +153,8 @@ class ConfigHelper extends AbstractHelper
     }
 
     /**
+     * Save a config value using the given config path.
+     *
      * @param $path
      * @param $value
      */
@@ -152,24 +163,30 @@ class ConfigHelper extends AbstractHelper
         $this->configWriter->save($path, $value);
     }
 
+    /**
+     * Save the given api token in the system config.
+     *
+     * @param $token
+     */
     public function saveApiToken($token)
     {
         $this->saveValue(self::XML_PATH_APITOKEN, $token);
     }
 
-    public function getWebhookSecret()
+    /**
+     * Try to get the webhook secret and, if called for the
+     * first time, generate one before returning it.
+     *
+     * @return string
+     */
+    public function getWebhookSecret(): string
     {
         $generatedSecret = $this->getConfigValue(self::XML_PATH_WEBHOOK_SECRET);
         if (!$generatedSecret) {
-            $generatedSecret = $this->generateApiSecret();
+            $generatedSecret = $this->signatureHelper->generateApiSecret();
             $this->configWriter->save(self::XML_PATH_WEBHOOK_SECRET, $generatedSecret);
         }
 
         return $generatedSecret;
-    }
-
-    private function generateApiSecret()
-    {
-        return uniqid();
     }
 }

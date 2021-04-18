@@ -8,22 +8,43 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ObjectManager;
 
+/**
+ * Helps with the programmatic creation and
+ * validation of attribute options.
+ *
+ * @package Spod\Sync\Helper
+ */
 class OptionHelper extends AbstractHelper
 {
+    /** @var Config  */
     private $eavConfig;
+    /** @var EavSetup  */
     private $eavSetup;
 
+    /**
+     * OptionHelper constructor.
+     *
+     * @param Context $context
+     * @param Config $eavConfig
+     * @param EavSetup $eavSetup
+     */
     public function __construct(
         Context $context,
         Config $eavConfig,
         EavSetup $eavSetup
-    )
-    {
+    ) {
         $this->eavConfig = $eavConfig;
         $this->eavSetup = $eavSetup;
         parent::__construct($context);
     }
 
+    /**
+     * Adds new options to an existing attribute
+     * with the given attribute code.
+     *
+     * @param $attributeCode
+     * @param array $options
+     */
     public function addOptionToAttribute($attributeCode, array $options)
     {
         foreach ($options as $option) {
@@ -35,6 +56,15 @@ class OptionHelper extends AbstractHelper
         }
     }
 
+    /**
+     * Reads the internal attribute value of a given option label,
+     * which is required to set the actual value.
+     *
+     * @param $attributeCode
+     * @param $label
+     * @return false|mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function getDropdownOptionValueForLabel($attributeCode, $label)
     {
         $attribute = $this->eavConfig->getAttribute('catalog_product', $attributeCode);
@@ -54,6 +84,14 @@ class OptionHelper extends AbstractHelper
         return false;
     }
 
+    /**
+     * Check wether a certain option label already exists.
+     *
+     * @param $attributeCode
+     * @param $option
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     private function optionExists($attributeCode, $option)
     {
         $attribute = $this->eavConfig->getAttribute('catalog_product', $attributeCode);
@@ -68,6 +106,13 @@ class OptionHelper extends AbstractHelper
         return false;
     }
 
+    /**
+     * Saves a new option label in the database.
+     *
+     * @param $attributeCode
+     * @param $option
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     private function saveNewOption($attributeCode, $option)
     {
         if (strlen($option) == 0) {
@@ -80,6 +125,13 @@ class OptionHelper extends AbstractHelper
         $this->eavSetup->addAttributeOption($importOption);
     }
 
+    /**
+     * Creates an internal option key, to prevent issues
+     * with values like 4XXL (leading digit).
+     *
+     * @param $label
+     * @return string
+     */
     private function generateOptionKey($label)
     {
         $key = trim($label);

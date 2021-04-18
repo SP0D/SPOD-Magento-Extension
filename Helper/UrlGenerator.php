@@ -4,6 +4,12 @@ namespace Spod\Sync\Helper;
 
 use Magento\Store\Model\StoreManagerInterface;
 
+/**
+ * Generates URLs, primarily used
+ * for the webhook registration process.
+ *
+ * @package Spod\Sync\Helper
+ */
 class UrlGenerator
 {
     /** @var StoreManagerInterface  */
@@ -15,6 +21,14 @@ class UrlGenerator
         $this->storeManager = $storeManager;
     }
 
+    /**
+     * Appends a given url path to the base url of
+     * the store.
+     *
+     * @param $urlPath
+     * @return string
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function generateUrl($urlPath): string
     {
         $baseUrl = $this->storeManager->getStore()->getBaseUrl();

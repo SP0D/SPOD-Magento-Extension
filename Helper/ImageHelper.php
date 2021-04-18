@@ -9,6 +9,12 @@ use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Filesystem;
 use Spod\Sync\Api\SpodLoggerInterface;
 
+/**
+ * Downloads and assignes images to
+ * the generated products.
+ *
+ * @package Spod\Sync\Helper
+ */
 class ImageHelper
 {
     /** @var DirectoryList */
@@ -27,6 +33,15 @@ class ImageHelper
      */
     private $resourceConnection;
 
+    /**
+     * ImageHelper constructor.
+     *
+     * @param DirectoryList $directoryList
+     * @param Filesystem $filesystem
+     * @param ProductRepository $productRepository
+     * @param ResourceConnection $resourceConnection
+     * @param SpodLoggerInterface $logger
+     */
     public function __construct(
         DirectoryList $directoryList,
         Filesystem $filesystem,
@@ -36,12 +51,14 @@ class ImageHelper
     ) {
         $this->directoryList = $directoryList;
         $this->filesystem = $filesystem;
+        $this->logger = $logger;
         $this->productRepository = $productRepository;
         $this->resourceConnection = $resourceConnection;
-        $this->logger = $logger;
     }
 
     /**
+     * Assign images to a configurable product.
+     *
      * @param $configurableProduct
      * @param $images
      * @throws \Magento\Framework\Exception\CouldNotSaveException
@@ -60,6 +77,8 @@ class ImageHelper
     }
 
     /**
+     * Downloads images and calls a method to handle the assignment.
+     *
      * @param $product
      * @param $variantInfo
      * @param $images
@@ -76,6 +95,10 @@ class ImageHelper
     }
 
     /**
+     * Determines which images are to be used for a certain
+     * variant of a configurable product. Also triggers the
+     * image download and return an array of the url.
+     *
      * @param array $imageIds
      * @param array $images
      * @return array
@@ -95,6 +118,8 @@ class ImageHelper
     }
 
     /**
+     * Assigns a given list of images to a product.
+     *
      * @param $product
      * @param $imageUrls
      * @throws \Magento\Framework\Exception\CouldNotSaveException
@@ -115,6 +140,9 @@ class ImageHelper
     }
 
     /**
+     * Wrapper which adds images to the media gallery of a product
+     * and assign labels for main image, thumbnail and small_image.
+     *
      * @param bool $firstImage
      * @param ProductInterface $product
      * @param $imagePath
@@ -129,6 +157,9 @@ class ImageHelper
     }
 
     /**
+     * Generate a local filename and trigger the download
+     * of a given image.
+     *
      * @param $imageId
      * @param $imageUrl
      * @return false|string
@@ -150,6 +181,8 @@ class ImageHelper
     }
 
     /**
+     * Download an image and save locally.
+     *
      * @param $imageUrl
      * @param string $imageFile
      */
@@ -165,6 +198,8 @@ class ImageHelper
     }
 
     /**
+     * Remove existing images from products.
+     *
      * @param $product
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      * @throws \Magento\Framework\Exception\InputException
@@ -185,6 +220,11 @@ class ImageHelper
     }
 
     /**
+     * Removes assigned images from the database. Only required
+     * as a last resort and workaround. In some cases, a few assigned
+     * images could not be removed by just setting media gallery entries
+     * to an empty array (setMediaGalleryEntries([]).
+     *
      * @param ProductInterface $product
      */
     private function deleteGhostImages(ProductInterface $product)

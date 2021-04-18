@@ -6,6 +6,11 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Spod\Sync\Api\SpodLoggerInterface;
 
+/**
+ * Used for the webhook secret creation and validation.
+ *
+ * @package Spod\Sync\Helper
+ */
 class SignatureHelper extends AbstractHelper
 {
     /**
@@ -17,6 +22,13 @@ class SignatureHelper extends AbstractHelper
      */
     private $spodLogger;
 
+    /**
+     * SignatureHelper constructor.
+     *
+     * @param Context $context
+     * @param ConfigHelper $configHelper
+     * @param SpodLoggerInterface $logger
+     */
     public function __construct(
         Context $context,
         ConfigHelper $configHelper,
@@ -51,5 +63,17 @@ class SignatureHelper extends AbstractHelper
         } else {
             return false;
         }
+    }
+
+    /**
+     * Generate a webhook secret, which is registered
+     * with each webhook subscription and used later
+     * to validate incoming webhook requests.
+     *
+     * @return string
+     */
+    public function generateApiSecret(): string
+    {
+        return uniqid();
     }
 }
