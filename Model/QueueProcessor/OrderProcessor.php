@@ -18,6 +18,12 @@ use Spod\Sync\Model\Repository\OrderRecordRepository;
 use Spod\Sync\Model\ResourceModel\OrderRecord\Collection;
 use Spod\Sync\Model\ResourceModel\OrderRecord\CollectionFactory;
 
+/**
+ * Submits new and updated orders to the API
+ * using the api handler for orders.
+ *
+ * @package Spod\Sync\Model\QueueProcessor
+ */
 class OrderProcessor
 {
     const HTTPSTATUS_ORDER_CREATED = 201;
@@ -63,6 +69,12 @@ class OrderProcessor
         $this->orderRepository = $orderRepository;
     }
 
+    /**
+     * Entry point which triggers processing of
+     * all currently pending orders.
+     *
+     * @throws \Exception
+     */
     public function processPendingNewOrders()
     {
         $collection = $this->getPendingCreateOrderCollection();
