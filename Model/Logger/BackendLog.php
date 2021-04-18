@@ -8,6 +8,12 @@ use Spod\Sync\Model\ResourceModel\SpodLog as SpodLogResource;
 use Spod\Sync\Model\SpodLog;
 use Spod\Sync\Model\SpodLogFactory;
 
+/**
+ * Logging implementation for a log that
+ * can be accessed in the backend.
+ *
+ * @package Spod\Sync\Model\Logger
+ */
 class BackendLog implements SpodLoggerInterface
 {
     /** @var ConfigHelper */
