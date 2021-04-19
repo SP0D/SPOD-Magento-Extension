@@ -11,7 +11,6 @@
 SPOD Magento 2 Sync
 
 ## Installation
-\* = in production please use the `--keep-generated` option
 
 ### Type 1: Zip file
 
@@ -19,6 +18,8 @@ SPOD Magento 2 Sync
  - Enable the module by running `php bin/magento module:enable Spod_Sync`
  - Apply database updates by running `php bin/magento setup:upgrade`\*
  - Flush the cache by running `php bin/magento cache:flush`
+
+Hint: due to technical limitations, the Uninstall routine is only available for composer installations.
 
 ### Type 2: Composer
 
