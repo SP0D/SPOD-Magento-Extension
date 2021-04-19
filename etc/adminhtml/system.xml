@@ -16,13 +16,6 @@
                    showInStore="0">
                 <label>General Configuration</label>
 
-                <field id="apiToken" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0"
-                       showInStore="0">
-                    <label>API Token</label>
-                    <comment>The API token for the related account.</comment>
-                    <tooltip>You can find this in your spod account.</tooltip>
-                </field>
-
                 <field id="is_staging" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0"
                        showInStore="0">
                     <label>Enable Staging</label>
