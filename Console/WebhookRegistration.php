@@ -85,7 +85,7 @@ class WebhookRegistration extends Command
             $output->writeln("<info>done</info>");
 
         } elseif ($input->getOption('list')) {
-            $this->listWebhooks();
+            $this->listWebhooks($output);
 
         } elseif ($input->getOption('unregister')) {
             $this->webhookHandler->unregisterWebhooks();
