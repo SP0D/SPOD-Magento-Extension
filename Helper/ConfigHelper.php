@@ -16,7 +16,6 @@ use Magento\Store\Model\ScopeInterface;
 class ConfigHelper extends AbstractHelper
 {
     const XML_PATH_APITOKEN = 'spodsync/general/apiToken';
-    const XML_PATH_WEBHOOK_SECRET = 'spodsync/general/webhooksecret';
     const XML_PATH_IS_STAGING = 'spodsync/general/is_staging';
     const XML_PATH_DEBUG_LOGGING = 'spodsync/general/debug_logging';
     const XML_PATH_LIVEURL = 'spodsync/general/liveurl';
@@ -29,12 +28,18 @@ class ConfigHelper extends AbstractHelper
      * @var WriterInterface
      */
     private $configWriter;
+    /**
+     * @var StatusHelper
+     */
+    private $statusHelper;
 
     public function __construct(
         Context $context,
+        StatusHelper $statusHelper,
         WriterInterface $configWriter
     ) {
         $this->configWriter = $configWriter;
+        $this->statusHelper = $statusHelper;
         parent::__construct($context);
     }
 
@@ -114,7 +119,7 @@ class ConfigHelper extends AbstractHelper
      */
     public function getToken(): ?string
     {
-        return $this->getConfigValue(self::XML_PATH_APITOKEN);
+        return $this->statusHelper->getApiToken();
     }
 
     /**

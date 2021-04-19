@@ -14,28 +14,27 @@ use Spod\Sync\Api\SpodLoggerInterface;
 class SignatureHelper extends AbstractHelper
 {
     /**
-     * @var ConfigHelper
-     */
-    private $configHelper;
-    /**
      * @var SpodLoggerInterface
      */
     private $spodLogger;
+    /**
+     * @var StatusHelper
+     */
+    private $statusHelper;
 
     /**
      * SignatureHelper constructor.
-     *
      * @param Context $context
-     * @param ConfigHelper $configHelper
      * @param SpodLoggerInterface $logger
+     * @param StatusHelper $statusHelper
      */
     public function __construct(
         Context $context,
-        ConfigHelper $configHelper,
-        SpodLoggerInterface $logger
+        SpodLoggerInterface $logger,
+        StatusHelper $statusHelper
     ) {
-        $this->configHelper = $configHelper;
         $this->spodLogger = $logger;
+        $this->statusHelper = $statusHelper;
         parent::__construct($context);
     }
 
@@ -51,7 +50,7 @@ class SignatureHelper extends AbstractHelper
      */
     public function isSignatureValid($content, $signature): bool
     {
-        $secret = $this->configHelper->getWebhookSecret();
+        $secret = $this->statusHelper->getWebhookSecret();
         $hmacBinary = hash_hmac('sha256', $content, $secret, true);
 
         $calculatedHmac = base64_encode($hmacBinary);
@@ -73,10 +72,10 @@ class SignatureHelper extends AbstractHelper
      */
     public function getWebhookSecret(): string
     {
-        $generatedSecret = $this->configHelper->getConfigValue(ConfigHelper::XML_PATH_WEBHOOK_SECRET);
+        $generatedSecret = $this->statusHelper->getWebhookSecret();
         if (!$generatedSecret) {
             $generatedSecret = $this->generateApiSecret();
-            $this->configHelper->saveValue(ConfigHelper::XML_PATH_WEBHOOK_SECRET, $generatedSecret);
+            $this->statusHelper->setWebhookSecret($generatedSecret);
         }
 
         return $generatedSecret;

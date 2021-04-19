@@ -28,6 +28,38 @@ class StatusHelper
     }
 
     /**
+     * Get and set webhook secret. Not using the Magento 2 config
+     * to avoid caching issues.
+     */
+    public function getWebhookSecret()
+    {
+        return $this->getStatusValue('webhook_secret');
+    }
+
+    public function setWebhookSecret($secret)
+    {
+        $connection = $this->resourceConnection->getConnection();
+        $sql = sprintf('UPDATE %s SET webhook_secret = :SECRET', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
+        $connection->query($sql, ['SECRET' => $secret]);
+    }
+
+    /**
+     * Get and set API token. Not using the Magento 2 config
+     * to avoid caching issues.
+     */
+    public function getApiToken()
+    {
+        return $this->getStatusValue('api_token');
+    }
+
+    public function setApiToken($apiToken)
+    {
+        $connection = $this->resourceConnection->getConnection();
+        $sql = sprintf('UPDATE %s SET api_token = :TOKEN', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
+        $connection->query($sql, ['TOKEN' => $apiToken]);
+    }
+
+    /**
      * Set when a valid API key was entered
      * for the first time. Used for showing
      * the status in the frontend.

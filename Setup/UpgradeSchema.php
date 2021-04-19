@@ -347,11 +347,25 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     ['nullable' => true],
                     'Last Sync'
                 )
+                ->addColumn(
+                    'webhook_secret',
+                    Table::TYPE_TEXT,
+                    255,
+                    ['nullable => false'],
+                    'generated webhook secret'
+                )
+                ->addColumn(
+                    'api_token',
+                    Table::TYPE_TEXT,
+                    255,
+                    ['nullable => false'],
+                    'the api token'
+                )
                 ->setComment('Status Table');
             $setup->getConnection()->createTable($table);
 
             // status has only one row, create it right away
-            $setup->getConnection()->query(sprintf('INSERT INTO %s VALUES (NULL, NULL, NULL, NULL)', $setup->getTable('spodsync_status')));
+            $setup->getConnection()->query(sprintf('INSERT INTO %s VALUES (NULL, NULL, NULL, NULL, NULL, NULL)', $setup->getTable('spodsync_status')));
         }
     }
 }
