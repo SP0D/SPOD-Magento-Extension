@@ -10,6 +10,12 @@ use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\Mapping\WebhookEvent as WebhookEventMapping;
 
+/**
+ * Contains the methods which handle
+ * all requests to the /subscriptions resource.
+ *
+ * @package Spod\Sync\Model\ApiReader
+ */
 class WebhookHandler extends AbstractHandler
 {
     const ACTION_BASE_URL = '/subscriptions';

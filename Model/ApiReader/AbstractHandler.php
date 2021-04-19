@@ -8,6 +8,13 @@ use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\ApiResultFactory;
 
+/**
+ * Abstract base class for API handlers. Extended
+ * by each specific handler which in turn
+ * communicates with the SPOD API.
+ *
+ * @package Spod\Sync\Model\ApiReader
+ */
 abstract class AbstractHandler
 {
     /** @var ApiResultFactory  */

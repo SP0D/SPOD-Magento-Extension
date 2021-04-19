@@ -4,6 +4,12 @@ namespace Spod\Sync\Model\ApiReader;
 
 use Spod\Sync\Model\ApiResult;
 
+/**
+ * Contains the methods which handle
+ * all requests to the /articles resource.
+ *
+ * @package Spod\Sync\Model\ApiReader
+ */
 class ArticleHandler extends AbstractHandler
 {
     const ACTION_BASE_URL = '/articles';

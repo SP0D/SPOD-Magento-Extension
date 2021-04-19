@@ -9,6 +9,12 @@ use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\ApiResultFactory;
 
+/**
+ * Contains the methods which handle
+ * all requests to the /orders resource.
+ *
+ * @package Spod\Sync\Model\ApiReader
+ */
 class OrderHandler extends AbstractHandler
 {
     const ACTION_BASE_URL = '/orders';

@@ -2,6 +2,12 @@
 
 namespace Spod\Sync\Model\ApiReader;
 
+/**
+ * Contains the methods which handle
+ * all requests to the /authentication resource.
+ *
+ * @package Spod\Sync\Model\ApiReader
+ */
 class AuthenticationHandler extends AbstractHandler
 {
     const ACTION_BASE_URL = '/authentication';
