@@ -97,7 +97,7 @@ class Disconnect extends Action
     private function handleDisconnect()
     {
         $this->webhookHandler->unregisterWebhooks();
-        $this->configHelper->saveApiToken('');
+        $this->statusHelper->setApiToken('');
         $this->statusHelper->resetStatusDates();
         $this->cacheHelper->clearConfigCache();
     }

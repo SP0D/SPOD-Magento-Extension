@@ -102,7 +102,7 @@ class Connect extends Action
 
     private function handleValidKey(string $apiToken)
     {
-        $this->configHelper->saveApiToken($apiToken);
+        $this->statusHelper->setApiToken($apiToken);
         $this->cacheHelper->clearConfigCache();
         if (!$this->statusHelper->getInstallDate()) {
             $this->statusHelper->setInstallDate();
