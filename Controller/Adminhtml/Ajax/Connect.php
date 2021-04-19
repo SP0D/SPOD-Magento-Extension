@@ -85,6 +85,7 @@ class Connect extends Action
     {
         $apiToken = $this->getRequest()->getParam('apiToken');
 
+        $this->spodLogger->logDebug('Validating API key');
         if ($this->authHandler->isTokenValid($apiToken)) {
             $this->handleValidKey($apiToken);
             $data = $this->getSuccessMessage();
