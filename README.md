@@ -38,7 +38,15 @@ SPOD Magento 2 Sync
 ## Configuration
 
 You have to at least
-* configure the Magento 2 general store information (General / General / Store Information) 
+* configure the Magento 2 general store information (General / General / Store Information)
+* store informations used are:
+  * Store Name
+  * Phone Number
+  * Country
+  * Region (depends on country selection)
+  * ZIP
+  * City
+  * Street Address
 
 In addition, you have to configure basic parameters in the configuration area of the
 Spod_Sync menu entry (SPOD / Configuration):
