@@ -160,6 +160,9 @@ abstract class AbstractHandler
     protected function getDefaultHeader(): array
     {
         $token = $this->configHelper->getToken();
+        if (!$token) {
+            throw new \Exception("API connection has not been established. Token empty.");
+        }
         return $this->builtAuthHeader($token);
     }
 
