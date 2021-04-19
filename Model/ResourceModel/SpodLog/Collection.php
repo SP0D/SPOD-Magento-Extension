@@ -3,6 +3,10 @@ namespace Spod\Sync\Model\ResourceModel\SpodLog;
 
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 
+/**
+ * SpodLog Collection.
+ * @package Spod\Sync\Model\ResourceModel\OrderRecord
+ */
 class Collection extends AbstractCollection
 {
     protected $_idFieldName = 'id';

@@ -1,6 +1,10 @@
 <?php
 namespace Spod\Sync\Model\ResourceModel\OrderRecord;
 
+/**
+ * OrderRecord Collection.
+ * @package Spod\Sync\Model\ResourceModel\OrderRecord
+ */
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     protected $_idFieldName = 'id';
