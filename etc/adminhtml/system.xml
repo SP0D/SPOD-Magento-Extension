@@ -21,7 +21,6 @@
                     <label>API Token</label>
                     <comment>The API token for the related account.</comment>
                     <tooltip>You can find this in your spod account.</tooltip>
-                    <validate>required-entry</validate>
                 </field>
 
                 <field id="is_staging" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0"
