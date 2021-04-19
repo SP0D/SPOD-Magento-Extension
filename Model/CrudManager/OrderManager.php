@@ -8,6 +8,12 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderRepository;
 use Spod\Sync\Api\SpodLoggerInterface;
 
+/**
+ * Handles local changes to Magento orders which
+ * are triggered by webhook requests (cancel / complete).
+ *
+ * @package Spod\Sync\Model\CrudManager
+ */
 class OrderManager
 {
     /** @var SpodLoggerInterface */

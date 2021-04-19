@@ -21,6 +21,12 @@ use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiResult;
 
+/**
+ * Applies tracking and shipping informations
+ * to Magento orders.
+ *
+ * @package Spod\Sync\Model\CrudManager
+ */
 class ShipmentManager
 {
     /** @var ConvertOrder */

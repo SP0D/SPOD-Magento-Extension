@@ -6,6 +6,12 @@ use Spod\Sync\Model\Mapping\QueueStatus;
 use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Model\WebhookFactory;
 
+/**
+ * Stores received webhook requests in the
+ * the database.
+ *
+ * @package Spod\Sync\Model\CrudManager
+ */
 class WebhookManager
 {
     /**

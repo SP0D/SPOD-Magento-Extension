@@ -22,6 +22,12 @@ use Spod\Sync\Helper\ImageHelper;
 use Spod\Sync\Helper\OptionHelper;
 use Spod\Sync\Model\ApiResult;
 
+/**
+ * Creates, updates and removes products locally
+ * in the Magento 2 database.
+ *
+ * @package Spod\Sync\Model\CrudManager
+ */
 class ProductManager
 {
     /** @var AttributeHelper */
