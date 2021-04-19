@@ -66,13 +66,30 @@ class SignatureHelper extends AbstractHelper
     }
 
     /**
+     * Try to get the webhook secret and, if called for the
+     * first time, generate one before returning it.
+     *
+     * @return string
+     */
+    public function getWebhookSecret(): string
+    {
+        $generatedSecret = $this->getConfigValue(self::XML_PATH_WEBHOOK_SECRET);
+        if (!$generatedSecret) {
+            $generatedSecret = $this->signatureHelper->generateApiSecret();
+            $this->configWriter->save(self::XML_PATH_WEBHOOK_SECRET, $generatedSecret);
+        }
+
+        return $generatedSecret;
+    }
+
+    /**
      * Generate a webhook secret, which is registered
      * with each webhook subscription and used later
      * to validate incoming webhook requests.
      *
      * @return string
      */
-    public function generateApiSecret(): string
+    private function generateApiSecret(): string
     {
         return uniqid();
     }

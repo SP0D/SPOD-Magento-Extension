@@ -5,6 +5,7 @@ namespace Spod\Sync\Model\ApiReader;
 use Spod\Sync\Api\PayloadEncoder;
 use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Helper\ConfigHelper;
+use Spod\Sync\Helper\SignatureHelper;
 use Spod\Sync\Helper\UrlGenerator;
 use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\ApiResultFactory;
@@ -22,14 +23,20 @@ class WebhookHandler extends AbstractHandler
 
     /** @var UrlGenerator  */
     private $urlGenerator;
+    /**
+     * @var SignatureHelper
+     */
+    private $signatureHelper;
 
     public function __construct(
         ApiResultFactory $apiResultFactory,
         ConfigHelper $configHelper,
         PayloadEncoder $encoder,
         ResultDecoder $decoder,
+        SignatureHelper $signatureHelper,
         UrlGenerator $urlGenerator
     ) {
+        $this->signatureHelper = $signatureHelper;
         $this->urlGenerator = $urlGenerator;
         parent::__construct($apiResultFactory, $configHelper, $encoder, $decoder);
     }
@@ -55,7 +62,7 @@ class WebhookHandler extends AbstractHandler
         $params = [
             'eventType' => $eventType,
             'url' => $this->urlGenerator->generateUrl('spodsync/subscriber/webhook'),
-            'secret' => $this->configHelper->getWebhookSecret()
+            'secret' => $this->signatureHelper->getWebhookSecret()
         ];
 
         $result = $this->postRequest(self::ACTION_BASE_URL, $params);

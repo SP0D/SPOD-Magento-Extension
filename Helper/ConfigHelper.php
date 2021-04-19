@@ -172,21 +172,4 @@ class ConfigHelper extends AbstractHelper
     {
         $this->saveValue(self::XML_PATH_APITOKEN, $token);
     }
-
-    /**
-     * Try to get the webhook secret and, if called for the
-     * first time, generate one before returning it.
-     *
-     * @return string
-     */
-    public function getWebhookSecret(): string
-    {
-        $generatedSecret = $this->getConfigValue(self::XML_PATH_WEBHOOK_SECRET);
-        if (!$generatedSecret) {
-            $generatedSecret = $this->signatureHelper->generateApiSecret();
-            $this->configWriter->save(self::XML_PATH_WEBHOOK_SECRET, $generatedSecret);
-        }
-
-        return $generatedSecret;
-    }
 }
