@@ -45,7 +45,7 @@ class Uninstall implements UninstallInterface
         $setup->startSetup();
 
         $this->webhookHandler->unregisterWebhooks();
-        $setup->getConnection()->dropTable($setup->getTable('spodsync_error_log'));
+        $setup->getConnection()->dropTable($setup->getTable('spodsync_log'));
         $setup->getConnection()->dropTable($setup->getTable('spodsync_queue_orders'));
         $setup->getConnection()->dropTable($setup->getTable('spodsync_queue_webhook'));
         $setup->getConnection()->dropTable($setup->getTable('spodsync_status'));
