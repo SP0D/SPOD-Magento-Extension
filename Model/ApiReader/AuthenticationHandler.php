@@ -38,6 +38,7 @@ class AuthenticationHandler extends AbstractHandler
         $result = $this->testAuthentication(self::ACTION_BASE_URL, $token);
         $this->spodLogger->logDebug(sprintf("Return code: %d", $result->getHttpCode()), 'Token Validation');
         if ($result->getHttpCode() == 200) {
+            $this->spodLogger->logDebug("token is valid", 'Token Validation');
             return true;
         } else {
             return false;
