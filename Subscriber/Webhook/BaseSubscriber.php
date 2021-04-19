@@ -9,6 +9,11 @@ use Spod\Sync\Model\Mapping\QueueStatus;
 use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Model\Webhook;
 
+/**
+ * Base class for webhook handler classes.
+ *
+ * @package Spod\Sync\Subscriber\Webhook
+ */
 abstract class BaseSubscriber implements ObserverInterface
 {
     protected $event = false;

@@ -13,6 +13,12 @@ use Spod\Sync\Model\Mapping\WebhookEvent;
 use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
 
+/**
+ * Event handler which processes the
+ * Article.updated webhook events.
+ *
+ * @package Spod\Sync\Subscriber\Webhook\Article
+ */
 class Updated extends BaseSubscriber
 {
     protected $event = WebhookEvent::EVENT_ARTICLE_UPDATED;

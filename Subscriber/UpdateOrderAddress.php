@@ -7,6 +7,12 @@ use Magento\Framework\Event\ObserverInterface;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\QueueProcessor\OrderProcessor;
 
+/**
+ * Magento 2 event subscriber which updates orders
+ * when non-cancelling changes occur (shipping address for example).
+ *
+ * @package Spod\Sync\Subscriber
+ */
 class UpdateOrderAddress implements ObserverInterface
 {
     /** @var SpodLoggerInterface */

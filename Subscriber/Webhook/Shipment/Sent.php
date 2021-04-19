@@ -11,6 +11,12 @@ use Spod\Sync\Model\Mapping\WebhookEvent;
 use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
 
+/**
+ * Event handler which processes the
+ * Shipment.sent webhook events.
+ *
+ * @package Spod\Sync\Subscriber\Webhook\Article
+ */
 class Sent extends BaseSubscriber
 {
     protected $event = WebhookEvent::EVENT_SHIPMENT_SENT;

@@ -7,6 +7,12 @@ use Magento\Framework\Event\ObserverInterface;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiReader\OrderHandler;
 
+/**
+ * Magento 2 event subscriber which attempts
+ * to cancel orders when they get cancelled in Magento.
+ *
+ * @package Spod\Sync\Subscriber
+ */
 class CancelOrder implements ObserverInterface
 {
     /** @var OrderHandler */

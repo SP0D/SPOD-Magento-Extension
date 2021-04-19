@@ -11,6 +11,12 @@ use Spod\Sync\Model\Webhook;
 use Spod\Sync\Model\Mapping\WebhookEvent;
 use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
 
+/**
+ * Event handler which processes the
+ * Article.removed webhook events.
+ *
+ * @package Spod\Sync\Subscriber\Webhook\Article
+ */
 class Removed extends BaseSubscriber
 {
     protected $event = WebhookEvent::EVENT_ARTICLE_REMOVED;

@@ -11,6 +11,12 @@ use Spod\Sync\Model\Mapping\WebhookEvent;
 use Spod\Sync\Model\Repository\WebhookEventRepository;
 use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
 
+/**
+ * Event handler which processes the
+ * Article.added webhook events.
+ *
+ * @package Spod\Sync\Subscriber\Webhook\Article
+ */
 class Added extends BaseSubscriber
 {
     protected $event = WebhookEvent::EVENT_ARTICLE_ADDED;
