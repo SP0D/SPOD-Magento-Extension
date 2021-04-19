@@ -112,7 +112,7 @@ class ConfigHelper extends AbstractHelper
      *
      * @return string
      */
-    public function getToken(): string
+    public function getToken(): ?string
     {
         return $this->getConfigValue(self::XML_PATH_APITOKEN);
     }
