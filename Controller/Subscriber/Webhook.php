@@ -11,9 +11,14 @@ use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\SignatureHelper;
 use Spod\Sync\Model\CrudManager\WebhookManager;
-use Spod\Sync\Model\WebhookFactory;
 
-class Webhook extends Action  implements HttpPostActionInterface, CsrfAwareActionInterface
+/**
+ * Controller which handles the subscriptions,
+ * i.e. receives all webhook requests.
+ *
+ * @package Spod\Sync\Controller\Subscriber
+ */
+class Webhook extends Action implements HttpPostActionInterface, CsrfAwareActionInterface
 {
     /** @var ResultDecoder  */
     private $decoder;

@@ -10,6 +10,13 @@ use Spod\Sync\Model\OrderRecordFactory;
 use Spod\Sync\Model\Mapping\QueueStatus;
 use Spod\Sync\Model\Repository\OrderRecordRepository;
 
+/**
+ * Magento 2 Plugin class which is reponsible
+ * for placing new magento 2 orders in the
+ * SPOD order queue.
+ *
+ * @package Spod\Sync\Plugin
+ */
 class OrderPlugin
 {
     /** @var SpodLoggerInterface  */
