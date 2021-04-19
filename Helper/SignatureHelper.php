@@ -76,7 +76,7 @@ class SignatureHelper extends AbstractHelper
         $generatedSecret = $this->configHelper->getConfigValue(ConfigHelper::XML_PATH_WEBHOOK_SECRET);
         if (!$generatedSecret) {
             $generatedSecret = $this->generateApiSecret();
-            $this->configHelper->saveValue(self::XML_PATH_WEBHOOK_SECRET, $generatedSecret);
+            $this->configHelper->saveValue(ConfigHelper::XML_PATH_WEBHOOK_SECRET, $generatedSecret);
         }
 
         return $generatedSecret;
