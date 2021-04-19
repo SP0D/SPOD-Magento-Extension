@@ -73,10 +73,10 @@ class SignatureHelper extends AbstractHelper
      */
     public function getWebhookSecret(): string
     {
-        $generatedSecret = $this->getConfigValue(self::XML_PATH_WEBHOOK_SECRET);
+        $generatedSecret = $this->configHelper->getConfigValue(ConfigHelper::XML_PATH_WEBHOOK_SECRET);
         if (!$generatedSecret) {
-            $generatedSecret = $this->signatureHelper->generateApiSecret();
-            $this->configWriter->save(self::XML_PATH_WEBHOOK_SECRET, $generatedSecret);
+            $generatedSecret = $this->generateApiSecret();
+            $this->configHelper->saveValue(self::XML_PATH_WEBHOOK_SECRET, $generatedSecret);
         }
 
         return $generatedSecret;

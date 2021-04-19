@@ -29,18 +29,12 @@ class ConfigHelper extends AbstractHelper
      * @var WriterInterface
      */
     private $configWriter;
-    /**
-     * @var SignatureHelper
-     */
-    private $signatureHelper;
 
     public function __construct(
         Context $context,
-        WriterInterface $configWriter,
-        SignatureHelper $signatureHelper
+        WriterInterface $configWriter
     ) {
         $this->configWriter = $configWriter;
-        $this->signatureHelper = $signatureHelper;
         parent::__construct($context);
     }
 
@@ -158,7 +152,7 @@ class ConfigHelper extends AbstractHelper
      * @param $path
      * @param $value
      */
-    private function saveValue($path, $value)
+    public function saveValue($path, $value)
     {
         $this->configWriter->save($path, $value);
     }
