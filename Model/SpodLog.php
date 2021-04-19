@@ -5,6 +5,12 @@ namespace Spod\Sync\Model;
 use Magento\Framework\DataObject\IdentityInterface;
 use Magento\Framework\Model\AbstractModel;
 
+/**
+ * Model that represents log entries in the SPOD
+ * Log database.
+ *
+ * @package Spod\Sync\Model
+ */
 class SpodLog extends AbstractModel implements IdentityInterface
 {
     const CACHE_TAG = 'spodsync_log';

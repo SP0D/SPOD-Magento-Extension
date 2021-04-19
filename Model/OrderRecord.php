@@ -9,6 +9,12 @@ use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
 use Spod\Sync\Api\ResultDecoder;
 
+/**
+ * Model which represents entries in the order
+ * queue which gets submitted to the SPOD API.
+ *
+ * @package Spod\Sync\Model
+ */
 class OrderRecord extends AbstractModel implements IdentityInterface
 {
     const RECORD_EVENT_TYPE_CREATE = 'create';

@@ -9,6 +9,11 @@ use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
 use Spod\Sync\Api\ResultDecoder;
 
+/**
+ * Magento 2 Model that represents webhook requests internally.
+ *
+ * @package Spod\Sync\Model
+ */
 class Webhook extends AbstractModel implements IdentityInterface
 {
     const CACHE_TAG = 'spod_sync_webhook';

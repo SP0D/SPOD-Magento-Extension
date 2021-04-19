@@ -11,6 +11,13 @@ use Magento\Sales\Model\ResourceModel\Order\Tax\Item;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\Mapping\ShippingType;
 
+/**
+ * This model takes a Magento 2 order
+ * and exports the required data structure
+ * which then gets encoded.
+ *
+ * @package Spod\Sync\Model
+ */
 class OrderExporter
 {
     /** @var ConfigHelper */

@@ -2,6 +2,12 @@
 
 namespace Spod\Sync\Model;
 
+/**
+ * Represents and API result and contains
+ * the payload as well as the HTTP code.
+ *
+ * @package Spod\Sync\Model
+ */
 class ApiResult
 {
     private $httpCode;
