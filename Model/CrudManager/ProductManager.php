@@ -85,6 +85,7 @@ class ProductManager
         $apiData = $this->decoder->parsePayload($apiResult->getPayload());
 
         foreach ($apiData->items as $articleData) {
+            $this->createOptionValues($articleData);
             $this->saveProduct($articleData);
         }
     }
