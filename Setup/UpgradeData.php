@@ -10,6 +10,12 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
 use Spod\Sync\Helper\AttributeHelper;
 
+/**
+ * Magento Setup class which adds additional attributes
+ * during updates (after the initial setup).
+ *
+ * @package Spod\Sync\Setup
+ */
 class UpgradeData implements UpgradeDataInterface
 {
     /** @var AttributeHelper  */

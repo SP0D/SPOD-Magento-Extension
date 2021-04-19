@@ -7,6 +7,12 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Spod\Sync\Helper\AttributeHelper;
 
+/**
+ * Magento Setup class which creates the SPOD attribute set
+ * and adds required attributes.
+ *
+ * @package Spod\Sync\Setup
+ */
 class InstallData implements InstallDataInterface
 {
     private $attributeHelper;

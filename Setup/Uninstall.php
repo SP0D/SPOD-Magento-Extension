@@ -9,6 +9,11 @@ use Magento\Framework\Setup\UninstallInterface;
 use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Model\ApiReader\WebhookHandler;
 
+/**
+ * Magento Setup class which is used during the uninstall phase.
+ *
+ * @package Spod\Sync\Setup
+ */
 class Uninstall implements UninstallInterface
 {
     /**
