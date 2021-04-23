@@ -133,6 +133,7 @@
                     data: {'apiToken': spodSyncToken},
                     success: function (data) {
                         handleSuccess(data);
+                        setTimeout(refreshStatus, 5000);
                     },
                     error: function() {
                         hideLoader();
@@ -217,11 +218,29 @@
                 });
             });
 
+            function refreshStatus() {
+                console.log("refresh");
+                jQuery.ajax({
+                    url: "<?php echo $this->getUrl('spodsync/ajax/syncstatus') ?>",
+                    method: 'GET',
+                    data: {},
+                    success: function (data) {
+                        handleSuccess(data);
+                        if (!data.initsyncEndDate) {
+                            setTimeout(refreshStatus, 5000);
+                        }
+                    }
+                });
+
+            }
+
             $(document).ready(function () {
                 processToken();
                 addModalOpenTrigger();
                 addModelCloseTrigger();
                 addDisconnectTrigger();
+
+                setTimeout(refreshStatus, 5000);
             });
         });
 </script>
