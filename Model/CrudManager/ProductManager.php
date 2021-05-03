@@ -398,4 +398,19 @@ class ProductManager
             ->getUsedProducts($configurable);
         return $variantProducts;
     }
+
+    public function deleteAllSpodProducts()
+    {
+        $spodProducts = $this->getAllSpodProducts();
+        foreach ($spodProducts as $spodProduct) {
+            $this->productRepository->delete($spodProduct);
+        }
+    }
+
+    public function getAllSpodProducts()
+    {
+        $searchCriteria = $this->searchCriteriaBuilder->addFilter('spod_product_id', 'NULL', 'neq')->create();
+        $searchResults = $this->productRepository->getList($searchCriteria);
+        return $searchResults->getItems();
+    }
 }

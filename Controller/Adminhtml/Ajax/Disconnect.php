@@ -10,6 +10,7 @@ use Spod\Sync\Helper\CacheHelper;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\ApiReader\WebhookHandler;
+use Spod\Sync\Model\CrudManager\ProductManager;
 
 /**
  * Handle disconnect requests in the backend App.
@@ -42,6 +43,10 @@ class Disconnect extends Action
      * @var SpodLoggerInterface
      */
     private $spodLogger;
+    /**
+     * @var ProductManager
+     */
+    private $productManager;
 
     public function __construct(
         CacheHelper $cacheHelper,
@@ -50,12 +55,14 @@ class Disconnect extends Action
         JsonFactory $jsonResultFactory,
         StatusHelper $statusHelper,
         SpodLoggerInterface $spodLogger,
-        WebhookHandler $webhookHandler
+        WebhookHandler $webhookHandler,
+        ProductManager $productManager
     ) {
         parent::__construct($context);
         $this->cacheHelper = $cacheHelper;
         $this->configHelper = $configHelper;
         $this->jsonResultFactory = $jsonResultFactory;
+        $this->productManager = $productManager;
         $this->statusHelper = $statusHelper;
         $this->spodLogger = $spodLogger;
         $this->webhookHandler = $webhookHandler;
@@ -96,6 +103,7 @@ class Disconnect extends Action
      */
     private function handleDisconnect()
     {
+        $this->productManager->deleteAllSpodProducts();
         $this->webhookHandler->unregisterWebhooks();
         $this->statusHelper->setApiToken('');
         $this->statusHelper->resetStatusDates();
