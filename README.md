@@ -2,6 +2,7 @@
 
  - [Main Functionalities](#markdown-header-main-functionalities)
  - [Installation](#markdown-header-installation)
+ - [Updates](#markdown-header-update)
  - [Configuration](#markdown-header-configuration)
  - [Specifications](#markdown-header-specifications)
  - [Attributes](#markdown-header-attributes)
@@ -14,24 +15,32 @@ SPOD Magento 2 Sync
 
 ### Type 1: Zip file
 
- - Unzip the zip file and upload contents to `app/code/Spod/Sync`
- - Enable the module by running `php bin/magento module:enable Spod_Sync`
- - Apply database updates by running `php bin/magento setup:upgrade`\*
- - Flush the cache by running `php bin/magento cache:flush`
+ - Unzip the zip file and upload contents to <br> `app/code/Spod/Sync`
+ - Enable the module by running  <br>`php bin/magento module:enable Spod_Sync`
+ - Apply database updates by running  <br>`php bin/magento setup:upgrade`
+ - Flush the cache by running <br> `php bin/magento cache:flush`
 
 Hint: due to technical limitations, the Uninstall routine is only available for composer installations.
 
 ### Type 2: Composer
 
- - Make the module available in a composer repository for example:
-    - private repository `repo.magento.com`
-    - public repository `packagist.org`
-    - public github repository as vcs
- - Add the composer repository to the configuration by running `composer config repositories.repo.magento.com composer https://repo.magento.com/`
- - Install the module composer by running `composer require spod/module-sync`
- - enable the module by running `php bin/magento module:enable Spod_Sync`
- - apply database updates by running `php bin/magento setup:upgrade`\*
- - Flush the cache by running `php bin/magento cache:flush`
+ - Add the composer repository to the configuration by running<br>
+   `composer config repositories.spod vcs git@github.com:SP0D/SPOD-Magento-Extension.git`
+ - Install the module composer by running <br>`composer require spod/module-sync`
+ - enable the module by running <br>`php bin/magento module:enable Spod_Sync`
+ - apply database updates by running <br>`php bin/magento setup:upgrade`
+
+If you run into problems, especially in live environments, also try:
+ - update the dependency injection <br>`php bin/magento setup:di:compile`
+ - update the dependency injection <br>`php bin/magento setup:static-content:deploy`
+ - Flush the cache by running <br>`php bin/magento cache:flush`
+
+## Update
+
+ - Update the extension by running <br>`composer update`
+ - Apply database changes <br>`php bin/magento setup:upgrade`
+ - Update the dependency injection <br>`php bin/magento setup:di:compile`
+ - Flush the cache by running <br>`php bin/magento cache:flush`
 
 
 ## Configuration
