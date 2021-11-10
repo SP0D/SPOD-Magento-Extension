@@ -8,6 +8,7 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Filesystem;
 use Spod\Sync\Api\SpodLoggerInterface;
+use GuzzleHttp\Client;
 
 /**
  * Downloads and assignes images to
@@ -188,13 +189,12 @@ class ImageHelper
      */
     private function fetchImageToFile($imageUrl, string $imageFile): void
     {
-        $ch = curl_init($imageUrl);
-        $fp = fopen($imageFile, 'wb');
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_exec($ch);
-        curl_close($ch);
-        fclose($fp);
+        // Fixing sync image error
+        $client = new Client();
+        $resource = fopen($imageFile, 'wb');
+        $stream = \GuzzleHttp\Psr7\stream_for($resource);
+
+        $response = $client->request('GET', $imageUrl, ['save_to' => $stream]);
     }
 
     /**
