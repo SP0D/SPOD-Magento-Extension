@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Spod\Sync\Model\ApiReader;
 
+use GuzzleHttp\ClientInterface;
 use Spod\Sync\Api\PayloadEncoder;
 use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Helper\ConfigHelper;
@@ -17,6 +20,8 @@ use Spod\Sync\Model\ApiResultFactory;
  */
 abstract class AbstractHandler
 {
+    private ClientInterface $httpClient;
+
     /** @var ApiResultFactory  */
     protected $apiResultFactory;
     /** @var ConfigHelper */
@@ -32,6 +37,10 @@ abstract class AbstractHandler
         PayloadEncoder $encoder,
         ResultDecoder $decoder
     ) {
+        $this->httpClient = new \GuzzleHttp\Client([
+            'base_uri' => $configHelper->getApiUrl(),
+            'headers' => ['Content-Type' => 'application/json']
+        ]);
         $this->apiResultFactory = $apiResultFactory;
         $this->configHelper = $configHelper;
         $this->decoder = $decoder;
@@ -40,17 +49,14 @@ abstract class AbstractHandler
 
     protected function testAuthentication(string $apiAction, string $apiToken): ApiResult
     {
-        $baseUrl = $this->configHelper->getApiUrl();
-        $url = sprintf("%s%s", $baseUrl, $apiAction);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->builtAuthHeader($apiToken));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = $this->apiResultFactory->create();
-        $result->setPayload(curl_exec($ch));
-        $result->setHttpCode(curl_getinfo($ch, CURLINFO_HTTP_CODE));
+        try {
+            $response = $this->httpClient->send(
+                new \GuzzleHttp\Psr7\Request('GET', $apiAction, ['X-SPOD-ACCESS-TOKEN' => $apiToken])
+            );
+            $result = $this->apiResultFactory->createFromResponse($response);
+        } catch (\GuzzleHttp\Exception\GuzzleException $ge) {
+            $result = $this->apiResultFactory->create();
+        }
 
         return $result;
     }
@@ -61,24 +67,21 @@ abstract class AbstractHandler
      * @param string $apiAction
      * @param array $params
      * @return bool|string
+     * @throws \Exception if SPOD API Key is missing
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     protected function sendPostRequest(string $apiAction, array $params): ApiResult
     {
-        $baseUrl = $this->configHelper->getApiUrl();
-        $url = sprintf("%s%s", $baseUrl, $apiAction);
+        $response = $this->httpClient->send(
+            new \GuzzleHttp\Psr7\Request(
+                'POST',
+                $apiAction,
+                ['X-SPOD-ACCESS-TOKEN' => $this->fetchSpodApiKey()],
+                $this->encoder->encodePayload($params)
+            )
+        );
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getDefaultHeader());
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->encoder->encodePayload($params));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = $this->apiResultFactory->create();
-        $result->setPayload(curl_exec($ch));
-        $result->setHttpCode(curl_getinfo($ch, CURLINFO_HTTP_CODE));
-
-        return $result;
+        return $this->apiResultFactory->createFromResponse($response);
     }
 
     /**
@@ -111,47 +114,34 @@ abstract class AbstractHandler
      * DELETE API resource
      *
      * @param string $apiAction
-     * @return bool|string
+     * @return ApiResult
+     * @throws \Exception if SPOD API Key is missing
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     protected function sendDeleteRequest(string $apiAction): ApiResult
     {
-        $baseUrl = $this->configHelper->getApiUrl();
-        $url = sprintf("%s%s", $baseUrl, $apiAction);
+        $response = $this->httpClient->send(
+            new \GuzzleHttp\Psr7\Request('DELETE', $apiAction, ['X-SPOD-ACCESS-TOKEN' => $this->fetchSpodApiKey()])
+        );
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getDefaultHeader());
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_exec($ch);
-
-        $result = $this->apiResultFactory->create();
-        $result->setHttpCode(curl_getinfo($ch, CURLINFO_HTTP_CODE));
-
-        return $result;
+        return $this->apiResultFactory->createFromResponse($response);
     }
 
     /**
      * GET response from server
      *
-     * @param $apiAction
-     * @return bool|string
+     * @param string $apiAction
+     * @return ApiResult
+     * @throws \Exception if SPOD API Key is missing
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    protected function fetchResult($apiAction): ApiResult
+    protected function fetchResult(string $apiAction): ApiResult
     {
-        $baseUrl = $this->configHelper->getApiUrl();
-        $url = sprintf("%s%s", $baseUrl, $apiAction);
+        $response = $this->httpClient->send(
+            new \GuzzleHttp\Psr7\Request('GET', $apiAction, ['X-SPOD-ACCESS-TOKEN' => $this->fetchSpodApiKey()])
+        );
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getDefaultHeader());
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = $this->apiResultFactory->create();
-        $result->setPayload(curl_exec($ch));
-        $result->setHttpCode(curl_getinfo($ch, CURLINFO_HTTP_CODE));
-
-        return $result;
+        return $this->apiResultFactory->createFromResponse($response);
     }
 
     /**
@@ -205,5 +195,18 @@ abstract class AbstractHandler
         $result->setPayload($this->decoder->parsePayload($result->getPayload()));
 
         return $result;
+    }
+
+    /**
+     * @return string
+     * @throws \Exception if SPOD connection has not been established earlier
+     */
+    private function fetchSpodApiKey(): string
+    {
+        $apiToken = $this->configHelper->getToken();
+        if (!$apiToken) {
+            throw new \Exception("API connection has not been established. SPOD API Key is missing.");
+        }
+        return $apiToken;
     }
 }

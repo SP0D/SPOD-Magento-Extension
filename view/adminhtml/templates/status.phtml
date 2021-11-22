@@ -1,3 +1,7 @@
+<?php
+    /** @var \Spod\Sync\Block\Adminhtml\Status $block */
+    $block = $this;
+?>
 <div class="main-wrp">
     <div class="api-bx-main">
         <div class="top-part">
@@ -32,7 +36,7 @@
             <span class="msg-error msg-txt" style="display: none"> Invalid API key</span>
 
             <div class="submit-btn-wrp">
-                <input type="submit" value="Submit API Key" class="submit-btn">
+                <input type="submit" value="Submit API Key" class="submit-btn" disabled="disabled">
             </div>
             <div class="loader check-loader" style="display:none">
                 <img src="<?php echo $block->getViewFileUrl('Spod_Sync::images/sping-loader.gif'); ?>" width="40"

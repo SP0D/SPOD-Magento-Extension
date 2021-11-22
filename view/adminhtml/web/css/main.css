@@ -56,7 +56,7 @@
 .spodsync-index-index .api-form-box .input-wrp label {display: block; width: 100%; font-size: 14px; font-weight: normal; line-height: 1.5; margin-bottom: 5px; }
 .spodsync-index-index .api-form-box input{width: 100%;background: #FFFFFF;color:#9FA6B2;border-radius: 6px;height: 38px; line-height: 38px; padding: 0 16px;box-shadow: 0px 2px 4px #0000000A;border: 1px solid #D2D6DC;}
 .spodsync-index-index .api-form-box .submit-btn-wrp { margin-top: 16px;}
-.spodsync-index-index .api-form-box .submit-btn {background: #2563EB;cursor: pointer;border-radius: 6px;height: 37px;box-shadow: none; line-height:37px; padding: 0 20px; color: #ffffff;text-align: center;font-size: 14px; font-weight: 500;}
+.spodsync-index-index .api-form-box .submit-btn {background: #2563EB;cursor: pointer;border-radius: 6px;height: 37px;box-shadow: none; line-height:37px; padding: 0 20px; color: #ffffff;text-align: center;font-size: 14px; font-weight: 500; opacity: 0.3;}
 .spodsync-index-index .fo-btm-part {margin-top: 24px; text-align: center; }
 .spodsync-index-index .fo-btm-part > p {    margin-bottom: 6px;color: #6B7280;}
 .spodsync-index-index .api-bx-main{font-size: 14px;line-height: 20px;position: relative;padding: 20px 0;}

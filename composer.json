@@ -8,10 +8,17 @@
         {
             "name": "Jan Brinkmann",
             "email": "jan@jbcommerce.de"
+        },
+        {
+            "name": "Trilix GmbH",
+            "email": "info@trilix-gmbh.de"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {},
+    "minimum-stability": "stable",
+    "require": {
+        "psr/http-message": "~1.0",
+        "guzzlehttp/guzzle": "~6.0"
+    },
     "autoload": {
         "files": [
             "registration.php"

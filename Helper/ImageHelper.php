@@ -188,13 +188,10 @@ class ImageHelper
      */
     private function fetchImageToFile($imageUrl, string $imageFile): void
     {
-        $ch = curl_init($imageUrl);
-        $fp = fopen($imageFile, 'wb');
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_exec($ch);
-        curl_close($ch);
-        fclose($fp);
+        $resource = \GuzzleHttp\Psr7\Utils::tryFopen($imageFile, 'wb');
+        $client = new \GuzzleHttp\Client();
+        $client->request('GET', $imageUrl, ['sink' => $resource]);
+//        fclose($resource);
     }
 
     /**
