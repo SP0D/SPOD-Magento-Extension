@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Spod\Sync\Helper;
 
 use Magento\Catalog\Model\Product;
+use Magento\Catalog\Setup\CategorySetup;
 use Magento\Catalog\Setup\CategorySetupFactory;
+use Magento\Eav\Api\Data\AttributeSetInterface;
 use Magento\Eav\Model\AttributeSetRepository;
 use Magento\Eav\Model\Config;
 use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
@@ -11,12 +15,10 @@ use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Eav\Model\Entity\Attribute\Source\Boolean;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\Set\CollectionFactory;
-use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Framework\Setup\SchemaSetupInterface;
 
 /**
  * Helper which provides methods for managing
@@ -26,13 +28,20 @@ use Magento\Framework\Setup\SchemaSetupInterface;
  */
 class AttributeHelper extends AbstractHelper
 {
+    /** @var CollectionFactory */
     private $attributeSetCollection;
+
+    /** @var AttributeSetFactory */
     private $attributeSetFactory;
+
+    /** @var AttributeSetRepository */
     private $attributeSetRepository;
+
+    /** @var CategorySetupFactory */
     private $categorySetupFactory;
+
+    /** @var Config */
     private $eavConfig;
-    private $eavSetupFactory;
-    private $setup;
 
     public function __construct(
         AttributeSetFactory $attributeSetFactory,
@@ -40,7 +49,6 @@ class AttributeHelper extends AbstractHelper
         CategorySetupFactory $categorySetupFactory,
         CollectionFactory $attributeSetCollection,
         Config $eavConfig,
-        EavSetupFactory $eavSetupFactory,
         Context $context
     ) {
         $this->attributeSetCollection = $attributeSetCollection;
@@ -48,30 +56,16 @@ class AttributeHelper extends AbstractHelper
         $this->attributeSetRepository = $attributeSetRepository;
         $this->categorySetupFactory = $categorySetupFactory;
         $this->eavConfig = $eavConfig;
-        $this->eavSetupFactory = $eavSetupFactory;
 
         return parent::__construct($context);
     }
 
-    /**
-     * Find attribute config by attribute code.
-     *
-     * @param $attrCode
-     * @return AbstractAttribute|null
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    public function getAttributeByCode($attrCode)
+    public function getAttributeByCode(string $attrCode): AbstractAttribute
     {
         return $this->eavConfig->getAttribute('catalog_product', $attrCode);
     }
 
-    /**
-     * Get attribute set id by attribute set name.
-     *
-     * @param $attrSetName
-     * @return int
-     */
-    public function getAttrSetId($attrSetName): int
+    public function getAttrSetId(string $attrSetName): int
     {
         $attributeSetCollection = $this->attributeSetCollection->create()
             ->addFieldToSelect('attribute_set_id')
@@ -79,55 +73,34 @@ class AttributeHelper extends AbstractHelper
             ->getFirstItem()
             ->toArray();
 
-        return (int)$attributeSetCollection['attribute_set_id'];
+        return (int) $attributeSetCollection['attribute_set_id'];
     }
 
-    /**
-     * Create the SPOD attribute set.
-     *
-     * @param ModuleDataSetupInterface $setup
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    public function createSpodAttributeSet(): void
+    public function createSpodAttributeSet(ModuleDataSetupInterface $setup): void
     {
-        if (!$this->getSetup()) {
-            throw new \Exception("Setup was not set");
-        }
+        /** @var CategorySetup $categorySetup */
+        $categorySetup = $this->categorySetupFactory->create(['setup' => $setup]);
 
-        $categorySetup = $this->categorySetupFactory->create(['setup' => $this->setup]);
-
-        $attributeSet = $this->attributeSetFactory->create();
         $entityTypeId = $categorySetup->getEntityTypeId(Product::ENTITY);
-        $attributeSetId = $categorySetup->getDefaultAttributeSetId($entityTypeId);
-        $data = [
+        $defaultAttributeSetId = $categorySetup->getDefaultAttributeSetId($entityTypeId);
+
+        /** @var AttributeSetInterface $attributeSet */
+        $attributeSet = $this->attributeSetFactory->create();
+        $attributeSet->setData([
             'attribute_set_name' => 'SPOD',
             'entity_type_id' => $entityTypeId,
             'sort_order' => 200,
-        ];
-        $attributeSet->setData($data);
+        ]);
         $attributeSet->validate();
         $this->attributeSetRepository->save($attributeSet);
 
-        $attributeSet->initFromSkeleton($attributeSetId);
+        $attributeSet->initFromSkeleton($defaultAttributeSetId);
         $this->attributeSetRepository->save($attributeSet);
     }
 
-    /**
-     * Add a configurable eav attribute
-     *
-     * @param $eavSetup
-     */
-    public function createConfigurableAttribute($label, $code): void
+    public function createConfigurableAttribute(ModuleDataSetupInterface $setup, string $label, string $code): void
     {
-        if (!$this->getSetup()) {
-            throw new \Exception("Setup was not set");
-        }
-
         $options = [
-            'attribute_set_id' => 'SPOD',
-            'group' => 'SPOD',
             'input' => 'select',
             'type' => 'int',
             'label' => $label,
@@ -147,42 +120,12 @@ class AttributeHelper extends AbstractHelper
             'unique' => false
         ];
 
-        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);
-        $eavSetup->addAttribute(
-            Product::ENTITY,
-            $code,
-            $options
-        );
+        $this->createAttribute($setup, $code, $options);
     }
 
-    /**
-     * Remove an existing attribute with a given code.
-     *
-     * @param SchemaSetupInterface $setup
-     */
-    public function removeAttribute(string $code): void
+    public function createTextAttribute(ModuleDataSetupInterface $setup, string $label, string $code): void
     {
-        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);
-        $eavSetup->removeAttribute(
-            Product::ENTITY,
-            $code
-        );
-    }
-
-    /**
-     * Add a varchar attribute
-     *
-     * @param $eavSetup
-     */
-    public function createTextAttribute($label, $code): void
-    {
-        if (!$this->getSetup()) {
-            throw new \Exception("Setup was not set");
-        }
-
         $options = [
-            'attribute_set_id' => 'SPOD',
-            'group' => 'SPOD',
             'type' => 'varchar',
             'label' => $label,
             'visible' => true,
@@ -201,30 +144,12 @@ class AttributeHelper extends AbstractHelper
             'unique' => false
         ];
 
-        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);
-        $eavSetup->addAttribute(
-            Product::ENTITY,
-            $code,
-            $options
-        );
+        $this->createAttribute($setup, $code, $options);
     }
 
-    /**
-     * Add a boolean (yes/no) attribute
-     *
-     * @param $label
-     * @param $code
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Zend_Validate_Exception
-     */
-    public function createYesNoAttribute($label, $code): void
+    public function createYesNoAttribute(ModuleDataSetupInterface $setup, string $label, string $code): void
     {
-        if (!$this->getSetup()) {
-            throw new \Exception("Setup was not set");
-        }
-
         $options = [
-            'group' => 'SPOD',
             'type' => 'int',
             'backend' => '',
             'frontend' => '',
@@ -246,32 +171,25 @@ class AttributeHelper extends AbstractHelper
             'apply_to' => 'simple,configurable,virtual,bundle,downloadable'
         ];
 
-        $eavSetup = $this->eavSetupFactory->create(['setup' => $this->setup]);
-        $eavSetup->addAttribute(
-            Product::ENTITY,
-            $code,
-            $options
-        );
+        $this->createAttribute($setup, $code, $options);
     }
 
     /**
-     * getter which read the injected setup.
+     * Creates Product Attribute, SPOD Attribute Group and assigns SPOD group to SPOD Attribute Set
      *
-     * @return ModuleDataSetupInterface
-     */
-    public function getSetup()
-    {
-        return $this->setup;
-    }
-
-    /**
-     * setter which injects the setup from the outside.
-
      * @param ModuleDataSetupInterface $setup
+     * @param string $code
+     * @param array $attrData
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Zend_Validate_Exception
      */
-    public function setSetup(ModuleDataSetupInterface $setup): void
+    private function createAttribute(ModuleDataSetupInterface $setup, string $code, array $attrData): void
     {
-        $this->setup = $setup;
+        /** @var CategorySetup $categorySetup */
+        $categorySetup = $this->categorySetupFactory->create(['setup' => $setup]);
+        $categorySetup->addAttribute(Product::ENTITY, $code, $attrData);
+        $categorySetup->addAttributeGroup(Product::ENTITY, 'SPOD', 'SPOD');
+        $categorySetup->addAttributeToSet(Product::ENTITY, 'SPOD', 'SPOD', $code);
     }
 
     /**
