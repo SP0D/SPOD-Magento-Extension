@@ -12,10 +12,8 @@ use Magento\ConfigurableProduct\Helper\Product\Options\Factory;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\App\State;
 use Magento\Framework\Exception\NoSuchEntityException;
 
-use Magento\Store\Api\StoreManagementInterface;
 use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Helper\ImageHelper;
@@ -283,7 +281,13 @@ class ProductManager
      */
     private function assignBaseValues(Product $product, $variantInfo): void
     {
-        $product->setName($variantInfo->productTypeName);
+        $variantProductName = sprintf(
+            '%s | %s | %s',
+            $variantInfo->productTypeName,
+            $variantInfo->appearanceName,
+            $variantInfo->sizeName
+        );
+        $product->setName($variantProductName);
         $product->setStatus(1);
         $product->setVisibility(ProductVisibility::VISIBILITY_NOT_VISIBLE);
         $product->setTypeId(ProductType::TYPE_SIMPLE);
