@@ -7,6 +7,7 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
 use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\SignatureHelper;
@@ -35,17 +36,22 @@ class Webhook extends Action implements HttpPostActionInterface, CsrfAwareAction
      */
     private $signatureHelper;
 
+    /** @var JsonFactory */
+    private $jsonResultFactory;
+
     public function __construct(
         Context $context,
         ResultDecoder $decoder,
         WebhookManager $webhookManager,
         SignatureHelper $signatureHelper,
-        SpodLoggerInterface $logger
+        SpodLoggerInterface $logger,
+        JsonFactory $jsonResultFactory
     ) {
         $this->decoder = $decoder;
         $this->logger = $logger;
         $this->webhookManager = $webhookManager;
         $this->signatureHelper = $signatureHelper;
+        $this->jsonResultFactory = $jsonResultFactory;
         return parent::__construct($context);
     }
 
@@ -57,7 +63,10 @@ class Webhook extends Action implements HttpPostActionInterface, CsrfAwareAction
 
         if ($this->signatureHelper->isSignatureValid($requestBody, $signature)) {
             $this->saveValidatedRequest();
-            echo "[accepted]";
+            $result = $this->jsonResultFactory->create();
+            $result->setHttpResponseCode(202);
+            $result->setData('[accepted]');
+            return $result;
         } else {
             throw new \Exception('Invalid signature in webhook request');
         }
