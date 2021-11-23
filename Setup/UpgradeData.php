@@ -45,11 +45,18 @@ class UpgradeData implements UpgradeDataInterface
             /** @var CategorySetup $categorySetup */
             $categorySetup = $this->categorySetupFactory->create(['setup' => $setup]);
             $defaultAttributeSetId = $categorySetup->getDefaultAttributeSetId(\Magento\Catalog\Model\Product::ENTITY);
-            $categorySetup->removeAttributeGroup(
+            $spodGroup = $categorySetup->getAttributeGroup(
                 \Magento\Catalog\Model\Product::ENTITY,
                 $defaultAttributeSetId,
                 'SPOD'
             );
+            if ($spodGroup) {
+                $categorySetup->removeAttributeGroup(
+                    \Magento\Catalog\Model\Product::ENTITY,
+                    $defaultAttributeSetId,
+                    'SPOD'
+                );
+            }
         }
 
         $setup->endSetup();

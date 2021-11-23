@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spod\Sync\Helper;
 
 use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Setup\CategorySetup;
 use Magento\Catalog\Setup\CategorySetupFactory;
 use Magento\Eav\Api\Data\AttributeSetInterface;
@@ -104,20 +105,17 @@ class AttributeHelper extends AbstractHelper
             'input' => 'select',
             'type' => 'int',
             'label' => $label,
-            'visible' => true,
             'required' => false,
             'user_defined' => true,
             'searchable' => true,
             'filterable' => true,
-            'comparable' => false,
-            'visible_on_front' => true,
+            'comparable' => true,
             'visible_in_advanced_search' => true,
             'is_used_in_grid' => true,
-            'is_html_allowed_on_front' => false,
-            'used_for_promo_rules' => true,
-            'frontend_class' => '',
+            'is_visible_in_grid' => false,
+            'is_filterable_in_grid' => true,
             'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
-            'unique' => false
+            'apply_to' => implode(',', [Type::TYPE_SIMPLE, Type::TYPE_VIRTUAL])
         ];
 
         $this->createAttribute($setup, $code, $options);
@@ -134,14 +132,7 @@ class AttributeHelper extends AbstractHelper
             'searchable' => false,
             'filterable' => false,
             'comparable' => false,
-            'visible_on_front' => false,
-            'visible_in_advanced_search' => false,
-            'is_used_in_grid' => true,
-            'is_html_allowed_on_front' => false,
-            'used_for_promo_rules' => false,
-            'frontend_class' => '',
-            'global' => ScopedAttributeInterface::SCOPE_STORE,
-            'unique' => false
+            'global' => ScopedAttributeInterface::SCOPE_STORE
         ];
 
         $this->createAttribute($setup, $code, $options);
@@ -151,24 +142,18 @@ class AttributeHelper extends AbstractHelper
     {
         $options = [
             'type' => 'int',
-            'backend' => '',
-            'frontend' => '',
             'label' => $label,
             'input' => 'boolean',
-            'class' => '',
             'source' => Boolean::class,
             'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
             'visible' => true,
             'required' => false,
             'user_defined' => true,
-            'default' => '1',
             'searchable' => false,
             'filterable' => false,
             'comparable' => false,
             'visible_on_front' => false,
-            'used_in_product_listing' => false,
-            'unique' => false,
-            'apply_to' => 'simple,configurable,virtual,bundle,downloadable'
+            'used_in_product_listing' => false
         ];
 
         $this->createAttribute($setup, $code, $options);
