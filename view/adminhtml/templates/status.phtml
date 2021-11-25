@@ -46,12 +46,17 @@
             <div class="loader syncing-data" style="display:none">
                 <img src="<?php echo $block->getViewFileUrl('Spod_Sync::images/sping-loader.gif'); ?>" width="40"
                      height="40">We started syncing your data. This will
-                take some time until it’s finished…
+                take some time until it’s finished...
+            </div>
+
+            <div class="loader disconnect-loader" style="display:none">
+                <img src="<?php echo $block->getViewFileUrl('Spod_Sync::images/sping-loader.gif'); ?>" width="40" height="40">
+                <?= __('Disconnecting...') ?>
             </div>
         </div>
         <div class="fo-btm-part">
             <p>Do you need more information how to connect?</p>
-            <a href="#">Learn more about SPOD API connection</a>
+            <a href="https://www.spod.com/integrations/magento">Learn more about SPOD API connection</a>
         </div>
     </div>
 
@@ -60,6 +65,10 @@
             <img class="alt-icn" src="<?php echo $block->getViewFileUrl('Spod_Sync::images/sm-check-circle.png'); ?>">
         </div>
         You have been successfully disconnected
+    </div>
+
+    <div class="alert-msg err-disconnected-msg" style="display:none">
+        <p><?= __('An error occurred during disconnection. Please, try again later.') ?></p>
     </div>
 
     <div class="modal modalcenter" id="popupOne">

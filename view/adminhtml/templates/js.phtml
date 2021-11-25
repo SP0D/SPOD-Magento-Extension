@@ -193,25 +193,33 @@
             //
             // Disconnect function
             function triggerDisconnect() {
+                $('.disconnect-loader').show();
+                $('.dis-btn').attr('disabled', true);
+                hideDisconnectPopup();
                 jQuery.ajax({
                     url: "<?php echo $this->getUrl('spodsync/ajax/disconnect') ?>",
                     method: 'GET',
                     data: {},
                     success: function (data) {
-                        if (data.error === 1) {
-                            hideDisconnectPopup();
+                        $('.disconnect-loader').hide();
+                        $('.dis-btn').attr('disabled', false);
+                        if (data.error) {
+                            $('.err-disconnected-msg').show();
+                            setTimeout(function() { $('.err-disconnected-msg').hide(); }, 10000);
                         } else {
                             emptyTokenInput();
                             hideDisconnect();
                             hideSuccess();
                             hideDateMsg();
                             showSubmitButton();
-                            hideDisconnectPopup();
                             showDisconnectedMsg();
                         }
                     },
                     error: function() {
-                        hideDisconnectPopup();
+                        $('.disconnect-loader').hide();
+                        $('.dis-btn').attr('disabled', false);
+                        $('.err-disconnected-msg').show();
+                        setTimeout(function() { $('.err-disconnected-msg').hide(); }, 10000);
                     }
                 });
             }
