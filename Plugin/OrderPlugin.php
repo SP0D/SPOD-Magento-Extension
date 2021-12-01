@@ -1,10 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Spod\Sync\Plugin;
 
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Spod\Sync\Api\SpodLoggerInterface;
-use Spod\Sync\Model\ApiReader\OrderHandler;
 use Spod\Sync\Model\OrderRecord;
 use Spod\Sync\Model\OrderRecordFactory;
 use Spod\Sync\Model\Mapping\QueueStatus;
@@ -21,22 +23,20 @@ class OrderPlugin
 {
     /** @var SpodLoggerInterface  */
     private $logger;
+
     /** @var OrderRecordFactory  */
     private $orderRecordFactory;
+
     /** @var OrderRecordRepository  */
     private $orderRecordRepository;
-    /** @var OrderHandler */
-    private $orderHandler;
 
     public function __construct(
-        OrderHandler $orderHandler,
         OrderRecordFactory $orderRecordFactory,
         OrderRecordRepository $orderRecordRepository,
         SpodLoggerInterface $logger
     ) {
         $this->logger = $logger;
         $this->orderRecordFactory = $orderRecordFactory;
-        $this->orderHandler = $orderHandler;
         $this->orderRecordRepository = $orderRecordRepository;
     }
 

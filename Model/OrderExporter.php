@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Spod\Sync\Model;
 
 use Magento\Customer\Model\Address;
-use Magento\Customer\Model\ResourceModel\CustomerRepository;
 use Magento\Directory\Model\RegionFactory;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\OrderRepository;
 use Magento\Sales\Model\ResourceModel\Order\Tax\Item;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\Mapping\ShippingType;
@@ -20,30 +20,27 @@ use Spod\Sync\Model\Mapping\ShippingType;
  */
 class OrderExporter
 {
+    const ORDER_REFERENCE_PREFIX = 'MAGE';
+
     /** @var ConfigHelper */
     private $configHelper;
-    /** @var CustomerRepository */
-    private $customerRepository;
-    /** @var OrderRepository */
-    private $orderRepository;
+
     /** @var RegionFactory */
     private $regionFactory;
+
     /** @var ShippingType */
     private $shippingTypeMapper;
+
     /** @var Item  */
     private $taxItem;
 
     public function __construct(
         ConfigHelper $configHelper,
-        CustomerRepository $customerRepository,
         Item $taxItem,
-        OrderRepository $orderRepository,
         RegionFactory $regionFactory,
         ShippingType $shippingTypeMapper
     ) {
         $this->configHelper = $configHelper;
-        $this->customerRepository = $customerRepository;
-        $this->orderRepository = $orderRepository;
         $this->regionFactory = $regionFactory;
         $this->shippingTypeMapper = $shippingTypeMapper;
         $this->taxItem = $taxItem;
@@ -53,43 +50,38 @@ class OrderExporter
      * Public method called from outside that returns the
      * prepared order as array structure.
      *
-     * @param $orderId
+     * @param OrderInterface $magentoOrder
      * @return array
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function prepareOrder($orderId)
+    public function prepareOrder(OrderInterface $magentoOrder): array
     {
-        $magentoOrder = $this->getMagentoOrderById($orderId);
-        $preparedOrder = [];
+        $orderItems = $this->prepareOrderItems($magentoOrder);
 
-        //
-        $preparedOrder['orderItems'] = $this->prepareOrderItems($magentoOrder);
-        $preparedOrder['billingAddress'] = $this->prepareBillingAddress($magentoOrder);
-        $preparedOrder['shipping'] = $this->prepareShipping($magentoOrder);
+        if (0 === count($orderItems)) {
+            throw new \Exception('Magento Order has no SPOD products.');
+        }
 
-        // detail information
-        $preparedOrder['phone'] = $this->preparePhone($magentoOrder);
-        $preparedOrder['email'] = $this->prepareEmail($magentoOrder);
-        $preparedOrder['externalOrderReference'] = $this->prepareOrderReference($magentoOrder);
-        $preparedOrder['state'] = 'NEW';
-        $preparedOrder['customerTaxType'] = $this->prepareCustomerTaxType($magentoOrder);
+        $spodOrder = [];
+        $spodOrder['orderItems'] = $orderItems;
+        $spodOrder['shipping'] = $this->prepareShipping($magentoOrder);
+        $spodOrder['billingAddress'] = $this->prepareBillingAddress($magentoOrder);
+        $spodOrder['phone'] = $this->preparePhone($magentoOrder);
+        $spodOrder['email'] = $this->prepareEmail($magentoOrder);
+        $spodOrder['externalOrderReference'] = $this->prepareOrderReference($magentoOrder);
+        $spodOrder['state'] = 'NEW';
+        $spodOrder['customerTaxType'] = $this->prepareCustomerTaxType($magentoOrder);
 
-        return $preparedOrder;
+        return $spodOrder;
     }
 
     /**
      * @param OrderInterface $order
      * @return array
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    private function prepareOrderItems(OrderInterface $order)
+    private function prepareOrderItems(OrderInterface $order): array
     {
-        $orderedItems = $order->getAllItems();
         $items = [];
-
-        foreach ($orderedItems as $orderedItem) {
+        foreach ($order->getAllItems() as $orderedItem) {
             if ($orderedItem->getProduct()->getTypeId() != 'simple') {
                 continue;
             }
@@ -102,7 +94,7 @@ class OrderExporter
                     'amount' => floatval($orderedItem->getParentItem()->getRowTotal()),
                     'taxRate' => floatval($orderedItem->getParentItem()->getTaxPercent()),
                     'taxAmount' => floatval($orderedItem->getParentItem()->getTaxAmount()),
-                    'currency' => $order->getStore()->getCurrentCurrency()->getCurrencyCode()
+                    'currency' => $order->getOrderCurrencyCode()
                 ]
             ];
         }
@@ -110,19 +102,14 @@ class OrderExporter
         return $items;
     }
 
-    /**
-     * @param OrderInterface $order
-     * @return array
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    private function prepareShipping(OrderInterface $order)
+    private function prepareShipping(OrderInterface $order): array
     {
         $shipping = [];
 
         $shipping['address'] = $this->prepareShippingAddress($order);
+        $shipping['fromAddress'] = $this->prepareFromAddress($order);
         $shipping['preferredType'] = $this->shippingTypeMapper->getShippingTypeForOrder($order);
         $shipping['customerPrice'] = $this->prepareShippingPrice($order);
-        $shipping['fromAddress'] = $this->prepareFromAddress($order);
 
         return $shipping;
     }
@@ -198,7 +185,7 @@ class OrderExporter
      */
     private function prepareOrderReference(OrderInterface $order)
     {
-        return $order->getIncrementId();
+        return sprintf('%s%s', self::ORDER_REFERENCE_PREFIX, $order->getIncrementId());
     }
 
     /**
@@ -208,17 +195,6 @@ class OrderExporter
     private function prepareCustomerTaxType(OrderInterface $order)
     {
         return "NOT_TAXABLE";
-    }
-
-    /**
-     * @param $orderId
-     * @return OrderInterface
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    private function getMagentoOrderById($orderId): OrderInterface
-    {
-        return $this->orderRepository->get($orderId);
     }
 
     /**
@@ -266,7 +242,6 @@ class OrderExporter
     /**
      * @param OrderInterface $order
      * @return array
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     private function prepareShippingPrice(OrderInterface $order): array
     {
@@ -275,7 +250,7 @@ class OrderExporter
         $shippingPrice['amount'] = floatval($order->getShippingAmount());
         $shippingPrice['taxRate'] = floatval($this->getShippingTaxRate($order));
         $shippingPrice['taxAmount'] = floatval($order->getShippingTaxAmount());
-        $shippingPrice['currency'] = $order->getStore()->getCurrentCurrency()->getCurrencyCode();
+        $shippingPrice['currency'] = $order->getOrderCurrencyCode();
 
         return $shippingPrice;
     }

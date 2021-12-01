@@ -20,14 +20,18 @@ use Spod\Sync\Model\ApiResultFactory;
  */
 abstract class AbstractHandler
 {
-    private ClientInterface $httpClient;
+    /** @var ClientInterface */
+    private $httpClient;
 
     /** @var ApiResultFactory  */
     protected $apiResultFactory;
+
     /** @var ConfigHelper */
     protected $configHelper;
+
     /** @var ResultDecoder */
     protected $decoder;
+
     /** @var PayloadEncoder  */
     protected $encoder;
 
@@ -84,30 +88,18 @@ abstract class AbstractHandler
         return $this->apiResultFactory->createFromResponse($response);
     }
 
-    /**
-     * PUT request to API
-     *
-     * @param string $apiAction
-     * @param array $params
-     * @return bool|string
-     */
     protected function sendPutRequest(string $apiAction, array $params): ApiResult
     {
-        $baseUrl = $this->configHelper->getApiUrl();
-        $url = sprintf("%s%s", $baseUrl, $apiAction);
+        $response = $this->httpClient->send(
+            new \GuzzleHttp\Psr7\Request(
+                'PUT',
+                $apiAction,
+                ['X-SPOD-ACCESS-TOKEN' => $this->fetchSpodApiKey()],
+                $this->encoder->encodePayload($params)
+            )
+        );
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getDefaultHeader());
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->encoder->encodePayload($params));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = $this->apiResultFactory->create();
-        $result->setPayload(curl_exec($ch));
-        $result->setHttpCode(curl_getinfo($ch, CURLINFO_HTTP_CODE));
-
-        return $result;
+        return $this->apiResultFactory->createFromResponse($response);
     }
 
     /**

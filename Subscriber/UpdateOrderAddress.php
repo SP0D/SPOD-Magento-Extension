@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Spod\Sync\Subscriber;
 
 use Magento\Framework\Event\Observer;
@@ -17,6 +19,7 @@ class UpdateOrderAddress implements ObserverInterface
 {
     /** @var SpodLoggerInterface */
     private $logger;
+
     /** @var OrderProcessor */
     private $orderProcessor;
 
@@ -39,7 +42,7 @@ class UpdateOrderAddress implements ObserverInterface
      * @param Observer $observer
      * @throws \Exception
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): void
     {
         $address = $observer->getAddress();
         // new objects are not getting updated
@@ -49,6 +52,6 @@ class UpdateOrderAddress implements ObserverInterface
 
         $this->logger->logDebug(sprintf('Updating Order ID: %s', $address->getParentId()));
         $orderId = $address->getParentId();
-        $this->orderProcessor->updateOrder($orderId);
+        $this->orderProcessor->updateOrder((int) $orderId);
     }
 }

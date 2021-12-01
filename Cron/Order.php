@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Spod\Sync\Cron;
 
-use Magento\Framework\App\State;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\QueueProcessor\OrderProcessor;
 
@@ -22,20 +23,15 @@ class Order
     /** @var OrderProcessor */
     private $orderProcessor;
 
-    /** @var State */
-    private $state;
-
     public function __construct(
         SpodLoggerInterface $logger,
-        OrderProcessor $orderProcessor,
-        State $state
+        OrderProcessor $orderProcessor
     ) {
         $this->logger = $logger;
         $this->orderProcessor = $orderProcessor;
-        $this->state = $state;
     }
 
-    public function execute()
+    public function execute(): void
     {
         $this->logger->logDebug('[cron]: submitting pending orders');
         $this->orderProcessor->processPendingNewOrders();

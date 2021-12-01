@@ -1,14 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Spod\Sync\Model\QueueProcessor;
 
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order\ItemRepository;
 use Magento\Sales\Model\OrderRepository;
-
 use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
-use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\ApiReader\OrderHandler;
 use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\Mapping\QueueStatus;
@@ -30,26 +30,30 @@ class OrderProcessor
 
     /** @var CollectionFactory */
     private $collectionFactory;
+
     /** @var OrderExporter */
     private $orderExporter;
+
     /** @var OrderHandler  */
     private $orderHandler;
+
     /** @var OrderRepository */
     private $orderRepository;
+
     /** @var SpodLoggerInterface  */
     private $logger;
+
     /** @var ItemRepository */
     private $orderItemRepository;
+
     /** @var OrderRecordRepository  */
     private $orderRecordRepository;
-    /** @var ConfigHelper */
-    private $configHelper;
+
     /** @var ResultDecoder */
     private $decoder;
 
     public function __construct(
         CollectionFactory $collectionFactory,
-        ConfigHelper $configHelper,
         OrderExporter $orderExporter,
         OrderHandler $orderHandler,
         ItemRepository $orderItemRepository,
@@ -59,7 +63,6 @@ class OrderProcessor
         ResultDecoder $decoder
     ) {
         $this->collectionFactory = $collectionFactory;
-        $this->configHelper = $configHelper;
         $this->decoder = $decoder;
         $this->logger = $logger;
         $this->orderExporter = $orderExporter;
@@ -115,14 +118,15 @@ class OrderProcessor
      * Export and submit an order using the
      * order handler.
      *
-     * @param OrderRecord $order
+     * @param OrderRecord $orderRecord
      * @throws \Exception
      */
-    private function submitOrder(OrderRecord $orderEvent)
+    private function submitOrder(OrderRecord $orderRecord): void
     {
-        $preparedOrder = $this->orderExporter->prepareOrder($orderEvent->getOrderId());
-        $apiResult = $this->orderHandler->submitPreparedOrder($preparedOrder);
-        $magentoOrder = $this->orderRepository->get($orderEvent->getOrderId());
+        $magentoOrder = $this->orderRepository->get($orderRecord->getOrderId());
+
+        $spodOrder = $this->orderExporter->prepareOrder($magentoOrder);
+        $apiResult = $this->orderHandler->submitPreparedOrder($spodOrder);
 
         if ($apiResult->getHttpCode() == self::HTTPSTATUS_ORDER_CREATED) {
             $this->saveSpodOrderId($apiResult, $magentoOrder);
@@ -218,19 +222,23 @@ class OrderProcessor
     /**
      * Updates a locally changed order using the API.
      *
-     * @param $orderId
+     * @param integer $orderId
      * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function updateOrder($orderId)
+    public function updateOrder(int $orderId): void
     {
-        $this->logger->logDebug(sprintf('trying to update order #%s', $orderId));
-        $preparedOrder = $this->orderExporter->prepareOrder($orderId);
+        $this->logger->logDebug(sprintf('trying to update order #%d', $orderId));
         $magentoOrder = $this->orderRepository->get($orderId);
-        $this->logger->logDebug(sprintf('prepared order for update'));
+        $preparedOrder = $this->orderExporter->prepareOrder($magentoOrder);
+        $this->logger->logDebug(sprintf('prepared order #%d for update', $orderId));
 
-        if ($this->orderHandler->updateOrder($magentoOrder->getSpodOrderId(), $preparedOrder)) {
+        $spodOrderId = (int) $magentoOrder->getSpodOrderId();
+        if (!$spodOrderId) {
+            throw new \Exception('SPOD order id is missing');
+        }
+
+        if ($this->orderHandler->updateOrder($spodOrderId, $preparedOrder)) {
             $this->logger->logDebug('order was updated');
         } else {
             $this->logger->logError('update order', 'order could not be updated');

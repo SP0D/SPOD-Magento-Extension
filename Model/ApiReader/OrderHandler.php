@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Spod\Sync\Model\ApiReader;
 
 use Spod\Sync\Api\PayloadEncoder;
@@ -70,13 +72,7 @@ class OrderHandler extends AbstractHandler
         }
     }
 
-    /**
-     * @param $spodOrderId
-     * @param array $order
-     * @return ApiResult
-     * @throws \Exception
-     */
-    public function updateOrder($spodOrderId, array $order): ApiResult
+    public function updateOrder(int $spodOrderId, array $order): ApiResult
     {
         $action = sprintf("%s/%d", self::ACTION_BASE_URL, $spodOrderId);
         $this->logger->logDebug('sending PUT request');
@@ -88,7 +84,7 @@ class OrderHandler extends AbstractHandler
                 sprintf("updating order failed, httpStatus %s", $result->getHttpCode()),
                 $result->getPayload()
             );
-            throw new \Exception(sprintf("failed to update order"));
+            throw new \Exception("failed to update order");
         }
 
         return $result;
