@@ -38,16 +38,10 @@ class OrderHandler extends AbstractHandler
     /**
      * @param array $order
      * @return ApiResult
-     * @throws \Exception
      */
     public function submitPreparedOrder(array $order): ApiResult
     {
-        $result = $this->postRequest(self::ACTION_BASE_URL, $order);
-        if ($result->getHttpCode() !== 201) {
-            throw new \Exception(sprintf("failed to submit order"));
-        }
-
-        return $result;
+        return $this->postRequest(self::ACTION_BASE_URL, $order);
     }
 
     /**

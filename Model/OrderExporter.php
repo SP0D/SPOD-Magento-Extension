@@ -82,7 +82,9 @@ class OrderExporter
     {
         $items = [];
         foreach ($order->getAllItems() as $orderedItem) {
-            if ($orderedItem->getProduct()->getTypeId() != 'simple') {
+            $isSimple = $orderedItem->getProduct()->getTypeId() == 'simple';
+            $isSpodProduct = (bool) $orderedItem->getProduct()->getSpodProduct();
+            if (!$isSimple || !$isSpodProduct) {
                 continue;
             }
 

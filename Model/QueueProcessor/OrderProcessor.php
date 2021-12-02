@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Spod\Sync\Model\QueueProcessor;
 
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderItemInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\ItemRepository;
 use Magento\Sales\Model\OrderRepository;
 use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiReader\OrderHandler;
-use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\Mapping\QueueStatus;
 use Spod\Sync\Model\OrderExporter;
 use Spod\Sync\Model\OrderRecord;
@@ -73,28 +74,60 @@ class OrderProcessor
     }
 
     /**
-     * Entry point which triggers processing of
-     * all currently pending orders.
-     *
-     * @throws \Exception
+     * Entry point which triggers processing of all currently pending orders.
      */
-    public function processPendingNewOrders()
+    public function processPendingNewOrders(): void
     {
+        /** @var OrderRecord[] $collection */
         $collection = $this->getPendingCreateOrderCollection();
-        foreach ($collection as $order) {
-            /** @var OrderRecord $order */
-            $this->logger->logDebug(sprintf('Submitting order %s to API', $order->getOrderId()), "submitting order");
+        foreach ($collection as $orderRecord) {
+            $this->logger->logDebug(
+                sprintf('Submitting order %s to API', $orderRecord->getOrderId()),
+                'submitting order'
+            );
 
             try {
-                $this->submitOrder($order);
-                $this->setOrderRecordProcessed($order);
+                $magentoOrder = $this->orderRepository->get($orderRecord->getOrderId());
+
+                if (0 < $magentoOrder->getBaseTotalDue() || Order::STATE_PROCESSING !== $magentoOrder->getState()) {
+                    if (Order::STATE_CLOSED === $magentoOrder->getState()
+                        || Order::STATE_CANCELED === $magentoOrder->getState()) {
+                        throw new \Exception(
+                            sprintf(
+                                'Order #%s is in state %s. Declining sync for this order...',
+                                $magentoOrder->getIncrementId(),
+                                $magentoOrder->getState()
+                            )
+                        );
+                    }
+                    continue;
+                }
+
+                $spodOrder = $this->orderExporter->prepareOrder($magentoOrder);
+                $apiResult = $this->orderHandler->submitPreparedOrder($spodOrder);
+
+                if ($apiResult->getHttpCode() !== self::HTTPSTATUS_ORDER_CREATED) {
+                    throw new \Exception(sprintf('Failed to submit order #%s', $magentoOrder->getIncrementId()));
+                }
+
+                $apiResponse = $this->decoder->parsePayload($apiResult->getPayload());
+                $magentoOrder->setData('spod_order_id', $apiResponse->id);
+                $magentoOrder->setData('spod_order_reference', $apiResponse->orderReference);
+                foreach ($apiResponse->orderItems as $spodOrderItem) {
+                    $salesOrderItem = $this->getItemFromOrderBySku($magentoOrder, $spodOrderItem->sku);
+                    $salesOrderItem->setData('spod_order_item_id', $spodOrderItem->orderItemReference);
+                    $this->orderItemRepository->save($salesOrderItem);
+                }
+                $this->orderRepository->save($magentoOrder);
+
+                $orderRecord->setStatus(QueueStatus::STATUS_PROCESSED);
+                $orderRecord->setProcessedAt(new \DateTimeImmutable());
             } catch (\Exception $e) {
-                $this->logger->logError(
-                    "process pending orders",
-                    $e->getMessage(),
-                    $e->getTraceAsString()
-                );
-                $this->setOrderRecordFailed($order);
+                $this->logger->logError('process pending orders', $e->getMessage(), $e->getTraceAsString());
+                $orderRecord->setStatus(QueueStatus::STATUS_ERROR);
+                $orderRecord->setProcessedAt(new \DateTimeImmutable());
+            } finally {
+                $this->orderRecordRepository->save($orderRecord);
             }
         }
     }
@@ -110,92 +143,9 @@ class OrderProcessor
         $collection = $this->collectionFactory->create();
         $collection->addFieldToFilter('status', ['eq' => QueueStatus::STATUS_PENDING]);
         $collection->addFieldToFilter('event_type', ['eq' => OrderRecord::RECORD_EVENT_TYPE_CREATE]);
+        $collection->addOrder('created_at', \Magento\Framework\Data\Collection::SORT_ORDER_ASC);
 
         return $collection;
-    }
-
-    /**
-     * Export and submit an order using the
-     * order handler.
-     *
-     * @param OrderRecord $orderRecord
-     * @throws \Exception
-     */
-    private function submitOrder(OrderRecord $orderRecord): void
-    {
-        $magentoOrder = $this->orderRepository->get($orderRecord->getOrderId());
-
-        $spodOrder = $this->orderExporter->prepareOrder($magentoOrder);
-        $apiResult = $this->orderHandler->submitPreparedOrder($spodOrder);
-
-        if ($apiResult->getHttpCode() == self::HTTPSTATUS_ORDER_CREATED) {
-            $this->saveSpodOrderId($apiResult, $magentoOrder);
-            $this->saveOrderItemIds($apiResult, $magentoOrder);
-        }
-    }
-
-    /**
-     * Mark queue entry for order as processed.
-     *
-     * @param OrderRecord $orderRecord
-     * @throws \Exception
-     */
-    public function setOrderRecordProcessed(OrderRecord $orderRecord)
-    {
-        $orderRecord->setStatus(QueueStatus::STATUS_PROCESSED);
-        $orderRecord->setProcessedAt(new \DateTime());
-        $this->orderRecordRepository->save($orderRecord);
-    }
-
-    /**
-     * Mark order queue record as failed.
-     *
-     * @param OrderRecord $orderRecord
-     * @throws \Exception
-     */
-    public function setOrderRecordFailed(OrderRecord $orderRecord)
-    {
-        $orderRecord->setStatus(QueueStatus::STATUS_ERROR);
-        $orderRecord->setProcessedAt(new \DateTime());
-        $this->orderRecordRepository->save($orderRecord);
-    }
-
-    /**
-     * Save SPOD order id, returned by API and available
-     * in the ApiResult, alongside the Magento order for
-     * later access.
-     *
-     * @param ApiResult $apiResult
-     * @param OrderRecord $order
-     * @throws \Magento\Framework\Exception\AlreadyExistsException
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    private function saveSpodOrderId(ApiResult $apiResult, OrderInterface $order): void
-    {
-        $apiResponse = $this->decoder->parsePayload($apiResult->getPayload());
-        $order->setSpodOrderId($apiResponse->id);
-        $order->setSpodOrderReference($apiResponse->orderReference);
-        $this->orderRepository->save($order);
-    }
-
-    /**
-     * Save order item ids in local sales_order_item table
-     * for later reference.
-     *
-     * @param ApiResult $apiResult
-     * @param OrderInterface $order
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    private function saveOrderItemIds(ApiResult $apiResult, OrderInterface $order): void
-    {
-        $apiResponse = $this->decoder->parsePayload($apiResult->getPayload());
-        foreach ($apiResponse->orderItems as $apiResponseItem) {
-            $salesOrderItem = $this->getItemFromOrderBySku($order, $apiResponseItem->sku);
-            $salesOrderItem->setData('spod_order_item_id', $apiResponseItem->orderItemReference);
-            $this->orderItemRepository->save($salesOrderItem);
-        }
     }
 
     /**
@@ -203,11 +153,11 @@ class OrderProcessor
      * from a certain order.
      *
      * @param OrderInterface $order
-     * @param $sku
-     * @return \Magento\Sales\Api\Data\OrderItemInterface
+     * @param string $sku
+     * @return OrderItemInterface
      * @throws \Exception
      */
-    private function getItemFromOrderBySku(OrderInterface $order, $sku)
+    private function getItemFromOrderBySku(OrderInterface $order, string $sku): OrderItemInterface
     {
         $items = $order->getItems();
         foreach ($items as $item) {
@@ -216,7 +166,7 @@ class OrderProcessor
             }
         }
 
-        throw new \Exception(sprintf("Item with sku %s not found in order", $sku));
+        throw new \Exception(sprintf('Order has not Item with sku %s', $sku));
     }
 
     /**
@@ -233,9 +183,9 @@ class OrderProcessor
         $preparedOrder = $this->orderExporter->prepareOrder($magentoOrder);
         $this->logger->logDebug(sprintf('prepared order #%d for update', $orderId));
 
-        $spodOrderId = (int) $magentoOrder->getSpodOrderId();
+        $spodOrderId = (int) $magentoOrder->getData('spod_order_id');
         if (!$spodOrderId) {
-            throw new \Exception('SPOD order id is missing');
+            throw new \Exception(sprintf('SPOD order id is missing for Order #%s', $magentoOrder->getIncrementId()));
         }
 
         if ($this->orderHandler->updateOrder($spodOrderId, $preparedOrder)) {
