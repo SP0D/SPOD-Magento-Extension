@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Spod\Sync\Subscriber\Webhook\Shipment;
 
 use Magento\Framework\Event\Observer;
@@ -23,8 +26,10 @@ class Sent extends BaseSubscriber
 
     /** @var ApiResultFactory  */
     private $apiResultFactory;
+
     /** @var PayloadEncoder  */
     private $encoder;
+
     /** @var ShipmentManager */
     private $shipmentManager;
 
@@ -60,7 +65,6 @@ class Sent extends BaseSubscriber
 
                 $this->shipmentManager->addShipment($apiResult);
                 $this->setEventProcessed($webhookEvent);
-
             } catch (\Exception $e) {
                 $this->logger->logError("shipment sent", $e->getMessage());
                 $this->setEventFailed($webhookEvent);

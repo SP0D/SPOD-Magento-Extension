@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Spod\Sync\Subscriber\Webhook;
 
 use Magento\Framework\Event\Observer;
@@ -16,12 +19,15 @@ use Spod\Sync\Model\Webhook;
  */
 abstract class BaseSubscriber implements ObserverInterface
 {
-    protected $event = false;
+    /** @var null|string */
+    protected $event = null;
 
     /** @var WebhookEventRepository */
     protected $webhookEventRepository;
+
     /** @var StatusHelper */
     protected $statusHelper;
+
     /** @var SpodLoggerInterface  */
     protected $logger;
 
@@ -35,18 +41,18 @@ abstract class BaseSubscriber implements ObserverInterface
         $this->logger = $logger;
     }
 
-    public function setEventProcessed(Webhook $webhookEvent)
+    public function setEventProcessed(Webhook $webhookEvent): void
     {
         $this->statusHelper->setLastsyncDate();
         $webhookEvent->setStatus(QueueStatus::STATUS_PROCESSED);
-        $webhookEvent->setProcessedAt(new \DateTime());
+        $webhookEvent->setProcessedAt(new \DateTimeImmutable());
         $this->webhookEventRepository->save($webhookEvent);
     }
 
-    public function setEventFailed(Webhook $webhookEvent)
+    public function setEventFailed(Webhook $webhookEvent): void
     {
         $webhookEvent->setStatus(QueueStatus::STATUS_ERROR);
-        $webhookEvent->setProcessedAt(new \DateTime());
+        $webhookEvent->setProcessedAt(new \DateTimeImmutable());
         $this->webhookEventRepository->save($webhookEvent);
     }
 
@@ -55,13 +61,9 @@ abstract class BaseSubscriber implements ObserverInterface
         return $observer->getData('webhook_event');
     }
 
-    protected function isObserverResponsible($webhookEvent)
+    protected function isObserverResponsible(Webhook $webhookEvent): bool
     {
-        if ($webhookEvent->getEventType() == $this->event) {
-            return true;
-        } else {
-            return false;
-        }
+        return $webhookEvent->getEventType() === $this->event;
     }
     public function execute(Observer $observer)
     {

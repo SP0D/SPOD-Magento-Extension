@@ -89,7 +89,18 @@ class OrderProcessor
             try {
                 $magentoOrder = $this->orderRepository->get($orderRecord->getOrderId());
 
-                if (0 < $magentoOrder->getBaseTotalDue() || Order::STATE_PROCESSING !== $magentoOrder->getState()) {
+                $areSpodProductsPaid = function (OrderInterface $order) {
+                    $spodOrderItemsToBePaid = array_filter(
+                        $order->getItems(),
+                        function (OrderItemInterface $orderItem) {
+                            $isSpodProduct = $orderItem->getProduct()->getData('spod_product_id') > 0;
+                            return $isSpodProduct && $orderItem->getQtyToInvoice() > 0;
+                        }
+                    );
+                    return 0 === count($spodOrderItemsToBePaid);
+                };
+
+                if (!$areSpodProductsPaid($magentoOrder) || Order::STATE_PROCESSING !== $magentoOrder->getState()) {
                     if (Order::STATE_CLOSED === $magentoOrder->getState()
                         || Order::STATE_CANCELED === $magentoOrder->getState()) {
                         throw new \Exception(
@@ -116,6 +127,10 @@ class OrderProcessor
                 foreach ($apiResponse->orderItems as $spodOrderItem) {
                     $salesOrderItem = $this->getItemFromOrderBySku($magentoOrder, $spodOrderItem->sku);
                     $salesOrderItem->setData('spod_order_item_id', $spodOrderItem->orderItemReference);
+                    if ($salesOrderItem->getParentItem()) {
+                        $salesOrderItem->getParentItem()->setLockedDoShip(true);
+                        $salesOrderItem->setLockedDoShip(true);
+                    }
                     $this->orderItemRepository->save($salesOrderItem);
                 }
                 $this->orderRepository->save($magentoOrder);

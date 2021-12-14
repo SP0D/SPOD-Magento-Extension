@@ -90,10 +90,10 @@ class OrderExporter
 
             $items[] = [
                 'sku' => $orderedItem->getProduct()->getSku(),
-                'quantity' => intval($orderedItem->getQtyOrdered()),
+                'quantity' => intval($orderedItem->getQtyInvoiced()),
                 'externalOrderItemReference' => $orderedItem->getId(),
                 'customerPrice' => [
-                    'amount' => floatval($orderedItem->getParentItem()->getRowTotal()),
+                    'amount' => floatval($orderedItem->getParentItem()->getRowInvoiced()),
                     'taxRate' => floatval($orderedItem->getParentItem()->getTaxPercent()),
                     'taxAmount' => floatval($orderedItem->getParentItem()->getTaxAmount()),
                     'currency' => $order->getOrderCurrencyCode()
