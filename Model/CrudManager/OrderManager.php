@@ -54,6 +54,7 @@ class OrderManager
         /** @var OrderInterface|Order $order */
         $order = $this->getOrderBySpodOrderId($spodOrderId);
         $order->setSpodCancelled(true);
+        $order->addCommentToStatusHistory('Order was canceled on SPOD.', false, false);
         if ($order->canCancel()) {
             $order->cancel();
         } elseif ($order->canCreditmemo()) {
@@ -70,9 +71,14 @@ class OrderManager
             }
 
             $creditmemo = $this->creditmemoFactory->createByOrder($order, ['qtys' => $qtys, 'shipping_amount' => 0.0]);
+            $creditmemo->addComment('Creditmemo was created because of canceled SPOD order. Shipping amount was set to 0.0.', false, false);
+            $order->addCommentToStatusHistory(
+                'Creditmemo was created for the canceled SPOD order',
+                false,
+                false
+            );
             $this->creditmemoManagement->refund($creditmemo, false);
         }
-        $this->orderRepository->save($order);
         $this->logger->logDebug(sprintf("cancelled order #%s", $order->getIncrementId()));
     }
 
@@ -89,17 +95,16 @@ class OrderManager
         throw new \Exception('SPOD Order Id not found');
     }
 
-    /**
-     * @param $spodOrderId
-     * @throws \Magento\Framework\Exception\AlreadyExistsException
-     * @throws \Magento\Framework\Exception\InputException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    public function completeOrder($spodOrderId)
+    public function completeOrder(int $spodOrderId): void
     {
+        /** @var OrderInterface|Order $order */
         $order = $this->getOrderBySpodOrderId($spodOrderId);
-        $order->setState(Order::STATE_COMPLETE)->setStatus(Order::STATE_COMPLETE);
+        $order->addCommentToStatusHistory(
+            'Order was processed on SPOD.',
+            false,
+            false
+        );
         $this->orderRepository->save($order);
-        $this->logger->logDebug(sprintf("completed order %d", $order->getId()));
+        $this->logger->logDebug(sprintf("order processed #%d", $order->getIncrementId()));
     }
 }

@@ -33,7 +33,11 @@ class Order
 
     public function execute(): void
     {
-        $this->logger->logDebug('[cron]: submitting pending orders');
-        $this->orderProcessor->processPendingNewOrders();
+        try {
+            $this->logger->logDebug('[cron]: submitting pending orders');
+            $this->orderProcessor->processPendingNewOrders();
+        } catch (\Exception $e) {
+            $this->logger->logError('process pending orders', $e->getMessage(), $e->getTraceAsString());
+        }
     }
 }

@@ -10,21 +10,18 @@ namespace Spod\Sync\Model;
  */
 class ApiResult
 {
+    /** @var int */
     private $httpCode;
+
+    /** @var mixed */
     private $payload;
 
-    /**
-     * @return mixed
-     */
-    public function getHttpCode()
+    public function getHttpCode(): int
     {
         return $this->httpCode;
     }
 
-    /**
-     * @param mixed $httpCode
-     */
-    public function setHttpCode($httpCode): void
+    public function setHttpCode(int $httpCode): void
     {
         $this->httpCode = $httpCode;
     }

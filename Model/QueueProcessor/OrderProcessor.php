@@ -85,10 +85,9 @@ class OrderProcessor
                 sprintf('Submitting order %s to API', $orderRecord->getOrderId()),
                 'submitting order'
             );
-
+            /** @var OrderInterface|Order $magentoOrder */
+            $magentoOrder = $this->orderRepository->get($orderRecord->getOrderId());
             try {
-                $magentoOrder = $this->orderRepository->get($orderRecord->getOrderId());
-
                 $areSpodProductsPaid = function (OrderInterface $order) {
                     $spodOrderItemsToBePaid = array_filter(
                         $order->getItems(),
@@ -133,15 +132,24 @@ class OrderProcessor
                     }
                     $this->orderItemRepository->save($salesOrderItem);
                 }
-                $this->orderRepository->save($magentoOrder);
-
+                $magentoOrder->addCommentToStatusHistory(
+                    sprintf('Order was synced to SPOD. SPOD order reference is %s', $apiResponse->orderReference),
+                    false,
+                    false
+                );
                 $orderRecord->setStatus(QueueStatus::STATUS_PROCESSED);
                 $orderRecord->setProcessedAt(new \DateTimeImmutable());
             } catch (\Exception $e) {
                 $this->logger->logError('process pending orders', $e->getMessage(), $e->getTraceAsString());
+                $magentoOrder->addCommentToStatusHistory(
+                    'Could not sync this order to SPOD',
+                    false,
+                    false
+                );
                 $orderRecord->setStatus(QueueStatus::STATUS_ERROR);
                 $orderRecord->setProcessedAt(new \DateTimeImmutable());
             } finally {
+                $this->orderRepository->save($magentoOrder);
                 $this->orderRecordRepository->save($orderRecord);
             }
         }

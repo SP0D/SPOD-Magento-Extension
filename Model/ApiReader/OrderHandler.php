@@ -59,11 +59,7 @@ class OrderHandler extends AbstractHandler
             throw new \Exception(sprintf("order not found"));
         }
 
-        if ($result->getHttpCode() == 202) {
-            return true;
-        } else {
-            return false;
-        }
+        return $result->getHttpCode() === 202;
     }
 
     public function updateOrder(int $spodOrderId, array $order): ApiResult
