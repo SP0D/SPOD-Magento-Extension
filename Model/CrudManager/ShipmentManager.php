@@ -150,6 +150,12 @@ class ShipmentManager
         $shipment->register();
         $shipment->getOrder()->setIsInProcess(true);
 
+        $order->addCommentToStatusHistory(
+            'Shipment was created due to notification from SPOD.',
+            false,
+            false
+        );
+
         $this->shipmentRepository->save($shipment);
         $this->orderRepository->save($order);
 

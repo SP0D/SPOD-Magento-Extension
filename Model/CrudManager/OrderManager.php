@@ -71,7 +71,7 @@ class OrderManager
             }
 
             $creditmemo = $this->creditmemoFactory->createByOrder($order, ['qtys' => $qtys, 'shipping_amount' => 0.0]);
-            $creditmemo->addComment('Creditmemo was created because of canceled SPOD order. Shipping amount was set to 0.0.', false, false);
+            $creditmemo->addComment('Creditmemo was created because of canceled SPOD order. Shipping amount to refund was set to 0.', false, false);
             $order->addCommentToStatusHistory(
                 'Creditmemo was created for the canceled SPOD order',
                 false,
