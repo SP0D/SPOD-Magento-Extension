@@ -31,4 +31,7 @@
     <event name="order_cancel_after">
         <observer name="spodsync_order_cancel_after" instance="Spod\Sync\Subscriber\CancelOrder" />
     </event>
+    <event name="sales_order_creditmemo_save_after">
+        <observer name="spodsync_order_creditmemo_save_after" instance="Spod\Sync\Subscriber\CreditmemoSaveAfter" />
+    </event>
 </config>
