@@ -189,7 +189,11 @@ class ImageHelper
     private function fetchImageToFile($imageUrl, string $imageFile): void
     {
         $resource = \GuzzleHttp\Psr7\Utils::tryFopen($imageFile, 'wb');
-        $client = new \GuzzleHttp\Client();
+        $client = new \GuzzleHttp\Client([
+            'headers' => [
+                'User-Agent' => 'Magento/1.0'
+            ]
+        ]);
         $client->request('GET', $imageUrl, ['sink' => $resource]);
 //        fclose($resource);
     }
