@@ -128,7 +128,7 @@ class ConfigHelper extends AbstractHelper
      */
     public function getFromLastname(): ?string
     {
-        $lastname = $this->getConfigValue(self::XML_PATH_FROM_FIRSTNAME);
+        $lastname = $this->getConfigValue(self::XML_PATH_FROM_LASTNAME);
         if ($lastname) {
             return $lastname;
         } else {

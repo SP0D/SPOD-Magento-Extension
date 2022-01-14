@@ -283,16 +283,30 @@ class OrderExporter
      */
     private function prepareFromAddress(OrderInterface $order)
     {
+        $companyName = $this->configHelper->getConfigValue('general/store_information/name', $order->getStoreId());
+        $firstname = $this->configHelper->getFromFirstname();
+        $lastname = $this->configHelper->getFromLastname();
+        $street = $this->configHelper->getConfigValue('general/store_information/street_line1', $order->getStoreId());
+        $streetAnnex = $this->configHelper->getConfigValue('general/store_information/street_line2', $order->getStoreId());
+        $city = $this->configHelper->getConfigValue('general/store_information/city', $order->getStoreId());
+        $country = $this->configHelper->getConfigValue('general/store_information/country_id', $order->getStoreId());
+        $state = $this->getOrderRegionData($this->configHelper->getConfigValue('general/store_information/region_id', $order->getStoreId()));
+        $zipCode = $this->configHelper->getConfigValue('general/store_information/postcode', $order->getStoreId());
+
+        if ($street == null || $city == null || $country == null) {
+            return null;
+        }
+
         $fromAddress = [];
-        $fromAddress['company'] = $this->configHelper->getConfigValue('general/store_information/name', $order->getStoreId());
-        $fromAddress['firstName'] = $this->configHelper->getFromFirstname();
-        $fromAddress['lastName'] = $this->configHelper->getFromLastname();
-        $fromAddress['street'] = $this->configHelper->getConfigValue('general/store_information/street_line1', $order->getStoreId());
-        $fromAddress['streetAnnex'] = $this->configHelper->getConfigValue('general/store_information/street_line2', $order->getStoreId());
-        $fromAddress['city'] = $this->configHelper->getConfigValue('general/store_information/city', $order->getStoreId());
-        $fromAddress['country'] = $this->configHelper->getConfigValue('general/store_information/country_id', $order->getStoreId());
-        $fromAddress['state'] = $this->getOrderRegionData($this->configHelper->getConfigValue('general/store_information/region_id', $order->getStoreId()));
-        $fromAddress['zipCode'] = $this->configHelper->getConfigValue('general/store_information/postcode', $order->getStoreId());
+        $fromAddress['company'] = $companyName;
+        $fromAddress['firstName'] = $firstname;
+        $fromAddress['lastName'] = $lastname;
+        $fromAddress['street'] = $street;
+        $fromAddress['streetAnnex'] = $streetAnnex;
+        $fromAddress['city'] = $city;
+        $fromAddress['country'] = $country;
+        $fromAddress['state'] = $state;
+        $fromAddress['zipCode'] = $zipCode;
 
         return $fromAddress;
     }
