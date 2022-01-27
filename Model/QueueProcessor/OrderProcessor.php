@@ -89,11 +89,19 @@ class OrderProcessor
             $magentoOrder = $this->orderRepository->get($orderRecord->getOrderId());
             try {
                 $areSpodProductsPaid = function (OrderInterface $order) {
-                    $spodOrderItemsToBePaid = array_filter(
+                    $spodOrderItems = array_filter(
                         $order->getItems(),
                         function (OrderItemInterface $orderItem) {
-                            $isSpodProduct = $orderItem->getProduct()->getData('spod_product_id') > 0;
-                            return $isSpodProduct && $orderItem->getQtyToInvoice() > 0;
+                            return $orderItem->getProduct() && $orderItem->getProduct()->getData('spod_product_id') > 0;
+                        }
+                    );
+                    if (0 === count($spodOrderItems)) {
+                        throw new \Exception(sprintf('Order #%s does not contain SPOD products.', $order->getIncrementId()));
+                    }
+                    $spodOrderItemsToBePaid = array_filter(
+                        $spodOrderItems,
+                        function (OrderItemInterface $orderItem) {
+                            return $orderItem->getQtyToInvoice() > 0;
                         }
                     );
                     return 0 === count($spodOrderItemsToBePaid);
