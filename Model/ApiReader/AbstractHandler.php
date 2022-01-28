@@ -43,7 +43,10 @@ abstract class AbstractHandler
     ) {
         $this->httpClient = new \GuzzleHttp\Client([
             'base_uri' => $configHelper->getApiUrl(),
-            'headers' => ['Content-Type' => 'application/json']
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'User-Agent' => 'Magento/1.0'
+            ]
         ]);
         $this->apiResultFactory = $apiResultFactory;
         $this->configHelper = $configHelper;
