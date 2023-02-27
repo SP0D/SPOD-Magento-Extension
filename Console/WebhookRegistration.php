@@ -3,7 +3,6 @@ namespace Spod\Sync\Console;
 
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
-use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Model\ApiReader\WebhookHandler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,20 +20,17 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class WebhookRegistration extends Command
 {
-    /** @var ResultDecoder  */
-    private $decoder;
     /** @var WebhookHandler */
     private $webhookHandler;
+
     /** @var State  */
     private $state;
 
     public function __construct(
-        ResultDecoder $decoder,
         WebhookHandler $webhookHandler,
         State $state,
         string $name = null
     ) {
-        $this->decoder = $decoder;
         $this->state = $state;
         $this->webhookHandler = $webhookHandler;
 
@@ -95,15 +91,14 @@ class WebhookRegistration extends Command
     /**
      * List all registered webhook subscriptions.
      *
-     * @param $output
+     * @param OutputInterface $output
      * @throws \Exception
      */
     protected function listWebhooks(OutputInterface $output): void
     {
         $hooksResult = $this->webhookHandler->getWebhooks();
-        $hooks = $this->decoder->parsePayload($hooksResult->getPayload());
 
-        foreach ($hooks as $hook) {
+        foreach ($hooksResult->getPayload() as $hook) {
             $output->writeln(sprintf("<info>%s: %s</info>", $hook->eventType, $hook->url));
         }
     }

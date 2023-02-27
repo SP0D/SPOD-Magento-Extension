@@ -1,47 +1,17 @@
-# Mage2 Module Spod Sync
+# Magento 2 Spod Sync module
 
- - [Main Functionalities](#markdown-header-main-functionalities)
  - [Installation](#markdown-header-installation)
- - [Updates](#markdown-header-update)
  - [Configuration](#markdown-header-configuration)
- - [Specifications](#markdown-header-specifications)
- - [Attributes](#markdown-header-attributes)
-
-
-## Main Functionalities
-SPOD Magento 2 Sync
 
 ## Installation
 
-### Type 1: Zip file
+Navigate to Magento 2 root directory. Run the following commands:
 
- - Unzip the zip file and upload contents to <br> `app/code/Spod/Sync`
- - Enable the module by running  <br>`php bin/magento module:enable Spod_Sync`
- - Apply database updates by running  <br>`php bin/magento setup:upgrade`
- - Flush the cache by running <br> `php bin/magento cache:flush`
+`composer require spod/module-sync`
 
-Hint: due to technical limitations, the Uninstall routine is only available for composer installations.
+`bin/magento module:enable Spod_Sync`
 
-### Type 2: Composer
-
- - Add the composer repository to the configuration by running<br>
-   `composer config repositories.spod vcs git@github.com:SP0D/SPOD-Magento-Extension.git`
- - Install the module composer by running <br>`composer require spod/module-sync`
- - enable the module by running <br>`php bin/magento module:enable Spod_Sync`
- - apply database updates by running <br>`php bin/magento setup:upgrade`
-
-If you run into problems, especially in live environments, also try:
- - update the dependency injection <br>`php bin/magento setup:di:compile`
- - update the dependency injection <br>`php bin/magento setup:static-content:deploy`
- - Flush the cache by running <br>`php bin/magento cache:flush`
-
-## Update
-
- - Update the extension by running <br>`composer update`
- - Apply database changes <br>`php bin/magento setup:upgrade`
- - Update the dependency injection <br>`php bin/magento setup:di:compile`
- - Flush the cache by running <br>`php bin/magento cache:flush`
-
+`bin/magento setup:upgrade`
 
 ## Configuration
 

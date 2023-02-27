@@ -2,7 +2,6 @@
     require(
         ['jquery'],
         function($) {
-            //
             // Hide/Show/Status
             function hideSuccessMsg() {
                 $('.msg-success').hide();
@@ -19,6 +18,10 @@
                 $('.spodsyn-error-icn').hide();
             }
 
+            function hideUnknownError() {
+                $('.msg-unknown-error').hide();
+            }
+
             function showSuccess() {
                 $('.msg-success').show();
                 $('.spodsyn-check-icn').show();
@@ -27,6 +30,10 @@
             function showError() {
                 $('.msg-error').show();
                 $('.spodsyn-error-icn').show();
+            }
+
+            function showUnknownError() {
+                $('.msg-unknown-error').show();
             }
 
             function showLoader() {
@@ -116,7 +123,6 @@
                 $('.spodsync--apitoken').val('');
             }
 
-            //
             // Processing functions to connect
             function processToken() {
                 let spodSyncToken = $('.spodsync--apitoken').val();
@@ -131,15 +137,18 @@
                     url: "<?php echo $this->getUrl('spodsync/ajax/connect') ?>",
                     method: 'GET',
                     data: {'apiToken': spodSyncToken},
+                    timeout: 100000,
                     success: function (data) {
                         handleSuccess(data);
                         if (data.error === 0) {
                             setTimeout(refreshStatus, 5000);
                         }
                     },
-                    error: function() {
+                    error: function(xhr, textStatus, errorThrown) {
+                        showUnknownError();
                         hideLoader();
                         enableSubmitButton();
+                        setTimeout(function() { hideUnknownError(); }, 10000);
                     }
                 });
             }

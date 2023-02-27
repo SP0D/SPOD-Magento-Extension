@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Spod\Sync\Model\ApiReader;
 
-use Spod\Sync\Api\PayloadEncoder;
-use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\ApiResult;
@@ -27,12 +25,10 @@ class OrderHandler extends AbstractHandler
     public function __construct(
         ApiResultFactory $apiResultFactory,
         ConfigHelper $configHelper,
-        PayloadEncoder $encoder,
-        ResultDecoder $decoder,
         SpodLoggerInterface $logger
     ) {
         $this->logger = $logger;
-        parent::__construct($apiResultFactory, $configHelper, $encoder, $decoder);
+        parent::__construct($apiResultFactory, $configHelper);
     }
 
     /**
@@ -45,8 +41,6 @@ class OrderHandler extends AbstractHandler
     }
 
     /**
-     * @param $orderId
-     * @return ApiResult
      * @throws \Exception
      */
     public function cancelOrder($orderId): bool
@@ -56,7 +50,7 @@ class OrderHandler extends AbstractHandler
 
         $this->logger->logDebug("cancelling order");
         if ($result->getHttpCode() == 404) {
-            throw new \Exception(sprintf("order not found"));
+            throw new \Exception(sprintf("Order %d not found in SPOD.", $orderId));
         }
 
         return $result->getHttpCode() === 202;
@@ -72,7 +66,7 @@ class OrderHandler extends AbstractHandler
             $this->logger->logError(
                 "update order",
                 sprintf("updating order failed, httpStatus %s", $result->getHttpCode()),
-                $result->getPayload()
+                json_encode($result->getPayload())
             );
             throw new \Exception("failed to update order");
         }

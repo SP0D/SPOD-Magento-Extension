@@ -16,7 +16,6 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\ShipmentDocumentFactory;
 use Magento\Sales\Model\OrderRepository;
 use Magento\Shipping\Model\ShipmentNotifier;
-use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Model\ApiResult;
 
 /**
@@ -27,9 +26,6 @@ use Spod\Sync\Model\ApiResult;
  */
 class ShipmentManager
 {
-    /** @var ResultDecoder */
-    private $decoder;
-
     /** @var OrderRepository */
     private $orderRepository;
 
@@ -55,7 +51,6 @@ class ShipmentManager
 
     public function __construct(
         OrderRepository $orderRepository,
-        ResultDecoder $decoder,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         ShipmentRepositoryInterface $shipmentRepository,
         ShipmentNotifier $shipmentNotifier,
@@ -63,7 +58,6 @@ class ShipmentManager
         ShipmentItemCreationInterfaceFactory $itemFactory,
         ShipmentTrackCreationInterfaceFactory $trackFactory
     ) {
-        $this->decoder = $decoder;
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->shipmentRepository = $shipmentRepository;
@@ -75,7 +69,7 @@ class ShipmentManager
 
     public function addShipment(ApiResult $apiResult): void
     {
-        $apiShipment = $this->decoder->parsePayload($apiResult->getPayload());
+        $apiShipment = $apiResult->getPayload();
         /** @var OrderInterface|Order $order */
         $order = $this->getOrderBySpodOrderId($apiShipment->orderId);
 
@@ -120,6 +114,9 @@ class ShipmentManager
         $shipmentItems = [];
         foreach ($spodOrderItemIds as $spodOrderItemId) {
             $orderItem = $searchOrderItem((int) $spodOrderItemId);
+            if (!$orderItem) {
+                continue;
+            }
             if ($orderItem->getParentItem()) {
                 $orderItem = $orderItem->getParentItem();
             }
@@ -151,9 +148,7 @@ class ShipmentManager
         $shipment->getOrder()->setIsInProcess(true);
 
         $order->addCommentToStatusHistory(
-            'Shipment was created due to notification from SPOD.',
-            false,
-            false
+            'Shipment was created due to notification from SPOD.'
         );
 
         $this->shipmentRepository->save($shipment);

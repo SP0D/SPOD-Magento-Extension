@@ -15,6 +15,7 @@ use Magento\Framework\App\ResourceConnection;
 class StatusHelper
 {
     const SPODSYNC_STATUS_TABLE = 'spodsync_status';
+    const SPODSYNC_STATUS_DEFAULT_CONNECTION = 'default';
 
     /**
      * @var ResourceConnection
@@ -39,8 +40,8 @@ class StatusHelper
     public function setWebhookSecret($secret)
     {
         $connection = $this->resourceConnection->getConnection();
-        $sql = sprintf('UPDATE %s SET webhook_secret = :SECRET', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
-        $connection->query($sql, ['SECRET' => $secret]);
+        $sql = sprintf('UPDATE %s SET webhook_secret = :SECRET WHERE connection = :connection', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
+        $connection->query($sql, ['SECRET' => $secret, 'connection' => self::SPODSYNC_STATUS_DEFAULT_CONNECTION]);
     }
 
     /**
@@ -54,9 +55,10 @@ class StatusHelper
 
     public function setApiToken($apiToken)
     {
+        $this->reinitDefaultConnection();
         $connection = $this->resourceConnection->getConnection();
-        $sql = sprintf('UPDATE %s SET api_token = :TOKEN', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
-        $connection->query($sql, ['TOKEN' => $apiToken]);
+        $sql = sprintf('UPDATE %s SET api_token = :TOKEN WHERE connection = :connection', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
+        $connection->query($sql, ['TOKEN' => $apiToken, 'connection' => self::SPODSYNC_STATUS_DEFAULT_CONNECTION]);
     }
 
     /**
@@ -74,8 +76,8 @@ class StatusHelper
     public function setInstallDate()
     {
         $connection = $this->resourceConnection->getConnection();
-        $sql = sprintf('UPDATE %s SET installed_at = NOW()', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
-        $connection->query($sql);
+        $sql = sprintf('UPDATE %s SET installed_at = NOW() WHERE connection = :connection', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
+        $connection->query($sql, ['connection' => self::SPODSYNC_STATUS_DEFAULT_CONNECTION]);
     }
 
     /**
@@ -91,8 +93,8 @@ class StatusHelper
     public function setInitialSyncStartDate()
     {
         $connection = $this->resourceConnection->getConnection();
-        $sql = sprintf('UPDATE %s SET initsync_start_at = NOW()', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
-        $connection->query($sql);
+        $sql = sprintf('UPDATE %s SET initsync_start_at = NOW() WHERE connection = :connection', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
+        $connection->query($sql, ['connection' => self::SPODSYNC_STATUS_DEFAULT_CONNECTION]);
     }
 
     /**
@@ -108,8 +110,8 @@ class StatusHelper
     public function setInitialSyncEndDate()
     {
         $connection = $this->resourceConnection->getConnection();
-        $sql = sprintf('UPDATE %s SET initsync_end_at = NOW()', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
-        $connection->query($sql);
+        $sql = sprintf('UPDATE %s SET initsync_end_at = NOW() WHERE connection = :connection', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
+        $connection->query($sql, ['connection' => self::SPODSYNC_STATUS_DEFAULT_CONNECTION]);
     }
 
     /**
@@ -125,8 +127,8 @@ class StatusHelper
     public function setLastsyncDate()
     {
         $connection = $this->resourceConnection->getConnection();
-        $sql = sprintf('UPDATE %s SET lastsync_at = NOW()', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
-        $connection->query($sql);
+        $sql = sprintf('UPDATE %s SET lastsync_at = NOW() WHERE connection = :connection', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
+        $connection->query($sql, ['connection' => self::SPODSYNC_STATUS_DEFAULT_CONNECTION]);
     }
 
     /**
@@ -138,8 +140,8 @@ class StatusHelper
     private function getStatusValue($valueKey)
     {
         $connection = $this->resourceConnection->getConnection();
-        $sql = sprintf('SELECT %s FROM %s', $valueKey, $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
-        $result = $connection->fetchAll($sql);
+        $sql = sprintf('SELECT %s FROM %s WHERE connection = :connection', $valueKey, $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
+        $result = $connection->fetchAll($sql, ['connection' => self::SPODSYNC_STATUS_DEFAULT_CONNECTION]);
         $result = current($result);
 
         if (isset($result[$valueKey])) {
@@ -157,9 +159,22 @@ class StatusHelper
     {
         $connection = $this->resourceConnection->getConnection();
         $sql = sprintf(
-            'UPDATE %s SET initsync_start_at = NULL, initsync_end_at = NULL, lastsync_at = NULL, installed_at = NULL',
+            'UPDATE %s SET initsync_start_at = NULL, initsync_end_at = NULL, lastsync_at = NULL, installed_at = NULL WHERE connection = :connection',
             $connection->getTableName(self::SPODSYNC_STATUS_TABLE)
         );
-        $connection->query($sql);
+        $connection->query($sql, ['connection' => self::SPODSYNC_STATUS_DEFAULT_CONNECTION]);
+    }
+
+    private function reinitDefaultConnection()
+    {
+        $connection = $this->resourceConnection->getConnection();
+        $sql = sprintf('SELECT * FROM %s WHERE connection = :connection', $connection->getTableName(self::SPODSYNC_STATUS_TABLE));
+        $result = $connection->fetchRow($sql, ['connection' => self::SPODSYNC_STATUS_DEFAULT_CONNECTION]);
+        if (!$result) {
+            $connection->query(
+                sprintf('INSERT INTO %s (`connection`) VALUES (:connection)', $connection->getTableName(self::SPODSYNC_STATUS_TABLE)),
+                ['connection' => self::SPODSYNC_STATUS_DEFAULT_CONNECTION]
+            );
+        }
     }
 }

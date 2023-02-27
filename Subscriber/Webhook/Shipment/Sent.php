@@ -4,14 +4,9 @@ declare(strict_types=1);
 
 namespace Spod\Sync\Subscriber\Webhook\Shipment;
 
-use Magento\Framework\Event\Observer;
-use Spod\Sync\Api\PayloadEncoder;
-use Spod\Sync\Api\SpodLoggerInterface;
-use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\ApiResultFactory;
 use Spod\Sync\Model\CrudManager\ShipmentManager;
-use Spod\Sync\Model\Mapping\WebhookEvent;
-use Spod\Sync\Model\Repository\WebhookEventRepository;
+use Spod\Sync\Model\Webhook;
 use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
 
 /**
@@ -22,55 +17,30 @@ use Spod\Sync\Subscriber\Webhook\BaseSubscriber;
  */
 class Sent extends BaseSubscriber
 {
-    protected $event = WebhookEvent::EVENT_SHIPMENT_SENT;
-
     /** @var ApiResultFactory  */
     private $apiResultFactory;
-
-    /** @var PayloadEncoder  */
-    private $encoder;
 
     /** @var ShipmentManager */
     private $shipmentManager;
 
     public function __construct(
         ApiResultFactory $apiResultFactory,
-        PayloadEncoder $encoder,
-        SpodLoggerInterface $logger,
-        ShipmentManager $shipmentManager,
-        WebhookEventRepository $webhookEventRepository,
-        StatusHelper $statusHelper
+        ShipmentManager $shipmentManager
     ) {
         $this->apiResultFactory = $apiResultFactory;
-        $this->encoder = $encoder;
         $this->shipmentManager = $shipmentManager;
-
-        parent::__construct($webhookEventRepository, $statusHelper, $logger);
     }
 
-    public function execute(Observer $observer)
+    protected function processWebhookEvent(Webhook $webhookEvent): void
     {
-        $webhookEvent = $this->getWebhookEventFromObserver($observer);
+        // decode and extract only shipment portion
+        $payload = $webhookEvent->getDecodedPayload();
+        $shipmentData = $payload->data->shipment;
 
-        if ($this->isObserverResponsible($webhookEvent)) {
-            // decode and extract only shipment portion
-            $payload = $webhookEvent->getDecodedPayload();
-            $shipmentData = $payload->data->shipment;
+        // put back json encoded shipment data
+        $apiResult = $this->apiResultFactory->create();
+        $apiResult->setPayload($shipmentData);
 
-            try {
-                // put back json encoded shipment data
-                $apiResult = $this->apiResultFactory->create();
-                $jsonShipmentData = $this->encoder->encodePayload($shipmentData);
-                $apiResult->setPayload($jsonShipmentData);
-
-                $this->shipmentManager->addShipment($apiResult);
-                $this->setEventProcessed($webhookEvent);
-            } catch (\Exception $e) {
-                $this->logger->logError("shipment sent", $e->getMessage());
-                $this->setEventFailed($webhookEvent);
-            }
-        }
-
-        return $this;
+        $this->shipmentManager->addShipment($apiResult);
     }
 }

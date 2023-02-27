@@ -54,7 +54,7 @@ class OrderManager
         /** @var OrderInterface|Order $order */
         $order = $this->getOrderBySpodOrderId($spodOrderId);
         $order->setSpodCancelled(true);
-        $order->addCommentToStatusHistory('Order was canceled on SPOD.', false, false);
+        $order->addCommentToStatusHistory('Order was canceled on SPOD.');
         if ($order->canCancel()) {
             $order->cancel();
         } elseif ($order->canCreditmemo()) {
@@ -71,13 +71,9 @@ class OrderManager
             }
 
             $creditmemo = $this->creditmemoFactory->createByOrder($order, ['qtys' => $qtys, 'shipping_amount' => 0.0]);
-            $creditmemo->addComment('Creditmemo was created because of canceled SPOD order. Shipping amount to refund was set to 0.', false, false);
-            $order->addCommentToStatusHistory(
-                'Creditmemo was created for the canceled SPOD order',
-                false,
-                false
-            );
-            $this->creditmemoManagement->refund($creditmemo, false);
+            $creditmemo->addComment('Creditmemo was created because of canceled SPOD order. Shipping amount to refund was set to 0.');
+            $order->addCommentToStatusHistory('Creditmemo was created for the canceled SPOD order');
+            $this->creditmemoManagement->refund($creditmemo);
         }
         $this->logger->logDebug(sprintf("cancelled order #%s", $order->getIncrementId()));
     }
@@ -99,11 +95,7 @@ class OrderManager
     {
         /** @var OrderInterface|Order $order */
         $order = $this->getOrderBySpodOrderId($spodOrderId);
-        $order->addCommentToStatusHistory(
-            'Order was processed on SPOD.',
-            false,
-            false
-        );
+        $order->addCommentToStatusHistory('Order was processed on SPOD.');
         $this->orderRepository->save($order);
         $this->logger->logDebug(sprintf("order processed #%d", $order->getIncrementId()));
     }

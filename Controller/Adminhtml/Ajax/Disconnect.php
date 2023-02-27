@@ -6,8 +6,6 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Spod\Sync\Api\SpodLoggerInterface;
-use Spod\Sync\Helper\CacheHelper;
-use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\ApiReader\WebhookHandler;
 use Spod\Sync\Model\CrudManager\ProductManager;
@@ -20,17 +18,10 @@ use Spod\Sync\Model\CrudManager\ProductManager;
 class Disconnect extends Action
 {
     /**
-     * @var CacheHelper
-     */
-    private $cacheHelper;
-    /**
      * @var JsonFactory
      */
     private $jsonResultFactory;
-    /**
-     * @var ConfigHelper
-     */
-    private $configHelper;
+
     /**
      * @var StatusHelper
      */
@@ -49,8 +40,6 @@ class Disconnect extends Action
     private $productManager;
 
     public function __construct(
-        CacheHelper $cacheHelper,
-        ConfigHelper $configHelper,
         Context $context,
         JsonFactory $jsonResultFactory,
         StatusHelper $statusHelper,
@@ -59,8 +48,6 @@ class Disconnect extends Action
         ProductManager $productManager
     ) {
         parent::__construct($context);
-        $this->cacheHelper = $cacheHelper;
-        $this->configHelper = $configHelper;
         $this->jsonResultFactory = $jsonResultFactory;
         $this->productManager = $productManager;
         $this->statusHelper = $statusHelper;
@@ -107,6 +94,5 @@ class Disconnect extends Action
         $this->webhookHandler->unregisterWebhooks();
         $this->statusHelper->setApiToken('');
         $this->statusHelper->resetStatusDates();
-        $this->cacheHelper->clearConfigCache();
     }
 }

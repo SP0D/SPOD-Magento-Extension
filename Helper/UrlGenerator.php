@@ -15,9 +15,8 @@ class UrlGenerator
     /** @var StoreManagerInterface  */
     private $storeManager;
 
-    public function __construct(
-        StoreManagerInterface $storeManager
-    ) {
+    public function __construct(StoreManagerInterface $storeManager)
+    {
         $this->storeManager = $storeManager;
     }
 

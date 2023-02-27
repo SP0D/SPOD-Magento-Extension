@@ -28,11 +28,4 @@ class SpodLog extends AbstractModel implements IdentityInterface
     {
         return [self::CACHE_TAG . '_' . $this->getId()];
     }
-
-    public function getDefaultValues()
-    {
-        $values = [];
-
-        return $values;
-    }
 }

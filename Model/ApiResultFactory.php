@@ -22,7 +22,9 @@ class ApiResultFactory
     {
         $result = new ApiResult();
         $result->setHttpCode($response->getStatusCode());
-        $result->setPayload($response->getBody()->getContents());
+        $result->setPayload(
+            json_decode($response->getBody()->getContents(), false)
+        );
         return $result;
     }
 }

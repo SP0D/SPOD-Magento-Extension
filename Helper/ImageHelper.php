@@ -3,7 +3,6 @@
 namespace Spod\Sync\Helper;
 
 use Magento\Catalog\Api\Data\ProductInterface;
-use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Filesystem;
@@ -17,14 +16,8 @@ use Spod\Sync\Api\SpodLoggerInterface;
  */
 class ImageHelper
 {
-    /** @var DirectoryList */
-    private $directoryList;
-
     /** @var Filesystem */
     private $filesystem;
-
-    /** @var ProductRepository */
-    private $productRepository;
 
     /** @var SpodLoggerInterface  */
     private $logger;
@@ -36,23 +29,17 @@ class ImageHelper
     /**
      * ImageHelper constructor.
      *
-     * @param DirectoryList $directoryList
      * @param Filesystem $filesystem
-     * @param ProductRepository $productRepository
      * @param ResourceConnection $resourceConnection
      * @param SpodLoggerInterface $logger
      */
     public function __construct(
-        DirectoryList $directoryList,
         Filesystem $filesystem,
-        ProductRepository $productRepository,
         ResourceConnection $resourceConnection,
         SpodLoggerInterface $logger
     ) {
-        $this->directoryList = $directoryList;
         $this->filesystem = $filesystem;
         $this->logger = $logger;
-        $this->productRepository = $productRepository;
         $this->resourceConnection = $resourceConnection;
     }
 
@@ -76,19 +63,11 @@ class ImageHelper
         $this->assignImages($configurableProduct, $imagePaths);
     }
 
-    /**
-     * Downloads images and calls a method to handle the assignment.
-     *
-     * @param $product
-     * @param $variantInfo
-     * @param $images
-     */
-    public function downloadAndAssignImages($product, $imageIds, $images)
+    public function downloadAndAssignImages(ProductInterface $product, array $imageIds, array $images): void
     {
         try {
             $imagePaths = $this->getImagesForVariant($imageIds, $images);
             $this->assignImages($product, $imagePaths);
-            return $product;
         } catch (\Exception $e) {
             $this->logger->logError("image download", $e->getMessage());
         }
@@ -103,7 +82,7 @@ class ImageHelper
      * @param array $images
      * @return array
      */
-    private function getImagesForVariant($imageIds, $images)
+    private function getImagesForVariant(array $imageIds, array $images): array
     {
         $urls = [];
         foreach ($imageIds as $imageId) {

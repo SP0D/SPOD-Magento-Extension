@@ -57,11 +57,7 @@ class SignatureHelper extends AbstractHelper
         $this->spodLogger->logDebug("calculated hmac: " . $calculatedHmac);
         $this->spodLogger->logDebug("request signature: " . $signature);
 
-        if ($calculatedHmac == $signature) {
-            return true;
-        } else {
-            return false;
-        }
+        return $calculatedHmac === $signature;
     }
 
     /**

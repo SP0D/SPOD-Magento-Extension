@@ -16,7 +16,7 @@ class ApiResult
     /** @var mixed */
     private $payload;
 
-    public function getHttpCode(): int
+    public function getHttpCode(): ?int
     {
         return $this->httpCode;
     }

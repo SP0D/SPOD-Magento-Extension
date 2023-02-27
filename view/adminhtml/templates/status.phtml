@@ -2,7 +2,7 @@
     /** @var \Spod\Sync\Block\Adminhtml\Status $block */
     $block = $this;
 ?>
-<div class="main-wrp">
+<div class="spodsync-status-container main-wrp">
     <div class="api-bx-main">
         <div class="top-part">
             <div class="logo"><a href="#"><img
@@ -34,6 +34,7 @@
 
             <span class="msg-success msg-txt" style="display: none"> API key is valid</span>
             <span class="msg-error msg-txt" style="display: none"> Invalid API key</span>
+            <span class="msg-unknown-error msg-txt" style="display: none"> Unknown Error. Please, try again later.</span>
 
             <div class="submit-btn-wrp">
                 <input type="submit" value="Submit API Key" class="submit-btn" disabled="disabled">

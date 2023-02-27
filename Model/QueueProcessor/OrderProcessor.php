@@ -9,7 +9,6 @@ use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\ItemRepository;
 use Magento\Sales\Model\OrderRepository;
-use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Model\ApiReader\OrderHandler;
 use Spod\Sync\Model\Mapping\QueueStatus;
@@ -50,9 +49,6 @@ class OrderProcessor
     /** @var OrderRecordRepository  */
     private $orderRecordRepository;
 
-    /** @var ResultDecoder */
-    private $decoder;
-
     public function __construct(
         CollectionFactory $collectionFactory,
         OrderExporter $orderExporter,
@@ -60,11 +56,9 @@ class OrderProcessor
         ItemRepository $orderItemRepository,
         OrderRepository $orderRepository,
         OrderRecordRepository $orderRecordRepository,
-        SpodLoggerInterface $logger,
-        ResultDecoder $decoder
+        SpodLoggerInterface $logger
     ) {
         $this->collectionFactory = $collectionFactory;
-        $this->decoder = $decoder;
         $this->logger = $logger;
         $this->orderExporter = $orderExporter;
         $this->orderHandler = $orderHandler;
@@ -128,7 +122,7 @@ class OrderProcessor
                     throw new \Exception(sprintf('Failed to submit order #%s', $magentoOrder->getIncrementId()));
                 }
 
-                $apiResponse = $this->decoder->parsePayload($apiResult->getPayload());
+                $apiResponse = $apiResult->getPayload();
                 $magentoOrder->setData('spod_order_id', $apiResponse->id);
                 $magentoOrder->setData('spod_order_reference', $apiResponse->orderReference);
                 foreach ($apiResponse->orderItems as $spodOrderItem) {
@@ -141,19 +135,13 @@ class OrderProcessor
                     $this->orderItemRepository->save($salesOrderItem);
                 }
                 $magentoOrder->addCommentToStatusHistory(
-                    sprintf('Order was synced to SPOD. SPOD order reference is %s', $apiResponse->orderReference),
-                    false,
-                    false
+                    sprintf('Order was synced to SPOD. SPOD order reference is %s', $apiResponse->orderReference)
                 );
                 $orderRecord->setStatus(QueueStatus::STATUS_PROCESSED);
                 $orderRecord->setProcessedAt(new \DateTimeImmutable());
             } catch (\Exception $e) {
                 $this->logger->logError('process pending orders', $e->getMessage(), $e->getTraceAsString());
-                $magentoOrder->addCommentToStatusHistory(
-                    'Could not sync this order to SPOD',
-                    false,
-                    false
-                );
+                $magentoOrder->addCommentToStatusHistory('Could not sync this order to SPOD');
                 $orderRecord->setStatus(QueueStatus::STATUS_ERROR);
                 $orderRecord->setProcessedAt(new \DateTimeImmutable());
             } finally {
@@ -223,7 +211,7 @@ class OrderProcessor
             $this->logger->logDebug('order was updated');
         } else {
             $this->logger->logError('update order', 'order could not be updated');
-            throw new \Exception(__("Order could not be updated"));
+            throw new \Exception('Order could not be updated');
         }
     }
 }

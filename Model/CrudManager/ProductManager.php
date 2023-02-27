@@ -14,7 +14,6 @@ use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\NoSuchEntityException;
 
-use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Helper\ImageHelper;
 use Spod\Sync\Helper\OptionHelper;
@@ -30,9 +29,6 @@ class ProductManager
 {
     /** @var AttributeHelper */
     private $attributeHelper;
-
-    /** @var ResultDecoder  */
-    private $decoder;
 
     /** @var ImageHelper  */
     private $imageHelper;
@@ -59,11 +55,9 @@ class ProductManager
         OptionHelper $optionHelper,
         ProductFactory $productFactory,
         ProductRepository $productRepository,
-        ResultDecoder $decoder,
         SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
         $this->attributeHelper = $attributeSetHelper;
-        $this->decoder = $decoder;
         $this->optionsFactory = $factory;
         $this->imageHelper = $imageHelper;
         $this->optionHelper = $optionHelper;
@@ -80,9 +74,7 @@ class ProductManager
      */
     public function createAllProducts(ApiResult $apiResult)
     {
-        $apiData = $this->decoder->parsePayload($apiResult->getPayload());
-
-        foreach ($apiData->items as $articleData) {
+        foreach ($apiResult->getPayload()->items as $articleData) {
             $this->createOptionValues($articleData);
             $this->saveProduct($articleData);
         }
@@ -99,8 +91,7 @@ class ProductManager
      */
     public function createProduct(ApiResult $apiResult)
     {
-        $apiData = $this->decoder->parsePayload($apiResult->getPayload());
-        $this->saveProduct($apiData);
+        $this->saveProduct($apiResult->getPayload());
     }
 
     /**
@@ -125,14 +116,14 @@ class ProductManager
 
     public function updateProduct(ApiResult $apiResult)
     {
-        $apiData = $this->decoder->parsePayload($apiResult->getPayload());
+        $payload = $apiResult->getPayload();
 
-        $configurable = $this->getProductBySpodId($apiData->id);
+        $configurable = $this->getProductBySpodId($payload->id);
         if (!$configurable) {
-            throw new \Exception(sprintf("Product with ID %s could not be found", $apiData->id));
+            throw new \Exception(sprintf("Product with ID %s could not be found", $payload->id));
         }
 
-        $configurable->setName($apiData->title);
+        $configurable->setName($payload->title);
         $this->productRepository->save($configurable);
 
         // unassign and remove current variants
@@ -143,13 +134,13 @@ class ProductManager
 
         // recreate variants
         $configurable = $this->productRepository->get($configurable->getSku());
-        $variants = $this->createVariants($apiData);
+        $variants = $this->createVariants($payload);
         $this->assignVariants($configurable, $variants);
         $this->productRepository->save($configurable);
 
         // configurable images
         $this->imageHelper->resetOldImages($configurable);
-        $this->imageHelper->assignConfigurableImages($configurable, $apiData->images);
+        $this->imageHelper->assignConfigurableImages($configurable, $payload->images);
         $this->productRepository->save($configurable);
     }
 
@@ -259,8 +250,7 @@ class ProductManager
     protected function getOrCreateSimple($sku)
     {
         try {
-            $product = $this->productRepository->get($sku);
-            return $product;
+            return $this->productRepository->get($sku);
         } catch (NoSuchEntityException $e) {
             // product not found
             return $this->createNewProduct($sku);
@@ -397,10 +387,9 @@ class ProductManager
      */
     protected function getVariantProducts(Product $configurable)
     {
-        $variantProducts = $configurable
+        return $configurable
             ->getTypeInstance()
             ->getUsedProducts($configurable);
-        return $variantProducts;
     }
 
     public function deleteAllSpodProducts()

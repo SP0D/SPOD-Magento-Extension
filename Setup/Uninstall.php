@@ -6,7 +6,6 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UninstallInterface;
-use Spod\Sync\Helper\AttributeHelper;
 use Spod\Sync\Model\ApiReader\WebhookHandler;
 use Spod\Sync\Model\CrudManager\ProductManager;
 
@@ -18,10 +17,6 @@ use Spod\Sync\Model\CrudManager\ProductManager;
 class Uninstall implements UninstallInterface
 {
     /**
-     * @var AttributeHelper
-     */
-    private $attributeHelper;
-    /**
      * @var WebhookHandler
      */
     private $webhookHandler;
@@ -31,11 +26,9 @@ class Uninstall implements UninstallInterface
     private $productManager;
 
     public function __construct(
-        AttributeHelper $attributeHelper,
         WebhookHandler $webhookHandler,
         ProductManager $productManager
     ) {
-        $this->attributeHelper = $attributeHelper;
         $this->productManager = $productManager;
         $this->webhookHandler = $webhookHandler;
     }

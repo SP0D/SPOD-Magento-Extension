@@ -6,6 +6,7 @@ use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
+use Spod\Sync\Helper\StatusHelper;
 
 /**
  * Magento Setup class which adds requires database tables.
@@ -17,6 +18,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $setup->startSetup();
+
+        if (version_compare($context->getVersion(), '1.3.0')) {
+            $this->addDefaultConnectionToStatus($setup);
+        }
 
         if (version_compare($context->getVersion(), '1.0.2') < 0) {
             $this->createWebhookQueue($setup);
@@ -274,7 +279,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         'primary' => true,
                         'unsigned' => true,
                     ],
-                    'Queue ID'
+                    'Log ID'
                 )
                 ->addColumn(
                     'event',
@@ -367,5 +372,42 @@ class UpgradeSchema implements UpgradeSchemaInterface
             // status has only one row, create it right away
             $setup->getConnection()->query(sprintf('INSERT INTO %s VALUES (NULL, NULL, NULL, NULL, NULL, NULL)', $setup->getTable('spodsync_status')));
         }
+    }
+
+    /**
+     * @throws \Exception if spodsync_status table is missing
+     */
+    private function addDefaultConnectionToStatus(SchemaSetupInterface $setup): void
+    {
+        if (!$setup->tableExists('spodsync_status')) {
+            throw new \Exception('spodsync_status table is missing. Please reinstall Spod_Sync module.');
+        }
+
+        $columnExists = $setup->getConnection()->tableColumnExists($setup->getTable('spodsync_status'), 'connection');
+        if ($columnExists) {
+            return;
+        }
+
+        $setup->startSetup();
+
+        $setup->getConnection()->addColumn(
+            $setup->getTable('spodsync_status'),
+            'connection',
+            [
+                'type' => Table::TYPE_TEXT,
+                'length' => 20,
+                'nullable' => false,
+                'default' => StatusHelper::SPODSYNC_STATUS_DEFAULT_CONNECTION,
+                'comment' => 'Connection name'
+            ]
+        );
+        $setup->getConnection()->addIndex(
+            $setup->getTable('spodsync_status'),
+            'UNIQUE_CONNECTION_NAME',
+            ['connection'],
+            \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE
+        );
+
+        $setup->endSetup();
     }
 }

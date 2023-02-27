@@ -3,8 +3,8 @@
     <default>
         <spodsync>
             <general>
-                <is_staging>0</is_staging>
-                <debug_logging>0</debug_logging>
+                <is_staging>1</is_staging>
+                <debug_logging>1</debug_logging>
                 <liveurl>https://rest.spod.com</liveurl>
                 <stagingurl>https://rest.spod-staging.com</stagingurl>
             </general>

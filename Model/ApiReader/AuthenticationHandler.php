@@ -2,8 +2,6 @@
 
 namespace Spod\Sync\Model\ApiReader;
 
-use Spod\Sync\Api\PayloadEncoder;
-use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\ApiResultFactory;
@@ -25,12 +23,10 @@ class AuthenticationHandler extends AbstractHandler
     public function __construct(
         ApiResultFactory $apiResultFactory,
         ConfigHelper $configHelper,
-        PayloadEncoder $encoder,
-        ResultDecoder $decoder,
         SpodLoggerInterface $spodLogger
     ) {
         $this->spodLogger = $spodLogger;
-        parent::__construct($apiResultFactory, $configHelper, $encoder, $decoder);
+        parent::__construct($apiResultFactory, $configHelper);
     }
 
     public function isTokenValid(string $token): bool

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Spod\Sync\Model\ApiReader;
 
 use GuzzleHttp\ClientInterface;
-use Spod\Sync\Api\PayloadEncoder;
-use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Model\ApiResult;
 use Spod\Sync\Model\ApiResultFactory;
@@ -29,17 +27,9 @@ abstract class AbstractHandler
     /** @var ConfigHelper */
     protected $configHelper;
 
-    /** @var ResultDecoder */
-    protected $decoder;
-
-    /** @var PayloadEncoder  */
-    protected $encoder;
-
     public function __construct(
         ApiResultFactory $apiResultFactory,
-        ConfigHelper $configHelper,
-        PayloadEncoder $encoder,
-        ResultDecoder $decoder
+        ConfigHelper $configHelper
     ) {
         $this->httpClient = new \GuzzleHttp\Client([
             'base_uri' => $configHelper->getApiUrl(),
@@ -50,8 +40,6 @@ abstract class AbstractHandler
         ]);
         $this->apiResultFactory = $apiResultFactory;
         $this->configHelper = $configHelper;
-        $this->decoder = $decoder;
-        $this->encoder = $encoder;
     }
 
     protected function testAuthentication(string $apiAction, string $apiToken): ApiResult
@@ -68,15 +56,6 @@ abstract class AbstractHandler
         return $result;
     }
 
-    /**
-     * POST request to API
-     *
-     * @param string $apiAction
-     * @param array $params
-     * @return bool|string
-     * @throws \Exception if SPOD API Key is missing
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
     protected function sendPostRequest(string $apiAction, array $params): ApiResult
     {
         $response = $this->httpClient->send(
@@ -84,7 +63,7 @@ abstract class AbstractHandler
                 'POST',
                 $apiAction,
                 ['X-SPOD-ACCESS-TOKEN' => $this->fetchSpodApiKey()],
-                $this->encoder->encodePayload($params)
+                json_encode($params)
             )
         );
 
@@ -98,7 +77,7 @@ abstract class AbstractHandler
                 'PUT',
                 $apiAction,
                 ['X-SPOD-ACCESS-TOKEN' => $this->fetchSpodApiKey()],
-                $this->encoder->encodePayload($params)
+                json_encode($params)
             )
         );
 
@@ -116,7 +95,11 @@ abstract class AbstractHandler
     protected function sendDeleteRequest(string $apiAction): ApiResult
     {
         $response = $this->httpClient->send(
-            new \GuzzleHttp\Psr7\Request('DELETE', $apiAction, ['X-SPOD-ACCESS-TOKEN' => $this->fetchSpodApiKey()])
+            new \GuzzleHttp\Psr7\Request(
+                'DELETE',
+                $apiAction,
+                ['X-SPOD-ACCESS-TOKEN' => $this->fetchSpodApiKey()]
+            )
         );
 
         return $this->apiResultFactory->createFromResponse($response);
@@ -133,7 +116,11 @@ abstract class AbstractHandler
     protected function fetchResult(string $apiAction): ApiResult
     {
         $response = $this->httpClient->send(
-            new \GuzzleHttp\Psr7\Request('GET', $apiAction, ['X-SPOD-ACCESS-TOKEN' => $this->fetchSpodApiKey()])
+            new \GuzzleHttp\Psr7\Request(
+                'GET',
+                $apiAction,
+                ['X-SPOD-ACCESS-TOKEN' => $this->fetchSpodApiKey()]
+            )
         );
 
         return $this->apiResultFactory->createFromResponse($response);
@@ -158,7 +145,7 @@ abstract class AbstractHandler
     protected function builtAuthHeader(string $token): array
     {
         return [
-            sprintf('Content-Type: application/json'),
+            'Content-Type: application/json',
             sprintf('X-SPOD-ACCESS-TOKEN: %s', $token)
         ];
     }
@@ -179,17 +166,10 @@ abstract class AbstractHandler
     /**
      * Convenience method called to PUT
      * a request and get parsed result back.
-     *
-     * @param string $apiAction
-     * @param array $params
-     * @return mixed
      */
     protected function putRequest(string $apiAction, array $params = []): ApiResult
     {
-        $result = $this->sendPutRequest($apiAction, $params);
-        $result->setPayload($this->decoder->parsePayload($result->getPayload()));
-
-        return $result;
+        return $this->sendPutRequest($apiAction, $params);
     }
 
     /**

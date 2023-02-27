@@ -1,4 +1,5 @@
 <?php
+
 namespace Spod\Sync\Controller\Subscriber;
 
 use Magento\Framework\App\Action\Action;
@@ -8,7 +9,6 @@ use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Api\SpodLoggerInterface;
 use Spod\Sync\Helper\SignatureHelper;
 use Spod\Sync\Model\CrudManager\WebhookManager;
@@ -21,8 +21,6 @@ use Spod\Sync\Model\CrudManager\WebhookManager;
  */
 class Webhook extends Action implements HttpPostActionInterface, CsrfAwareActionInterface
 {
-    /** @var ResultDecoder  */
-    private $decoder;
     /**
      * @var WebhookManager
      */
@@ -41,13 +39,11 @@ class Webhook extends Action implements HttpPostActionInterface, CsrfAwareAction
 
     public function __construct(
         Context $context,
-        ResultDecoder $decoder,
         WebhookManager $webhookManager,
         SignatureHelper $signatureHelper,
         SpodLoggerInterface $logger,
         JsonFactory $jsonResultFactory
     ) {
-        $this->decoder = $decoder;
         $this->logger = $logger;
         $this->webhookManager = $webhookManager;
         $this->signatureHelper = $signatureHelper;
@@ -93,7 +89,7 @@ class Webhook extends Action implements HttpPostActionInterface, CsrfAwareAction
      */
     private function getEventTypeFromWebhookJson($rawJson)
     {
-        $responseObject = $this->decoder->parsePayload($rawJson);
+        $responseObject = json_decode($rawJson, false);
         return $responseObject->eventType;
     }
 

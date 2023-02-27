@@ -6,8 +6,6 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Spod\Sync\Api\SpodLoggerInterface;
-use Spod\Sync\Helper\CacheHelper;
-use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Helper\StatusHelper;
 use Spod\Sync\Model\ApiReader\AuthenticationHandler;
 use Spod\Sync\Model\ApiReader\WebhookHandler;
@@ -25,30 +23,27 @@ class Connect extends Action
      * @var AuthenticationHandler
      */
     private $authHandler;
-    /**
-     * @var CacheHelper
-     */
-    private $cacheHelper;
+
     /**
      * @var JsonFactory
      */
     private $jsonResultFactory;
-    /**
-     * @var ConfigHelper
-     */
-    private $configHelper;
+
     /**
      * @var StatusHelper
      */
     private $statusHelper;
+
     /**
      * @var WebhookManager
      */
     private $webhookManager;
+
     /**
      * @var WebhookHandler
      */
     private $webhookHandler;
+
     /**
      * @var SpodLoggerInterface
      */
@@ -56,8 +51,6 @@ class Connect extends Action
 
     public function __construct(
         AuthenticationHandler $authHandler,
-        CacheHelper $cacheHelper,
-        ConfigHelper $configHelper,
         Context $context,
         JsonFactory $jsonResultFactory,
         StatusHelper $statusHelper,
@@ -67,8 +60,6 @@ class Connect extends Action
     ) {
         parent::__construct($context);
         $this->authHandler = $authHandler;
-        $this->cacheHelper = $cacheHelper;
-        $this->configHelper = $configHelper;
         $this->jsonResultFactory = $jsonResultFactory;
         $this->statusHelper = $statusHelper;
         $this->webhookHandler = $webhookHandler;
@@ -103,7 +94,6 @@ class Connect extends Action
     private function handleValidKey(string $apiToken)
     {
         $this->statusHelper->setApiToken($apiToken);
-        $this->cacheHelper->clearConfigCache();
         if (!$this->statusHelper->getInstallDate()) {
             $this->statusHelper->setInstallDate();
             $this->webhookHandler->registerWebhooks();

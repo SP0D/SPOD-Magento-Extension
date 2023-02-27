@@ -2,8 +2,6 @@
 
 namespace Spod\Sync\Model\ApiReader;
 
-use Spod\Sync\Api\PayloadEncoder;
-use Spod\Sync\Api\ResultDecoder;
 use Spod\Sync\Helper\ConfigHelper;
 use Spod\Sync\Helper\SignatureHelper;
 use Spod\Sync\Helper\UrlGenerator;
@@ -23,6 +21,7 @@ class WebhookHandler extends AbstractHandler
 
     /** @var UrlGenerator  */
     private $urlGenerator;
+
     /**
      * @var SignatureHelper
      */
@@ -31,14 +30,12 @@ class WebhookHandler extends AbstractHandler
     public function __construct(
         ApiResultFactory $apiResultFactory,
         ConfigHelper $configHelper,
-        PayloadEncoder $encoder,
-        ResultDecoder $decoder,
         SignatureHelper $signatureHelper,
         UrlGenerator $urlGenerator
     ) {
         $this->signatureHelper = $signatureHelper;
         $this->urlGenerator = $urlGenerator;
-        parent::__construct($apiResultFactory, $configHelper, $encoder, $decoder);
+        parent::__construct($apiResultFactory, $configHelper);
     }
 
     /**
@@ -77,9 +74,7 @@ class WebhookHandler extends AbstractHandler
     public function unregisterWebhooks()
     {
         $hooksResult = $this->getWebhooks();
-        $hooks = $this->decoder->parsePayload($hooksResult->getPayload());
-
-        foreach ($hooks as $hook) {
+        foreach ($hooksResult->getPayload() as $hook) {
             $this->deleteSubscription($hook);
         }
     }

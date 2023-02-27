@@ -29,14 +29,10 @@ class CreditmemoSaveAfter implements ObserverInterface
 
         if (count($spodOrderItems)) {
             $creditmemo->addComment(
-                'Please, contact SPOD customer support. Current order has SPOD products and was synced to SPOD system.',
-                false,
-                false
+                'Please, contact SPOD customer support. Current order has SPOD products and was synced to SPOD system.'
             );
             $order->addCommentToStatusHistory(
-                sprintf('Please, contact SPOD customer service due to Creditmemo %s', $creditmemo->getIncrementId()),
-                false,
-                false
+                sprintf('Please, contact SPOD customer service due to Creditmemo %s', $creditmemo->getIncrementId())
             );
         }
     }

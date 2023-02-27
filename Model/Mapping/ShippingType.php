@@ -16,15 +16,15 @@ class ShippingType
     const SHIPPING_PREMIUM = 'PREMIUM';
     const SHIPPING_EXPRESS = 'EXPRESS';
 
-    public function __construct(
-        ConfigHelper $configHelper
-    ) {
+    private ConfigHelper $configHelper;
+
+    public function __construct(ConfigHelper $configHelper)
+    {
         $this->configHelper = $configHelper;
     }
 
     public function getShippingTypeForOrder(OrderInterface $order)
     {
-
         $methodCode = $order->getShippingMethod();
         $premiumMethods = $this->configHelper->getPremiumShippingMapping();
         $expressMethods = $this->configHelper->getExpressShippingMapping();

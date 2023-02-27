@@ -96,7 +96,7 @@ class ConfigHelper extends AbstractHelper
      */
     public function getPremiumShippingMapping()
     {
-        $mapping = $this->getConfigValue(self::XML_PATH_SHIPPING_PREMIUM);
+        $mapping = (string) $this->getConfigValue(self::XML_PATH_SHIPPING_PREMIUM);
         return explode(',', $mapping);
     }
 
@@ -107,7 +107,7 @@ class ConfigHelper extends AbstractHelper
      */
     public function getExpressShippingMapping()
     {
-        $mapping = $this->getConfigValue(self::XML_PATH_SHIPPING_EXPRESS);
+        $mapping = (string) $this->getConfigValue(self::XML_PATH_SHIPPING_EXPRESS);
         return explode(',', $mapping);
     }
 

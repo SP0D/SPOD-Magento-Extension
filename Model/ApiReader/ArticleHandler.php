@@ -16,9 +16,7 @@ class ArticleHandler extends AbstractHandler
 
     public function getAllArticles(): ApiResult
     {
-        $result = $this->fetchResult(self::ACTION_BASE_URL);
-
-        return $result;
+        return $this->fetchResult(self::ACTION_BASE_URL);
     }
 
     public function getArticleById(int $articleId): ApiResult

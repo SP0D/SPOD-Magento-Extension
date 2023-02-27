@@ -11,12 +11,9 @@
         </arguments>
     </type>
 
-    <!-- atm: json encode/decode -->
-    <preference for="Spod\Sync\Api\ResultDecoder" type="Spod\Sync\Model\Decoder\JsonDecoder" />
-    <preference for="Spod\Sync\Api\PayloadEncoder" type="Spod\Sync\Model\Encoder\JsonEncoder" />
-
     <!-- file based logging -->
     <preference for="Spod\Sync\Api\SpodLoggerInterface" type="Spod\Sync\Model\Logger\BackendLog" />
+    <preference for="Spod\Sync\Model\WebhookEventsReader" type="Spod\Sync\Model\PendingWebhookEventsReader" />
 
     <!-- capture orders -->
     <type name="Magento\Sales\Api\OrderManagementInterface">
