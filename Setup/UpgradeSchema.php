@@ -19,10 +19,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
     {
         $setup->startSetup();
 
-        if (version_compare($context->getVersion(), '1.3.0')) {
-            $this->addDefaultConnectionToStatus($setup);
-        }
-
         if (version_compare($context->getVersion(), '1.0.2') < 0) {
             $this->createWebhookQueue($setup);
         }
@@ -49,6 +45,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
         }
         if (version_compare($context->getVersion(), '1.1.1') < 0) {
             $this->createStatusTable($setup);
+        }
+
+        if (version_compare($context->getVersion(), '1.3.0') < 0) {
+            $this->addDefaultConnectionToStatus($setup);
         }
 
         $setup->endSetup();
