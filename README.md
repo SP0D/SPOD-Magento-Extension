@@ -5,13 +5,17 @@
 
 ## Installation
 
-Navigate to Magento 2 root directory. Run the following commands:
+Register or login on https://login.spod.com/register, click on ‘Connect Integrations’, select Magento and click on Connect.
 
-`composer require spod/module-sync`
+Open your terminal and navigate to the Magento 2 root directory (if you are using hosting platforms, use SSH to open terminal). Run the following commands to set up the SPOD extension:
+
+`composer require spod/module-sync` (you need to install Composer which is dependency manager for php on your machine)
 
 `bin/magento module:enable Spod_Sync`
 
 `bin/magento setup:upgrade`
+
+In your Magento menu you should now see SPOD. Click on Status and add the API key that you created earlier on https://app.spod.com/
 
 ## Configuration
 
@@ -33,7 +37,7 @@ Spod_Sync menu entry (SPOD / Configuration):
 * Decide if there is a shipping method you offer in your store, which has to be mapped to the PREMIUM and/or EXPRESS shipping types of SPOD.
 
 Optional parameters:
-* decide wether to use the staging environment
+* decide wether to use the staging environment (SPOD > Configuration > Enable Staging > Yes) in case you want to do some testing beforehand on https://app.spod-staging.com/ and with testing payment methods taken from https://docs.adyen.com/development-resources/testing/test-card-numbers
 * enable debug logging, if required
 
 
