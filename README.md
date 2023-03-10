@@ -9,7 +9,7 @@ Register or login on https://login.spod.com/register, click on ‘Connect Integr
 
 Open your terminal and navigate to the Magento 2 root directory (if you are using hosting platforms, use SSH to open terminal). Run the following commands to set up the SPOD extension:
 
-`composer require spod/module-sync` (you need to install Composer which is dependency manager for php on your machine)
+`composer require spod/module-sync` (you need to install Composer which is a dependency manager for php on your machine)
 
 `bin/magento module:enable Spod_Sync`
 
