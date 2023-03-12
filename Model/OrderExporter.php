@@ -68,7 +68,7 @@ class OrderExporter
         $spodOrder['phone'] = $this->preparePhone($magentoOrder);
         $spodOrder['email'] = $this->prepareEmail($magentoOrder);
         $spodOrder['externalOrderReference'] = $this->prepareOrderReference($magentoOrder);
-        $spodOrder['state'] = 'NEW';
+        $spodOrder['state'] = 'CONFIRMED';
         $spodOrder['customerTaxType'] = $this->prepareCustomerTaxType($magentoOrder);
 
         return $spodOrder;
