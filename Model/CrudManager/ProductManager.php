@@ -161,7 +161,9 @@ class ProductManager
         $product->setSpodProductId($apiData->id);
 
         $attrSetId = $this->attributeHelper->getAttrSetId('SPOD');
-        $product->setAttributeSetId($attrSetId);
+        if (null === $product->getId()) {
+            $product->setAttributeSetId($attrSetId);
+        }
 
         return $product;
     }
@@ -282,7 +284,6 @@ class ProductManager
         $product->setVisibility(ProductVisibility::VISIBILITY_NOT_VISIBLE);
         $product->setTypeId(ProductType::TYPE_SIMPLE);
         $product->setPrice($variantInfo->d2cPrice);
-        $product->setTaxClassId(0);
         $product->setAttributeSetId($this->attributeHelper->getAttrSetId('SPOD'));
     }
 
