@@ -42,18 +42,15 @@ class OrderQueue extends Command
     }
 
     /**
-     * Two steps:
-     * - Set Area Code to allow for modifications at a later stage.
-     * - Process all pending new orders using the OrderProcessor
-     *
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return int|void
+     * @return int
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->state->setAreaCode(Area::AREA_ADMINHTML);
         $this->orderProcessor->processPendingNewOrders();
+        return 0;
     }
 }

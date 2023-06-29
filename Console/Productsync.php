@@ -59,16 +59,9 @@ class Productsync extends Command
     }
 
     /**
-     * The entry points sets the area code to adminhtml
-     * so that product deletion later on works.
-     *
-     * Then a decision is made, to choose wether one product
-     * with the given article id or all products have to be
-     * downloaded.
-     *
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return int|void
+     * @return int
      * @throws \Magento\Framework\Exception\CouldNotSaveException
      * @throws \Magento\Framework\Exception\InputException
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -86,5 +79,7 @@ class Productsync extends Command
             $apiResult = $this->articleHandler->getAllArticles();
             $this->productGenerator->createAllProducts($apiResult);
         }
+
+        return 0;
     }
 }

@@ -41,9 +41,16 @@ class WebhookQueue extends Command
         parent::configure();
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->state->setAreaCode(Area::AREA_ADMINHTML);
         $this->webhookProcessor->processPendingWebhookEvents();
+        return 0;
     }
 }

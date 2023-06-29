@@ -89,17 +89,18 @@ class WebhookRegistration extends Command
     }
 
     /**
-     * List all registered webhook subscriptions.
-     *
      * @param OutputInterface $output
+     * @return int
      * @throws \Exception
      */
-    protected function listWebhooks(OutputInterface $output): void
+    protected function listWebhooks(OutputInterface $output)
     {
         $hooksResult = $this->webhookHandler->getWebhooks();
 
         foreach ($hooksResult->getPayload() as $hook) {
             $output->writeln(sprintf("<info>%s: %s</info>", $hook->eventType, $hook->url));
         }
+
+        return 0;
     }
 }
