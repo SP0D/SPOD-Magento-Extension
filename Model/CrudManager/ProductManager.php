@@ -2,6 +2,7 @@
 
 namespace Spod\Sync\Model\CrudManager;
 
+use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Type as ProductType;
 use Magento\Catalog\Model\Product\Visibility as ProductVisibility;
@@ -126,10 +127,8 @@ class ProductManager
         $configurable->setName($payload->title);
         $this->productRepository->save($configurable);
 
-        // unassign and remove current variants
-        $variantProducts = $this->getVariantProducts($configurable);
-        $configurable->setAssociatedProductIds([]);
-        $this->deleteVariantsOfConfigurable($variantProducts);
+        $newSkus = array_map(fn (object $variant) => $variant->sku, $payload->variants);
+        $this->cleanUpVariantsOfConfigurable($configurable, $newSkus);
         $this->productRepository->save($configurable);
 
         // recreate variants
@@ -146,7 +145,7 @@ class ProductManager
 
     /**
      * @param $apiData
-     * @return \Magento\Catalog\Api\Data\ProductInterface|Product|null
+     * @return ProductInterface|Product|null
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     private function prepareConfigurableProduct($apiData)
@@ -181,12 +180,10 @@ class ProductManager
         // prepare conf. attributes
         $confProduct->getTypeInstance()->setUsedProductAttributeIds([$appearanceAttr->getId(), $sizeAttr->getId()], $confProduct);
         $configurableAttributesData = $confProduct->getTypeInstance()->getConfigurableAttributesAsArray($confProduct);
-        $confProduct->setConfigurableAttributesData($configurableAttributesData);
 
         // assign values
         $configurableAttributesData[$sizeAttr->getId()]['values'] = $this->attributeHelper->getPreparedOptionValues($sizeAttr);
         $configurableAttributesData[$appearanceAttr->getId()]['values'] = $this->attributeHelper->getPreparedOptionValues($appearanceAttr);
-        $confProduct->setAssociatedProductIds($this->getAssociatedProductIds($variants));
         $confProduct->setCanSaveConfigurableAttributes(true);
 
         // set extension attributes
@@ -348,9 +345,8 @@ class ProductManager
     {
         $configurable = $this->getProductBySpodId($spodProductId);
         if ($configurable) {
-            $variantProducts = $this->getVariantProducts($configurable);
+            $this->cleanUpVariantsOfConfigurable($configurable, []);
             $this->productRepository->delete($configurable);
-            $this->deleteVariantsOfConfigurable($variantProducts);
         }
     }
 
@@ -372,11 +368,20 @@ class ProductManager
     }
 
     /**
-     * @param $variantProducts
+     * @param ProductInterface $configurable
+     * @param array $newSkus
+     * @return void
      * @throws \Magento\Framework\Exception\StateException
      */
-    protected function deleteVariantsOfConfigurable($variantProducts): void
+    protected function cleanUpVariantsOfConfigurable(ProductInterface $configurable, array $newSkus): void
     {
+        // unassign and remove current variants
+        $variantProducts = $this->getVariantProducts($configurable);
+        $variantProducts = array_filter(
+            $variantProducts,
+            fn (Product $product) => !in_array($product->getSku(), $newSkus, true)
+        );
+        $configurable->setAssociatedProductIds([]);
         foreach ($variantProducts as $variant) {
             $this->productRepository->delete($variant);
         }

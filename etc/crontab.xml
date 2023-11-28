@@ -8,5 +8,9 @@
         <job instance="Spod\Sync\Cron\Webhook" method="execute" name="spod_sync_webhookcron">
             <schedule>* * * * *</schedule>
         </job>
+
+        <job instance="Spod\Sync\Cron\Stock" method="execute" name="spod_sync_stock">
+            <schedule>0 1 * * *</schedule>
+        </job>
     </group>
 </config>
