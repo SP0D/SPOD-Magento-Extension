@@ -165,11 +165,14 @@ class OrderExporter
     {
         /** @var Address $billing */
         $billing = $order->getBillingAddress();
-        if ($billing) {
-            return $billing->getTelephone();
+
+        $phone = null !== $billing ? (string) $billing->getTelephone() : '';
+
+        if (strlen($phone) === 0) {
+            $phone = $this->configHelper->getConfigValue('spodsync/shipping/phone_placeholder', $order->getStoreId());
         }
 
-        return '';
+        return $phone;
     }
 
     /**

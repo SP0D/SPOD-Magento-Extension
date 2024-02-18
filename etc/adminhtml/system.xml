@@ -51,6 +51,11 @@
                     <validate>required-entry</validate>
                 </field>
 
+                <field id="phone_placeholder" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Phone Placeholder</label>
+                    <validate>required-entry</validate>
+                </field>
+
                 <field id="premium_shipping" translate="label" type="multiselect" sortOrder="1" showInDefault="1"
                        showInWebsite="1"
                        showInStore="0">

@@ -8,6 +8,9 @@
                 <liveurl>https://rest.spod.com</liveurl>
                 <stagingurl>https://rest.spod-staging.com</stagingurl>
             </general>
+            <shipping>
+                <phone_placeholder>+4934125049946</phone_placeholder>
+            </shipping>
         </spodsync>
     </default>
 </config>
