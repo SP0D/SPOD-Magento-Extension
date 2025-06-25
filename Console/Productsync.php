@@ -28,7 +28,7 @@ class Productsync extends Command
         ArticleHandler $articleHandler,
         ProductManager $productGenerator,
         State $state,
-        string $name = null
+        ?string $name = null
     ) {
         $this->articleHandler = $articleHandler;
         $this->productGenerator = $productGenerator;

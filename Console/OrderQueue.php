@@ -27,7 +27,7 @@ class OrderQueue extends Command
     public function __construct(
         OrderProcessor $orderProcessor,
         State $state,
-        string $name = null
+        ?string $name = null
     ) {
         $this->orderProcessor = $orderProcessor;
         $this->state = $state;

@@ -26,7 +26,7 @@ class WebhookQueue extends Command
     public function __construct(
         WebhookProcessor $webhookProcessor,
         State $state,
-        string $name = null
+        ?string $name = null
     ) {
         $this->webhookProcessor = $webhookProcessor;
         $this->state = $state;

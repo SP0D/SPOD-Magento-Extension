@@ -14,10 +14,9 @@ use Spod\Sync\Model\WebhookFactory;
  */
 class WebhookManager
 {
-    /**
-     * @var WebhookFactory
-     */
-    private $webhookFactory;
+    private WebhookFactory $webhookFactory;
+
+    private WebhookEventRepository $webhookEventRepository;
 
     public function __construct(
         WebhookFactory $webhookFactory,

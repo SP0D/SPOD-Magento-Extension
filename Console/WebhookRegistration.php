@@ -29,7 +29,7 @@ class WebhookRegistration extends Command
     public function __construct(
         WebhookHandler $webhookHandler,
         State $state,
-        string $name = null
+        ?string $name = null
     ) {
         $this->state = $state;
         $this->webhookHandler = $webhookHandler;
